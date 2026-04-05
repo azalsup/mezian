@@ -1,0 +1,155 @@
+<!-- ===== NAVBAR ===== -->
+<header class="navbar">
+  <div class="container navbar__inner">
+    <a class="navbar__logo" href="/">
+      <img src="assets/images/logo.svg" alt="Mezian" height="44">
+    </a>
+    <nav class="navbar__links">
+      <a href="#">Annonces</a>
+      <a href="#">Boutiques</a>
+    </nav>
+    <div class="navbar__actions">
+      <button class="btn btn--ghost">Se connecter</button>
+      <button class="btn btn--primary">Déposer une annonce</button>
+    </div>
+    <!-- Burger mobile -->
+    <button class="navbar__burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container hero__content">
+    <p class="hero__eyebrow">Le bon coin marocain</p>
+    <h1 class="hero__title">
+      Trouvez tout ce que vous cherchez<br>
+      <span class="hero__title--accent">au Maroc</span>
+    </h1>
+    <p class="hero__subtitle">
+      Immobilier, voitures, emploi… Des milliers d'annonces
+      avec photos. Publiez gratuitement en quelques secondes.
+    </p>
+
+    <!-- Barre de recherche -->
+    <div class="search-bar">
+      <div class="search-bar__icon">🔍</div>
+      <input
+        class="search-bar__input"
+        type="text"
+        placeholder="Que cherchez-vous ? (appartement, Clio, iPhone…)"
+      >
+      <select class="search-bar__city">
+        <option value="">Toutes les villes</option>
+        @for (city of cities; track city) {
+          <option [value]="city">{{ city }}</option>
+        }
+      </select>
+      <button class="btn btn--primary search-bar__btn">Rechercher</button>
+    </div>
+
+    <!-- Stats rapides -->
+    <div class="hero__stats">
+      <div class="hero__stat"><strong>+40 000</strong><span>annonces</span></div>
+      <div class="hero__stat-sep"></div>
+      <div class="hero__stat"><strong>+800</strong><span>boutiques pro</span></div>
+      <div class="hero__stat-sep"></div>
+      <div class="hero__stat"><strong>Gratuit</strong><span>pour tous</span></div>
+    </div>
+  </div>
+
+  <!-- Décoration géométrique -->
+  <div class="hero__deco hero__deco--1"></div>
+  <div class="hero__deco hero__deco--2"></div>
+</section>
+
+<!-- ===== CATÉGORIES ===== -->
+<section class="section categories">
+  <div class="container">
+    <h2 class="section__title">Parcourir par catégorie</h2>
+    <div class="categories__grid">
+      @for (cat of categories; track cat.slug) {
+        <a class="cat-card" [href]="'/annonces/' + cat.slug">
+          <span class="cat-card__icon">{{ cat.icon }}</span>
+          <div class="cat-card__labels">
+            <span class="cat-card__fr">{{ cat.labelFr }}</span>
+            <span class="cat-card__ar">{{ cat.labelAr }}</span>
+          </div>
+          <span class="cat-card__count">{{ cat.count }}</span>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ===== POURQUOI MEZIAN ===== -->
+<section class="section features">
+  <div class="container">
+    <h2 class="section__title">Pourquoi Mezian ?</h2>
+    <p class="section__subtitle">Simple, rapide et fait pour le Maroc.</p>
+    <div class="features__grid">
+      @for (f of features; track f.title) {
+        <div class="feature-card">
+          <div class="feature-card__icon">{{ f.icon }}</div>
+          <h3 class="feature-card__title">{{ f.title }}</h3>
+          <p class="feature-card__desc">{{ f.desc }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA VENDEUR ===== -->
+<section class="section cta">
+  <div class="container cta__inner">
+    <div class="cta__text">
+      <h2>Vendez ou trouvez un acheteur<br>en quelques minutes</h2>
+      <p>
+        Publiez votre annonce gratuitement avec photos,
+        ou créez une boutique pro pour gérer votre stock.
+        Connexion par numéro de téléphone — pas de mot de passe requis.
+      </p>
+    </div>
+    <div class="cta__actions">
+      <button class="btn btn--primary btn--lg">Déposer une annonce gratuite</button>
+      <button class="btn btn--outline btn--lg">Créer une boutique pro</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <img src="assets/images/logo.svg" alt="Mezian" height="38">
+      <p>Le site de petites annonces pour le Maroc.</p>
+    </div>
+    <div class="footer__links">
+      <div>
+        <strong>Catégories</strong>
+        <a href="#">Immobilier</a>
+        <a href="#">Automobile</a>
+        <a href="#">Emploi</a>
+        <a href="#">Électronique</a>
+      </div>
+      <div>
+        <strong>Compte</strong>
+        <a href="#">Se connecter</a>
+        <a href="#">Publier une annonce</a>
+        <a href="#">Boutiques pro</a>
+      </div>
+      <div>
+        <strong>Aide</strong>
+        <a href="#">Comment ça marche ?</a>
+        <a href="#">Conditions d'utilisation</a>
+        <a href="#">Confidentialité</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <span>© 2026 Mezian. Tous droits réservés.</span>
+    <span>🇲🇦 Fait avec ❤️ au Maroc</span>
+  </div>
+</footer>
