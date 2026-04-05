@@ -14,6 +14,7 @@ type Config struct {
 	Database     DatabaseConfig     `yaml:"database"`
 	JWT          JWTConfig          `yaml:"jwt"`
 	OTP          OTPConfig          `yaml:"otp"`
+	Auth         AuthConfig         `yaml:"auth"`
 	Notification NotificationConfig `yaml:"notification"`
 	Media        MediaConfig        `yaml:"media"`
 	Plans        PlansConfig        `yaml:"plans"`
@@ -42,6 +43,21 @@ type OTPConfig struct {
 	TTLMinutes       int `yaml:"ttl_minutes"`
 	MaxAttempts      int `yaml:"max_attempts"`
 	RateLimitPerHour int `yaml:"rate_limit_per_hour"`
+}
+
+// AuthConfig controls registration and login behaviour.
+type AuthConfig struct {
+	// OTPEnabled: if false, OTP flows are disabled; only password auth is available.
+	OTPEnabled bool `yaml:"otp_enabled"`
+	// PrimaryIdentifier: "phone" (default) or "email".
+	// Determines which field is mandatory on registration.
+	PrimaryIdentifier string `yaml:"primary_identifier"`
+	// PhoneRequired: phone is mandatory on registration (default: true).
+	PhoneRequired bool `yaml:"phone_required"`
+	// EmailRequired: email is mandatory on registration (default: false).
+	EmailRequired bool `yaml:"email_required"`
+	// DefaultCountry: ISO 3166-1 alpha-2, pre-filled in address form (default: MA).
+	DefaultCountry string `yaml:"default_country"`
 }
 
 type NotificationConfig struct {

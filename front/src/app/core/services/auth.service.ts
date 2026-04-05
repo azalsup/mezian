@@ -17,7 +17,10 @@ export interface User {
   is_verified: boolean;
   display_name: string;
   avatar_url?: string;
+  address?: string;
   city?: string;
+  postal_code?: string;
+  country?: string;
   role: 'user' | 'admin';
   created_at: string;
   updated_at: string;
@@ -28,8 +31,22 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface RegisterPayload {
+  phone?: string;
+  email?: string;
+  password: string;
+  display_name: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  country?: string;
+}
+
 const STORAGE_KEY = 'mezian_tokens';
 const API = environment.apiBaseUrl;
+
+/** Exposes auth config from environment so templates can read it. */
+export const authConfig = environment.auth;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -38,7 +55,7 @@ export class AuthService {
   readonly currentUser = signal<User | null>(null);
   readonly isLoggedIn  = computed(() => this.currentUser() !== null);
 
-  // Modal visibility + mode
+  /** Controls the auth modal */
   readonly modalOpen = signal(false);
   readonly modalMode = signal<'login' | 'register'>('login');
 
@@ -60,20 +77,37 @@ export class AuthService {
     this.modalOpen.set(false);
   }
 
-  // ── Auth flows ───────────────────────────────────────────────────────────
+  // ── OTP flow ─────────────────────────────────────────────────────────────
 
   sendOtp(phone: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${API}/auth/send-otp`, {
       phone,
       channel: 'sms',
+      purpose: 'login',
     });
   }
 
   verifyOtp(phone: string, code: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API}/auth/verify-otp`, { phone, code }).pipe(
-      tap(res => this.setSession(res)),
-    );
+    return this.http.post<AuthResponse>(`${API}/auth/verify-otp`, {
+      phone,
+      code,
+      purpose: 'login',
+    }).pipe(tap(res => this.setSession(res)));
   }
+
+  // ── Password flow ────────────────────────────────────────────────────────
+
+  login(identifier: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API}/auth/login`, { identifier, password })
+      .pipe(tap(res => this.setSession(res)));
+  }
+
+  register(payload: RegisterPayload): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API}/auth/register`, payload)
+      .pipe(tap(res => this.setSession(res)));
+  }
+
+  // ── Logout ───────────────────────────────────────────────────────────────
 
   logout(): void {
     if (this.refreshToken && this.accessToken) {
@@ -112,7 +146,6 @@ export class AuthService {
   private restoreSession(): void {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
-
     try {
       const tokens: AuthTokens = JSON.parse(raw);
       this.accessToken  = tokens.access_token;

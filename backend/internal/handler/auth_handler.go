@@ -136,10 +136,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 // registerRequest is the body for POST /auth/register.
 type registerRequest struct {
-	Phone       string `json:"phone"        binding:"required"`
+	Phone       string `json:"phone"`
 	Email       string `json:"email"`
 	Password    string `json:"password"     binding:"required,min=8"`
 	DisplayName string `json:"display_name" binding:"required"`
+	Address     string `json:"address"`
+	City        string `json:"city"`
+	PostalCode  string `json:"postal_code"`
+	Country     string `json:"country"`
 }
 
 // Register godoc
@@ -152,7 +156,32 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user, tokens, err := h.authSvc.RegisterWithPassword(req.Phone, req.Email, req.Password, req.DisplayName)
+	// Enforce identifier requirements from config
+	authCfg := h.authSvc.AuthConfig()
+	if authCfg.PhoneRequired && req.Phone == "" {
+		respondBadRequest(c, "phone number is required")
+		return
+	}
+	if authCfg.EmailRequired && req.Email == "" {
+		respondBadRequest(c, "email is required")
+		return
+	}
+	if req.Phone == "" && req.Email == "" {
+		respondBadRequest(c, "phone or email is required")
+		return
+	}
+
+	addr := &service.RegisterAddressFields{
+		Address:    req.Address,
+		City:       req.City,
+		PostalCode: req.PostalCode,
+		Country:    req.Country,
+	}
+	if addr.Country == "" {
+		addr.Country = authCfg.DefaultCountry
+	}
+
+	user, tokens, err := h.authSvc.RegisterWithPassword(req.Phone, req.Email, req.Password, req.DisplayName, addr)
 	if err != nil {
 		respondError(c, err)
 		return

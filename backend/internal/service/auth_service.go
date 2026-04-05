@@ -30,6 +30,14 @@ var (
 	ErrEmailAlreadyUsed  = errors.New("this email is already used")
 )
 
+// RegisterAddressFields holds optional address data for registration.
+type RegisterAddressFields struct {
+	Address    string
+	City       string
+	PostalCode string
+	Country    string
+}
+
 // TokenPair groups an access token and a refresh token.
 type TokenPair struct {
 	AccessToken  string `json:"access_token"`
@@ -58,6 +66,11 @@ func NewAuthService(userRepo *repository.UserRepo, notif NotificationService, cf
 		notif:    notif,
 		cfg:      cfg,
 	}
+}
+
+// AuthConfig exposes the auth section of the config for use by handlers.
+func (s *AuthService) AuthConfig() config.AuthConfig {
+	return s.cfg.Auth
 }
 
 // SendOTP generates an OTP code, hashes it, saves it, and sends it by notification.
@@ -175,8 +188,8 @@ func (s *AuthService) LoginWithOTP(phone string) (*models.User, *TokenPair, erro
 }
 
 // RegisterWithPassword creates an account with a password.
-func (s *AuthService) RegisterWithPassword(phone, email, password, displayName string) (*models.User, *TokenPair, error) {
-	if s.userRepo.ExistsByPhone(phone) {
+func (s *AuthService) RegisterWithPassword(phone, email, password, displayName string, addr *RegisterAddressFields) (*models.User, *TokenPair, error) {
+	if phone != "" && s.userRepo.ExistsByPhone(phone) {
 		return nil, nil, ErrPhoneAlreadyUsed
 	}
 	if email != "" && s.userRepo.ExistsByEmail(email) {
@@ -189,8 +202,15 @@ func (s *AuthService) RegisterWithPassword(phone, email, password, displayName s
 	}
 	hashStr := string(hash)
 
+	// Use phone as the stored identifier; if phone is empty, store email as phone substitute.
+	// The model requires phone not null, so we use a placeholder when phone is absent.
+	storedPhone := phone
+	if storedPhone == "" {
+		storedPhone = email // email-only accounts: store email in phone field temporarily
+	}
+
 	user := &models.User{
-		Phone:        phone,
+		Phone:        storedPhone,
 		DisplayName:  displayName,
 		PasswordHash: &hashStr,
 		IsVerified:   false,
@@ -198,6 +218,22 @@ func (s *AuthService) RegisterWithPassword(phone, email, password, displayName s
 	}
 	if email != "" {
 		user.Email = &email
+	}
+	if addr != nil {
+		if addr.Address != "" {
+			user.Address = &addr.Address
+		}
+		if addr.City != "" {
+			user.City = &addr.City
+		}
+		if addr.PostalCode != "" {
+			user.PostalCode = &addr.PostalCode
+		}
+		country := addr.Country
+		if country == "" {
+			country = "MA"
+		}
+		user.Country = &country
 	}
 
 	if err := s.userRepo.Create(user); err != nil {

@@ -16,7 +16,10 @@ type User struct {
 	IsVerified   bool    `gorm:"default:false"           json:"is_verified"`
 	DisplayName  string  `gorm:"not null"                json:"display_name"`
 	AvatarURL    *string `gorm:"column:avatar_url"       json:"avatar_url,omitempty"`
+	Address      *string `gorm:"column:address"          json:"address,omitempty"`
 	City         *string `gorm:"column:city"             json:"city,omitempty"`
+	PostalCode   *string `gorm:"column:postal_code"      json:"postal_code,omitempty"`
+	Country      *string `gorm:"column:country"          json:"country,omitempty"` // ISO 3166-1 alpha-2, ex: MA
 	Role         string  `gorm:"default:'user';not null" json:"role"` // user | admin
 }
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	cors "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"mezian/internal/config"
@@ -31,7 +32,19 @@ func New(deps *Deps) *gin.Engine {
 	// Middlewares globaux
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.Use(corsMiddleware(deps.Config))
+
+	origins := deps.Config.Server.CORSOrigins
+	if len(origins) == 0 {
+		origins = []string{"*"}
+	}
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     origins,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           86400 * time.Second,
+	}))
 
 	// Servir les fichiers statiques (uploads)
 	r.Static("/uploads", deps.Config.Media.UploadDir)
@@ -126,33 +139,3 @@ func New(deps *Deps) *gin.Engine {
 	return r
 }
 
-// corsMiddleware configure les en-têtes CORS selon la configuration.
-func corsMiddleware(cfg *config.Config) gin.HandlerFunc {
-	allowedOrigins := make(map[string]bool)
-	for _, origin := range cfg.Server.CORSOrigins {
-		allowedOrigins[origin] = true
-	}
-
-	return func(c *gin.Context) {
-		origin := c.Request.Header.Get("Origin")
-
-		// Check if origin is allowed
-		if allowedOrigins[origin] {
-			c.Header("Access-Control-Allow-Origin", origin)
-		} else if len(cfg.Server.CORSOrigins) == 0 {
-			c.Header("Access-Control-Allow-Origin", "*")
-		}
-
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, Accept")
-		c.Header("Access-Control-Allow-Credentials", "true")
-		c.Header("Access-Control-Max-Age", "86400")
-
-		if c.Request.Method == http.MethodOptions {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-
-		c.Next()
-	}
-}

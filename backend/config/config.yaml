@@ -1,11 +1,11 @@
 server:
-  port: 8080
+  port: 3000
   mode: debug
-  base_url: "http://localhost:8080"
-  frontend_url: "http://localhost:3000"
+  base_url: "http://localhost:3000"
+  frontend_url: "http://localhost:8000"
   cors_origins:
+    - "http://localhost:8000"
     - "http://localhost:3000"
-    - "http://localhost:5173"
 
 database:
   path: "./mezian.db"
@@ -20,6 +20,13 @@ otp:
   ttl_minutes: 10
   max_attempts: 5
   rate_limit_per_hour: 3
+
+auth:
+  otp_enabled: true              # false → disable OTP flows, password-only
+  primary_identifier: phone      # phone | email — which field is shown first
+  phone_required: true           # phone mandatory on registration
+  email_required: false          # email mandatory on registration
+  default_country: MA            # ISO 3166-1 alpha-2 pre-filled in address form
 
 notification:
   provider: "mock"   # mock | twilio | infobip | orange_ma

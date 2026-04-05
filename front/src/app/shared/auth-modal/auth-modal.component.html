@@ -3,7 +3,7 @@
   <div class="modal-backdrop" (click)="close()"></div>
 
   <!-- Card -->
-  <div class="modal-card" role="dialog" [attr.aria-label]="lang.t(auth.modalMode() === 'login' ? 'loginTitle' : 'registerTitle')">
+  <div class="modal-card" role="dialog">
 
     <!-- Header -->
     <div class="modal-header">
@@ -11,101 +11,274 @@
         <span class="text-2xl">🇲🇦</span>
         <span class="logo-font text-2xl text-[#006233]">mezian</span>
       </div>
-      <button class="modal-close" (click)="close()" aria-label="Fermer">
+      <button class="modal-close" (click)="close()">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
     </div>
 
-    <!-- ── Step 1 : Phone ───────────────────────────────────────────────── -->
-    @if (step() === 'phone') {
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- LOGIN                                                              -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    @if (screen() === 'login') {
       <div class="modal-body">
-        <h2 class="modal-title">
-          {{ lang.t(auth.modalMode() === 'login' ? 'loginTitle' : 'registerTitle') }}
-        </h2>
-        <p class="modal-subtitle text-gray-500 text-sm mt-1 mb-6">
-          {{ lang.t('phonePlaceholder') }}
-        </p>
+        <h2 class="modal-title">{{ lang.t('loginTitle') }}</h2>
+        <p class="modal-subtitle">{{ lang.t('loginSubtitle') }}</p>
 
-        <label class="field-label">{{ lang.t('phoneLabel') }}</label>
-        <input
-          type="tel"
-          [(ngModel)]="phone"
-          [placeholder]="lang.t('phonePlaceholder')"
-          class="field-input"
-          (keydown.enter)="submitPhone()"
-          autofocus />
+        <label class="field-label">{{ lang.t('identifierLabel') }}</label>
+        <input type="text"
+               [(ngModel)]="loginId"
+               [placeholder]="lang.t('identifierPlaceholder')"
+               class="field-input"
+               (keydown.enter)="submitLogin()" />
 
-        @if (error()) {
-          <p class="field-error">{{ error() }}</p>
-        }
+        <label class="field-label mt-4">{{ lang.t('passwordLabel') }}</label>
+        <input type="password"
+               [(ngModel)]="loginPwd"
+               [placeholder]="lang.t('passwordPlaceholder')"
+               class="field-input"
+               (keydown.enter)="submitLogin()" />
 
-        <button
-          (click)="submitPhone()"
-          [disabled]="loading()"
-          class="btn-primary mt-6">
-          @if (loading()) {
-            <i class="fa-solid fa-circle-notch fa-spin"></i>
-          } @else {
-            {{ lang.t('sendCode') }}
-          }
+        @if (error()) { <p class="field-error">{{ error() }}</p> }
+
+        <button (click)="submitLogin()" [disabled]="loading()" class="btn-primary mt-6">
+          @if (loading()) { <i class="fa-solid fa-circle-notch fa-spin"></i> }
+          @else { {{ lang.t('loginBtn') }} }
         </button>
 
-        <!-- Switch mode -->
-        <div class="modal-switch">
-          @if (auth.modalMode() === 'login') {
-            <span class="text-gray-500 text-sm">{{ lang.t('alreadyAccount') }}</span>
-          } @else {
-            <button class="link" (click)="auth.openModal('login')">
-              {{ lang.t('alreadyAccount') }}
-            </button>
-          }
-        </div>
-      </div>
-    }
-
-    <!-- ── Step 2 : OTP ─────────────────────────────────────────────────── -->
-    @if (step() === 'otp') {
-      <div class="modal-body">
-        <h2 class="modal-title">{{ lang.t('otpTitle') }}</h2>
-        <p class="modal-subtitle text-gray-500 text-sm mt-1 mb-6">
-          {{ lang.t('otpSentTo') }} <strong>{{ phone }}</strong>
-        </p>
-
-        <label class="field-label">{{ lang.t('otpLabel') }}</label>
-        <input
-          type="text"
-          inputmode="numeric"
-          maxlength="6"
-          [(ngModel)]="otp"
-          [placeholder]="lang.t('otpPlaceholder')"
-          class="field-input text-center tracking-[0.5em] text-xl font-semibold"
-          (keydown.enter)="submitOtp()"
-          autofocus />
-
-        @if (error()) {
-          <p class="field-error">{{ error() }}</p>
-        }
-
-        <button
-          (click)="submitOtp()"
-          [disabled]="loading()"
-          class="btn-primary mt-6">
-          @if (loading()) {
-            <i class="fa-solid fa-circle-notch fa-spin"></i>
-          } @else {
-            {{ lang.t('validate') }}
-          }
-        </button>
-
-        <div class="modal-switch gap-x-4">
-          <button class="link" (click)="goBack()">
-            <i class="fa-solid fa-arrow-left text-xs me-1"></i>
-            {{ lang.t('back') }}
+        <!-- OTP option -->
+        @if (cfg.otpEnabled) {
+          <div class="or-separator">
+            <span>{{ lang.t('orSeparator') }}</span>
+          </div>
+          <button (click)="switchToOtp()" class="btn-outline">
+            <i class="fa-solid fa-comment-sms"></i>
+            {{ lang.t('loginWithOtp') }}
           </button>
-          <button class="link" (click)="resend()">{{ lang.t('resendCode') }}</button>
-        </div>
+        }
+
+        <p class="modal-switch-text">
+          {{ lang.t('noAccount') }}
+          <button class="link" (click)="switchToRegister()">{{ lang.t('createAccount') }}</button>
+        </p>
       </div>
     }
 
-  </div>
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- OTP — phone entry                                                  -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    @if (screen() === 'otp-phone') {
+      <div class="modal-body">
+        <button class="back-btn" (click)="switchToLogin()">
+          <i class="fa-solid fa-arrow-left text-xs me-1"></i>{{ lang.t('back') }}
+        </button>
+        <h2 class="modal-title mt-3">{{ lang.t('loginWithOtp') }}</h2>
+
+        <label class="field-label mt-4">{{ lang.t('phoneLabel') }}</label>
+        <input type="tel"
+               [(ngModel)]="otpPhone"
+               [placeholder]="lang.t('phonePlaceholder')"
+               class="field-input"
+               (keydown.enter)="submitOtpPhone()" />
+
+        @if (error()) { <p class="field-error">{{ error() }}</p> }
+
+        <button (click)="submitOtpPhone()" [disabled]="loading()" class="btn-primary mt-6">
+          @if (loading()) { <i class="fa-solid fa-circle-notch fa-spin"></i> }
+          @else { {{ lang.t('sendCode') }} }
+        </button>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- OTP — code entry                                                   -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    @if (screen() === 'otp-code') {
+      <div class="modal-body">
+        <button class="back-btn" (click)="backFromOtpCode()">
+          <i class="fa-solid fa-arrow-left text-xs me-1"></i>{{ lang.t('back') }}
+        </button>
+        <h2 class="modal-title mt-3">{{ lang.t('otpTitle') }}</h2>
+        <p class="modal-subtitle">{{ lang.t('otpSentTo') }} <strong>{{ otpPhone }}</strong></p>
+
+        <label class="field-label mt-4">{{ lang.t('otpLabel') }}</label>
+        <input type="text"
+               inputmode="numeric"
+               maxlength="6"
+               [(ngModel)]="otpCode"
+               [placeholder]="lang.t('otpPlaceholder')"
+               class="field-input text-center tracking-[0.5em] text-xl font-semibold"
+               (keydown.enter)="submitOtpCode()" />
+
+        @if (error()) { <p class="field-error">{{ error() }}</p> }
+
+        <button (click)="submitOtpCode()" [disabled]="loading()" class="btn-primary mt-6">
+          @if (loading()) { <i class="fa-solid fa-circle-notch fa-spin"></i> }
+          @else { {{ lang.t('validate') }} }
+        </button>
+
+        <p class="modal-switch-text">
+          <button class="link" (click)="resendOtp()">{{ lang.t('resendCode') }}</button>
+        </p>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- REGISTER — step 1: credentials                                     -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    @if (screen() === 'reg-credentials') {
+      <div class="modal-body">
+        <div class="step-indicator">
+          <span class="step active">1</span>
+          <span class="step-line"></span>
+          <span class="step">2</span>
+          <span class="step-line"></span>
+          <span class="step">3</span>
+        </div>
+        <h2 class="modal-title mt-3">{{ lang.t('registerTitle') }}</h2>
+        <p class="modal-subtitle">{{ lang.t('registerSubtitle') }}</p>
+
+        <!-- Phone -->
+        <label class="field-label mt-4">
+          {{ lang.t('phoneLabel') }}
+          @if (!cfg.phoneRequired) { <span class="optional">{{ lang.t('optional') }}</span> }
+        </label>
+        <input type="tel"
+               [(ngModel)]="regPhone"
+               [placeholder]="lang.t('phonePlaceholder')"
+               class="field-input" />
+
+        <!-- Email -->
+        <label class="field-label mt-4">
+          {{ lang.t('emailLabel') }}
+          @if (!cfg.emailRequired) { <span class="optional">{{ lang.t('optional') }}</span> }
+        </label>
+        <input type="email"
+               [(ngModel)]="regEmail"
+               [placeholder]="lang.t('emailPlaceholder')"
+               class="field-input" />
+
+        <!-- Password -->
+        <label class="field-label mt-4">{{ lang.t('passwordLabel') }}</label>
+        <input type="password"
+               [(ngModel)]="regPassword"
+               [placeholder]="lang.t('passwordPlaceholder')"
+               class="field-input" />
+
+        <!-- Confirm password -->
+        <label class="field-label mt-4">{{ lang.t('confirmPasswordLabel') }}</label>
+        <input type="password"
+               [(ngModel)]="regConfirm"
+               [placeholder]="lang.t('confirmPasswordPlaceholder')"
+               class="field-input"
+               (keydown.enter)="submitRegCredentials()" />
+
+        @if (error()) { <p class="field-error">{{ error() }}</p> }
+
+        <button (click)="submitRegCredentials()" class="btn-primary mt-6">
+          {{ lang.t('next') }} <i class="fa-solid fa-arrow-right text-sm ms-1"></i>
+        </button>
+
+        <p class="modal-switch-text">
+          {{ lang.t('hasAccount') }}
+          <button class="link" (click)="switchToLogin()">{{ lang.t('login') }}</button>
+        </p>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- REGISTER — step 2: identity                                        -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    @if (screen() === 'reg-identity') {
+      <div class="modal-body">
+        <button class="back-btn" (click)="backFromIdentity()">
+          <i class="fa-solid fa-arrow-left text-xs me-1"></i>{{ lang.t('back') }}
+        </button>
+        <div class="step-indicator mt-3">
+          <span class="step done">✓</span>
+          <span class="step-line done"></span>
+          <span class="step active">2</span>
+          <span class="step-line"></span>
+          <span class="step">3</span>
+        </div>
+        <h2 class="modal-title mt-3">{{ lang.t('identityTitle') }}</h2>
+        <p class="modal-subtitle">{{ lang.t('identitySubtitle') }}</p>
+
+        <label class="field-label mt-4">{{ lang.t('displayNameLabel') }}</label>
+        <input type="text"
+               [(ngModel)]="regName"
+               [placeholder]="lang.t('displayNamePlaceholder')"
+               class="field-input"
+               (keydown.enter)="submitRegIdentity()" />
+
+        @if (error()) { <p class="field-error">{{ error() }}</p> }
+
+        <button (click)="submitRegIdentity()" class="btn-primary mt-6">
+          {{ lang.t('next') }} <i class="fa-solid fa-arrow-right text-sm ms-1"></i>
+        </button>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- REGISTER — step 3: address                                         -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    @if (screen() === 'reg-address') {
+      <div class="modal-body">
+        <button class="back-btn" (click)="backFromAddress()">
+          <i class="fa-solid fa-arrow-left text-xs me-1"></i>{{ lang.t('back') }}
+        </button>
+        <div class="step-indicator mt-3">
+          <span class="step done">✓</span>
+          <span class="step-line done"></span>
+          <span class="step done">✓</span>
+          <span class="step-line done"></span>
+          <span class="step active">3</span>
+        </div>
+        <h2 class="modal-title mt-3">{{ lang.t('addressTitle') }}</h2>
+        <p class="modal-subtitle">{{ lang.t('addressSubtitle') }}</p>
+
+        <label class="field-label mt-4">
+          {{ lang.t('addressLabel') }} <span class="optional">{{ lang.t('optional') }}</span>
+        </label>
+        <input type="text"
+               [(ngModel)]="regAddress"
+               [placeholder]="lang.t('addressPlaceholder')"
+               class="field-input" />
+
+        <div class="grid grid-cols-2 gap-3 mt-4">
+          <div>
+            <label class="field-label">{{ lang.t('cityLabel') }}</label>
+            <input type="text"
+                   [(ngModel)]="regCity"
+                   [placeholder]="lang.t('cityPlaceholder')"
+                   list="cities-list"
+                   class="field-input" />
+            <datalist id="cities-list">
+              @for (c of cities; track c) { <option [value]="c">{{ c }}</option> }
+            </datalist>
+          </div>
+          <div>
+            <label class="field-label">{{ lang.t('postalCodeLabel') }}</label>
+            <input type="text"
+                   inputmode="numeric"
+                   [(ngModel)]="regPostalCode"
+                   [placeholder]="lang.t('postalCodePlaceholder')"
+                   class="field-input" />
+          </div>
+        </div>
+
+        <label class="field-label mt-4">{{ lang.t('countryLabel') }}</label>
+        <input type="text"
+               [(ngModel)]="regCountry"
+               class="field-input" />
+
+        @if (error()) { <p class="field-error">{{ error() }}</p> }
+
+        <button (click)="submitRegAddress()" [disabled]="loading()" class="btn-primary mt-6">
+          @if (loading()) { <i class="fa-solid fa-circle-notch fa-spin"></i> }
+          @else { {{ lang.t('finishBtn') }} }
+        </button>
+      </div>
+    }
+
+  </div><!-- /modal-card -->
 }
