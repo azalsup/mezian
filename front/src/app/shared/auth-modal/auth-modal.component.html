@@ -1,0 +1,111 @@
+@if (auth.modalOpen()) {
+  <!-- Backdrop -->
+  <div class="modal-backdrop" (click)="close()"></div>
+
+  <!-- Card -->
+  <div class="modal-card" role="dialog" [attr.aria-label]="lang.t(auth.modalMode() === 'login' ? 'loginTitle' : 'registerTitle')">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="flex items-center gap-x-2">
+        <span class="text-2xl">🇲🇦</span>
+        <span class="logo-font text-2xl text-[#006233]">mezian</span>
+      </div>
+      <button class="modal-close" (click)="close()" aria-label="Fermer">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- ── Step 1 : Phone ───────────────────────────────────────────────── -->
+    @if (step() === 'phone') {
+      <div class="modal-body">
+        <h2 class="modal-title">
+          {{ lang.t(auth.modalMode() === 'login' ? 'loginTitle' : 'registerTitle') }}
+        </h2>
+        <p class="modal-subtitle text-gray-500 text-sm mt-1 mb-6">
+          {{ lang.t('phonePlaceholder') }}
+        </p>
+
+        <label class="field-label">{{ lang.t('phoneLabel') }}</label>
+        <input
+          type="tel"
+          [(ngModel)]="phone"
+          [placeholder]="lang.t('phonePlaceholder')"
+          class="field-input"
+          (keydown.enter)="submitPhone()"
+          autofocus />
+
+        @if (error()) {
+          <p class="field-error">{{ error() }}</p>
+        }
+
+        <button
+          (click)="submitPhone()"
+          [disabled]="loading()"
+          class="btn-primary mt-6">
+          @if (loading()) {
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+          } @else {
+            {{ lang.t('sendCode') }}
+          }
+        </button>
+
+        <!-- Switch mode -->
+        <div class="modal-switch">
+          @if (auth.modalMode() === 'login') {
+            <span class="text-gray-500 text-sm">{{ lang.t('alreadyAccount') }}</span>
+          } @else {
+            <button class="link" (click)="auth.openModal('login')">
+              {{ lang.t('alreadyAccount') }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ── Step 2 : OTP ─────────────────────────────────────────────────── -->
+    @if (step() === 'otp') {
+      <div class="modal-body">
+        <h2 class="modal-title">{{ lang.t('otpTitle') }}</h2>
+        <p class="modal-subtitle text-gray-500 text-sm mt-1 mb-6">
+          {{ lang.t('otpSentTo') }} <strong>{{ phone }}</strong>
+        </p>
+
+        <label class="field-label">{{ lang.t('otpLabel') }}</label>
+        <input
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          [(ngModel)]="otp"
+          [placeholder]="lang.t('otpPlaceholder')"
+          class="field-input text-center tracking-[0.5em] text-xl font-semibold"
+          (keydown.enter)="submitOtp()"
+          autofocus />
+
+        @if (error()) {
+          <p class="field-error">{{ error() }}</p>
+        }
+
+        <button
+          (click)="submitOtp()"
+          [disabled]="loading()"
+          class="btn-primary mt-6">
+          @if (loading()) {
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+          } @else {
+            {{ lang.t('validate') }}
+          }
+        </button>
+
+        <div class="modal-switch gap-x-4">
+          <button class="link" (click)="goBack()">
+            <i class="fa-solid fa-arrow-left text-xs me-1"></i>
+            {{ lang.t('back') }}
+          </button>
+          <button class="link" (click)="resend()">{{ lang.t('resendCode') }}</button>
+        </div>
+      </div>
+    }
+
+  </div>
+}
