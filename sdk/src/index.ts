@@ -7,15 +7,15 @@
  *
  * const sdk = new MezianClient({ baseUrl: "https://api.mezian.ma/api/v1" });
  *
- * // Parcourir les annonces sans connexion
+ * // Browse ads without login
  * const result = await sdk.ads.list({ city: "Casablanca", limit: 20 });
  *
- * // Se connecter par OTP WhatsApp
+ * // Log in with WhatsApp OTP
  * await sdk.auth.sendOtp({ phone: "+212600000000", channel: "whatsapp" });
  * const { tokens, user } = await sdk.auth.verifyOtp({ phone: "+212600000000", code: "123456" });
  * sdk.setTokens(tokens);
  *
- * // Publier une annonce
+ * // Publish an ad
  * const ad = await sdk.ads.create({ category_id: 1, title: "Appartement...", ... });
  * ```
  */
@@ -35,8 +35,8 @@ export interface MezianClientOptions {
   /** URL de base de l'API, ex: "http://localhost:8080/api/v1" */
   baseUrl: string;
   /**
-   * Tokens initiaux (ex: restaurés depuis localStorage).
-   * Peuvent être mis à jour ultérieurement avec setTokens().
+   * Initial tokens (e.g. restored from localStorage).
+   * Can be updated later with setTokens().
    */
   initialTokens?: AuthTokens;
   /**
@@ -46,25 +46,25 @@ export interface MezianClientOptions {
   onTokensRefreshed?: (tokens: AuthTokens) => void;
   /**
    * Appelé quand le refresh échoue (session expirée).
-   * Utilisez-le pour rediriger vers la page de connexion.
+   * Use it to redirect to the login page.
    */
   onAuthFailure?: () => void;
 }
 
 /**
- * Point d'entrée principal du SDK Mezian.
+ * Main entry point for the Mezian SDK.
  * Instanciez une seule fois dans votre application.
  */
 export class MezianClient {
-  /** Accès aux opérations d'authentification */
+  /** Access authentication operations */
   readonly auth: AuthResource;
-  /** Accès aux annonces */
+  /** Access ads operations */
   readonly ads: AdsResource;
-  /** Accès aux catégories */
+  /** Access categories operations */
   readonly categories: CategoriesResource;
-  /** Accès aux médias (upload images, YouTube) */
+  /** Access media operations (upload images, YouTube) */
   readonly media: MediaResource;
-  /** Accès aux boutiques pro */
+  /** Access professional shops operations */
   readonly shops: ShopsResource;
 
   private tokens: AuthTokens | null;
@@ -96,20 +96,20 @@ export class MezianClient {
   }
 
   /**
-   * Met à jour les tokens (après login ou refresh).
-   * Stockez les tokens dans localStorage/AsyncStorage et restaurez-les
+   * Updates tokens (after login or refresh).
+   * Store tokens in localStorage/AsyncStorage and restore them
    * via initialTokens à la prochaine initialisation.
    */
   setTokens(tokens: AuthTokens): void {
     this.tokens = tokens;
   }
 
-  /** Supprime les tokens (déconnexion côté client). */
+  /** Clears tokens (client-side logout). */
   clearTokens(): void {
     this.tokens = null;
   }
 
-  /** Retourne true si l'utilisateur a un token d'accès. */
+  /** Returns true if the user has an access token. */
   get isAuthenticated(): boolean {
     return this.tokens !== null;
   }

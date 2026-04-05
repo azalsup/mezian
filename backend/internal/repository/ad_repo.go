@@ -7,14 +7,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// AdFilters regroupe tous les filtres applicables à la liste des annonces.
+// AdFilters groups all filters applicable to the ad list.
 type AdFilters struct {
 	CategoryID *uint
 	City       string
 	MinPrice   *float64
 	MaxPrice   *float64
 	Status     string // vide = "active" par défaut
-	Search     string // recherche fulltext sur titre
+	Search     string // fulltext search on title
 	UserID     *uint
 	ShopID     *uint
 	Page       int
@@ -22,23 +22,23 @@ type AdFilters struct {
 	Sort       string // price_asc | price_desc | newest | oldest | views
 }
 
-// AdRepo gère les opérations base de données sur les annonces.
+// AdRepo handles database operations for ads.
 type AdRepo struct{ db *gorm.DB }
 
-// NewAdRepo crée un nouveau AdRepo.
+// NewAdRepo creates a new AdRepo.
 func NewAdRepo(db *gorm.DB) *AdRepo { return &AdRepo{db} }
 
-// Create insère une nouvelle annonce avec ses attributs.
+// Create inserts a new ad with its attributes.
 func (r *AdRepo) Create(ad *models.Ad) error {
 	return r.db.Create(ad).Error
 }
 
-// Update sauvegarde les modifications d'une annonce.
+// Update saves changes to an ad.
 func (r *AdRepo) Update(ad *models.Ad) error {
 	return r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(ad).Error
 }
 
-// FindByID récupère une annonce complète (avec relations) par son ID.
+// FindByID retrieves a complete ad (with relations) by its ID.
 func (r *AdRepo) FindByID(id uint) (*models.Ad, error) {
 	var ad models.Ad
 	err := r.db.
@@ -53,7 +53,7 @@ func (r *AdRepo) FindByID(id uint) (*models.Ad, error) {
 	return &ad, err
 }
 
-// FindBySlug récupère une annonce complète par son slug.
+// FindBySlug retrieves a complete ad by its slug.
 func (r *AdRepo) FindBySlug(slug string) (*models.Ad, error) {
 	var ad models.Ad
 	err := r.db.
@@ -69,7 +69,7 @@ func (r *AdRepo) FindBySlug(slug string) (*models.Ad, error) {
 	return &ad, err
 }
 
-// AdListResult contient les annonces paginées et le total.
+// AdListResult contains the paginated ads and total.
 type AdListResult struct {
 	Ads   []models.Ad
 	Total int64
@@ -77,11 +77,11 @@ type AdListResult struct {
 	Limit int
 }
 
-// List retourne les annonces filtrées et paginées.
+// List returns filtered and paginated ads.
 func (r *AdRepo) List(f AdFilters) (*AdListResult, error) {
 	query := r.db.Model(&models.Ad{})
 
-	// Filtre statut (défaut: active)
+	// Status filter (default: active)
 	status := f.Status
 	if status == "" {
 		status = "active"
@@ -162,18 +162,18 @@ func (r *AdRepo) List(f AdFilters) (*AdListResult, error) {
 	}, nil
 }
 
-// Delete supprime une annonce (soft delete via gorm.Model).
+// Delete deletes an ad (soft delete via gorm.Model).
 func (r *AdRepo) Delete(id uint) error {
 	return r.db.Delete(&models.Ad{}, id).Error
 }
 
-// IncrementViews incrémente le compteur de vues atomiquement.
+// IncrementViews increments the view counter atomically.
 func (r *AdRepo) IncrementViews(id uint) error {
 	return r.db.Model(&models.Ad{}).Where("id = ?", id).
 		UpdateColumn("view_count", gorm.Expr("view_count + 1")).Error
 }
 
-// FindByUser retourne les annonces d'un utilisateur (toutes statuts).
+// FindByUser returns a user's ads (all statuses).
 func (r *AdRepo) FindByUser(userID uint, page, limit int) (*AdListResult, error) {
 	return r.List(AdFilters{
 		UserID: &userID,
@@ -184,7 +184,7 @@ func (r *AdRepo) FindByUser(userID uint, page, limit int) (*AdListResult, error)
 	})
 }
 
-// FindByShop retourne les annonces actives d'une boutique.
+// FindByShop returns a shop's active ads.
 func (r *AdRepo) FindByShop(shopID uint, page, limit int) (*AdListResult, error) {
 	return r.List(AdFilters{
 		ShopID: &shopID,
@@ -195,7 +195,7 @@ func (r *AdRepo) FindByShop(shopID uint, page, limit int) (*AdListResult, error)
 	})
 }
 
-// CountActiveByUser retourne le nombre d'annonces actives d'un utilisateur.
+// CountActiveByUser returns the number of active ads for a user.
 func (r *AdRepo) CountActiveByUser(userID uint) (int64, error) {
 	var count int64
 	err := r.db.Model(&models.Ad{}).
@@ -204,7 +204,7 @@ func (r *AdRepo) CountActiveByUser(userID uint) (int64, error) {
 	return count, err
 }
 
-// CountActiveByShop retourne le nombre d'annonces actives d'une boutique.
+// CountActiveByShop returns the number of active ads for a shop.
 func (r *AdRepo) CountActiveByShop(shopID uint) (int64, error) {
 	var count int64
 	err := r.db.Model(&models.Ad{}).
@@ -213,7 +213,7 @@ func (r *AdRepo) CountActiveByShop(shopID uint) (int64, error) {
 	return count, err
 }
 
-// UpdateAttributes remplace les attributs d'une annonce.
+// UpdateAttributes replaces an ad's attributes.
 func (r *AdRepo) UpdateAttributes(adID uint, attrs []models.AdAttribute) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("ad_id = ?", adID).Delete(&models.AdAttribute{}).Error; err != nil {

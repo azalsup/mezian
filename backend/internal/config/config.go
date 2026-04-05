@@ -1,5 +1,5 @@
-// Package config charge la configuration depuis config/config.yaml.
-// Les variables d'environnement JWT_SECRET et DB_PATH surchargent le fichier.
+// Package config loads configuration from config/config.yaml.
+// Environment variables JWT_SECRET and DB_PATH override the file.
 package config
 
 import (
@@ -83,7 +83,7 @@ type PlanConfig struct {
 	DurationDays int     `yaml:"duration_days"`
 }
 
-// Load cherche config/config.local.yaml puis config/config.yaml.
+// Load looks for config/config.local.yaml then config/config.yaml.
 func Load() (*Config, error) {
 	paths := []string{"config/config.local.yaml", "config/config.yaml"}
 	var data []byte
@@ -95,7 +95,7 @@ func Load() (*Config, error) {
 		}
 	}
 	if err != nil {
-		return nil, fmt.Errorf("fichier de config introuvable: %w", err)
+		return nil, fmt.Errorf("config file not found: %w", err)
 	}
 
 	var cfg Config

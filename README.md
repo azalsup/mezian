@@ -1,111 +1,111 @@
-# Mezian — Plateforme de petites annonces
+# Mezian — Classified Ads Platform
 
-Mezian est une plateforme de petites annonces en ligne destinée au marché marocain. Elle permet aux particuliers et aux professionnels de publier, gérer et consulter des annonces, avec la possibilité de créer une boutique en ligne.
+Mezian is an online classified ads platform for the Moroccan market. It allows individuals and professionals to publish, manage, and browse ads, with the option to create an online shop.
 
 ---
 
-## Stack technique
+## Technical stack
 
-| Couche | Technologie |
-|--------|-------------|
+| Layer | Technology |
+|-------|------------|
 | Backend | Go 1.22 + [Gin](https://github.com/gin-gonic/gin) |
 | Frontend | Angular 19 (standalone components) |
 | SDK | TypeScript (`@mezian/sdk`) |
-| Base de données | SQLite + [GORM](https://gorm.io) |
-| Authentification | JWT + OTP (WhatsApp / SMS) |
-| Images | Upload + miniatures via [imaging](https://github.com/disintegration/imaging) |
+| Database | SQLite + [GORM](https://gorm.io) |
+| Authentication | JWT + OTP (WhatsApp / SMS) |
+| Images | Upload + thumbnails via [imaging](https://github.com/disintegration/imaging) |
 
 ---
 
-## Structure du projet
+## Project structure
 
 ```
 mezian/
-├── backend/    # API REST en Go (Gin)
-├── front/      # Application Angular 19
-└── sdk/        # SDK TypeScript (@mezian/sdk)
+├── backend/    # Go REST API (Gin)
+├── front/      # Angular 19 application
+└── sdk/        # TypeScript SDK (@mezian/sdk)
 ```
 
 ---
 
 ## Backend
 
-### Lancer le serveur
+### Run the server
 
 ```bash
 cd backend
 go run ./cmd/server/main.go
 ```
 
-Le serveur démarre sur **http://localhost:8080**.
+The server starts on **http://localhost:8080**.
 
 ### Architecture
 
-L'API suit une architecture en couches :
+The API follows a layered architecture:
 
 ```
 Handler → Service → Repository → Database (SQLite)
 ```
 
-- **Handler** : traitement des requêtes HTTP (Gin)
-- **Service** : logique métier (Auth, Ad, Media, Shop, Notification)
-- **Repository** : accès aux données (GORM)
-- **Middleware** : authentification JWT (`RequireAuth`, `OptionalAuth`)
+- **Handler**: HTTP request processing (Gin)
+- **Service**: business logic (Auth, Ad, Media, Shop, Notification)
+- **Repository**: data access (GORM)
+- **Middleware**: JWT authentication (`RequireAuth`, `OptionalAuth`)
 
-### Endpoints de l'API (`/api/v1`)
+### API endpoints (`/api/v1`)
 
-#### Authentification
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| POST | `/auth/send-otp` | Envoyer un code OTP |
-| POST | `/auth/verify-otp` | Vérifier le code OTP |
-| POST | `/auth/register` | Créer un compte |
-| POST | `/auth/login` | Se connecter |
-| POST | `/auth/refresh` | Rafraîchir le token |
-| POST | `/auth/logout` | Se déconnecter *(auth)* |
-| GET | `/auth/me` | Profil courant *(auth)* |
-| PUT | `/auth/me` | Modifier le profil *(auth)* |
+#### Authentication
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/auth/send-otp` | Send an OTP code |
+| POST | `/auth/verify-otp` | Verify an OTP code |
+| POST | `/auth/register` | Create an account |
+| POST | `/auth/login` | Log in |
+| POST | `/auth/refresh` | Refresh the token |
+| POST | `/auth/logout` | Log out *(auth)* |
+| GET | `/auth/me` | Current profile *(auth)* |
+| PUT | `/auth/me` | Update profile *(auth)* |
 
-#### Annonces
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | `/ads` | Lister les annonces |
-| GET | `/ads/:slug` | Détail d'une annonce |
-| POST | `/ads` | Créer une annonce *(auth)* |
-| PUT | `/ads/:slug` | Modifier une annonce *(auth)* |
-| DELETE | `/ads/:slug` | Supprimer une annonce *(auth)* |
-| POST | `/ads/:id/media` | Ajouter une image *(auth)* |
-| POST | `/ads/:id/media/youtube` | Ajouter une vidéo YouTube *(auth)* |
+#### Ads
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/ads` | List ads |
+| GET | `/ads/:slug` | Ad details |
+| POST | `/ads` | Create an ad *(auth)* |
+| PUT | `/ads/:slug` | Update an ad *(auth)* |
+| DELETE | `/ads/:slug` | Delete an ad *(auth)* |
+| POST | `/ads/:id/media` | Add an image *(auth)* |
+| POST | `/ads/:id/media/youtube` | Add a YouTube video *(auth)* |
 
-#### Médias
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| DELETE | `/media/:id` | Supprimer un média *(auth)* |
-| PUT | `/media/:id/cover` | Définir comme couverture *(auth)* |
-| PUT | `/media/:id/order` | Modifier l'ordre *(auth)* |
+#### Media
+| Method | Route | Description |
+|--------|-------|-------------|
+| DELETE | `/media/:id` | Delete media *(auth)* |
+| PUT | `/media/:id/cover` | Set cover media *(auth)* |
+| PUT | `/media/:id/order` | Update media order *(auth)* |
 
-#### Catégories
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | `/categories` | Lister les catégories |
-| GET | `/categories/:slug` | Détail d'une catégorie |
+#### Categories
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/categories` | List categories |
+| GET | `/categories/:slug` | Category details |
 
-#### Boutiques
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | `/shops/:slug` | Voir une boutique |
-| POST | `/shops` | Créer une boutique *(auth)* |
-| PUT | `/shops/:slug` | Modifier une boutique *(auth)* |
+#### Shops
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/shops/:slug` | View a shop |
+| POST | `/shops` | Create a shop *(auth)* |
+| PUT | `/shops/:slug` | Update a shop *(auth)* |
 
-#### Utilisateur
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | `/users/me/ads` | Mes annonces *(auth)* |
-| GET | `/users/me/shop` | Ma boutique *(auth)* |
+#### User
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/users/me/ads` | My ads *(auth)* |
+| GET | `/users/me/shop` | My shop *(auth)* |
 
 ### Configuration
 
-Le fichier `backend/config/config.yaml` centralise toute la configuration :
+The file `backend/config/config.yaml` centralizes all configuration:
 
 ```yaml
 server:
@@ -133,23 +133,23 @@ media:
   allowed_types: [image/jpeg, image/png, image/webp]
 ```
 
-> **Important** : changer `jwt.secret` en production.
+> **Important**: change `jwt.secret` in production.
 
-### Plans tarifaires
+### Pricing plans
 
-| Plan | Prix | Annonces | Durée |
-|------|------|----------|-------|
-| Starter | 199 MAD/mois | 50 | 30 jours |
-| Pro | 399 MAD/mois | 200 | 30 jours |
-| Premium | 799 MAD/mois | Illimité | 30 jours |
+| Plan | Price | Ads | Duration |
+|------|-------|------|----------|
+| Starter | 199 MAD/month | 50 | 30 days |
+| Pro | 399 MAD/month | 200 | 30 days |
+| Premium | 799 MAD/month | Unlimited | 30 days |
 
 ---
 
 ## Frontend
 
-Application Angular 19 avec composants standalone et lazy loading.
+Angular 19 application with standalone components and lazy loading.
 
-### Lancer le frontend
+### Run the frontend
 
 ```bash
 cd front
@@ -157,9 +157,9 @@ npm install
 npm start
 ```
 
-L'application démarre sur **http://localhost:4200**.
+The app starts on **http://localhost:4200**.
 
-### Build de production
+### Production build
 
 ```bash
 npm run build
@@ -167,9 +167,9 @@ npm run build
 
 ---
 
-## SDK TypeScript
+## TypeScript SDK
 
-Le SDK `@mezian/sdk` permet d'interagir avec l'API depuis n'importe quelle application JavaScript/TypeScript.
+The `@mezian/sdk` SDK allows you to interact with the API from any JavaScript/TypeScript app.
 
 ### Build
 
@@ -179,24 +179,24 @@ npm install
 npm run build
 ```
 
-### Utilisation
+### Usage
 
 ```typescript
 import { MezianClient } from '@mezian/sdk';
 
 const client = new MezianClient({ baseURL: 'http://localhost:8080' });
 
-// Authentification
+// Authentication
 await client.auth.sendOtp({ phone: '+212600000000' });
 await client.auth.verifyOtp({ phone: '+212600000000', code: '123456' });
 
-// Annonces
+// Ads
 const ads = await client.ads.list();
 ```
 
 ---
 
-## Prérequis
+## Requirements
 
 - **Go** >= 1.22
 - **Node.js** >= 18
@@ -204,12 +204,12 @@ const ads = await client.ads.list();
 
 ---
 
-## Démarrage rapide
+## Quick start
 
 ```bash
 # Backend
 cd backend && go run ./cmd/server/main.go
 
-# Frontend (dans un autre terminal)
+# Frontend (in another terminal)
 cd front && npm install && npm start
 ```

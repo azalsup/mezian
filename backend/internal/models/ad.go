@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Ad — annonce. Le corps est stocké en Markdown.
+// Ad — listing. The body is stored in Markdown.
 type Ad struct {
 	gorm.Model
 	UserID       uint       `gorm:"not null;index"                   json:"user_id"`
@@ -32,7 +32,7 @@ type Ad struct {
 	Attributes []AdAttribute `gorm:"foreignKey:AdID"       json:"attributes,omitempty"`
 }
 
-// AdAttribute — valeur d'un attribut spécifique (surface, kilométrage, etc.)
+// AdAttribute — value of a specific attribute (area, mileage, etc.)
 type AdAttribute struct {
 	ID    uint   `gorm:"primaryKey;autoIncrement"              json:"id"`
 	AdID  uint   `gorm:"not null;uniqueIndex:idx_ad_key;index" json:"ad_id"`

@@ -6,25 +6,25 @@ import (
 	"gorm.io/gorm"
 )
 
-// MediaRepo gère les opérations base de données sur les médias.
+// MediaRepo gère les opérations database sur les media.
 type MediaRepo struct{ db *gorm.DB }
 
-// NewMediaRepo crée un nouveau MediaRepo.
+// NewMediaRepo creates un nouveau MediaRepo.
 func NewMediaRepo(db *gorm.DB) *MediaRepo { return &MediaRepo{db} }
 
-// Create insère un nouveau média.
+// Create inserts a new media record.
 func (r *MediaRepo) Create(m *models.Media) error {
 	return r.db.Create(m).Error
 }
 
-// FindByID récupère un média par son ID.
+// FindByID retrieves media by its ID.
 func (r *MediaRepo) FindByID(id uint) (*models.Media, error) {
 	var m models.Media
 	err := r.db.First(&m, id).Error
 	return &m, err
 }
 
-// FindByAdID retourne tous les médias d'une annonce, triés par sort_order.
+// FindByAdID returns all media items for an ad, sorted by sort_order.
 func (r *MediaRepo) FindByAdID(adID uint) ([]models.Media, error) {
 	var media []models.Media
 	err := r.db.Where("ad_id = ?", adID).
@@ -33,19 +33,19 @@ func (r *MediaRepo) FindByAdID(adID uint) ([]models.Media, error) {
 	return media, err
 }
 
-// CountByAdID retourne le nombre de médias d'une annonce.
+// CountByAdID returns the number of media items for an ad.
 func (r *MediaRepo) CountByAdID(adID uint) (int64, error) {
 	var count int64
 	err := r.db.Model(&models.Media{}).Where("ad_id = ?", adID).Count(&count).Error
 	return count, err
 }
 
-// Delete supprime un média par son ID (soft delete).
+// Delete removes a media record by its ID (soft delete).
 func (r *MediaRepo) Delete(id uint) error {
 	return r.db.Delete(&models.Media{}, id).Error
 }
 
-// SetCover définit un média comme image de couverture (et retire le flag des autres).
+// SetCover définit un media comme image de couverture (et retire le flag des autres).
 func (r *MediaRepo) SetCover(adID, mediaID uint) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&models.Media{}).Where("ad_id = ?", adID).
@@ -57,13 +57,13 @@ func (r *MediaRepo) SetCover(adID, mediaID uint) error {
 	})
 }
 
-// UpdateOrder met à jour le sort_order d'un média.
+// UpdateOrder updates le sort_order d'un media.
 func (r *MediaRepo) UpdateOrder(id uint, sortOrder int) error {
 	return r.db.Model(&models.Media{}).Where("id = ?", id).
 		Update("sort_order", sortOrder).Error
 }
 
-// Update sauvegarde les modifications d'un média.
+// Update sauvegarde les modifications d'un media.
 func (r *MediaRepo) Update(m *models.Media) error {
 	return r.db.Save(m).Error
 }

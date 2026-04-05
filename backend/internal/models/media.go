@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-// Media — photo (stockée localement) ou vidéo YouTube liée à une annonce.
+// Media — photo (stored locally) or YouTube video linked to an ad.
 type Media struct {
 	gorm.Model
 	AdID      uint    `gorm:"not null;index"   json:"ad_id"`

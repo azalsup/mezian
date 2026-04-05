@@ -1,4 +1,4 @@
-// Package main — point d'entrée du serveur Mezian.
+// Package main — Mezian server entry point.
 package main
 
 import (
@@ -17,25 +17,25 @@ import (
 )
 
 func main() {
-	// Charger la configuration
+	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("Erreur chargement config: %v", err)
+		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Configurer le mode Gin
+	// Set Gin mode
 	gin.SetMode(cfg.Server.Mode)
 
-	// Connexion à la base de données + migrations
+	// Connect to database + run migrations
 	db, err := database.Connect(cfg)
 	if err != nil {
-		log.Fatalf("Erreur connexion base de données: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	log.Printf("Base de données connectée: %s", cfg.Database.Path)
+	log.Printf("Database connected: %s", cfg.Database.Path)
 
-	// Créer le répertoire d'uploads si nécessaire
+	// Create uploads directory if needed
 	if err := os.MkdirAll(cfg.Media.UploadDir, 0755); err != nil {
-		log.Fatalf("Impossible de créer le répertoire uploads: %v", err)
+		log.Fatalf("Unable to create uploads directory: %v", err)
 	}
 
 	// --- Repositories ---
@@ -45,9 +45,9 @@ func main() {
 	shopRepo := repository.NewShopRepo(db)
 	mediaRepo := repository.NewMediaRepo(db)
 
-	// Seeder les catégories par défaut si la table est vide
+	// Seed default categories if the table is empty
 	if err := catRepo.SeedDefaults(); err != nil {
-		log.Printf("Avertissement: seed catégories échoué: %v", err)
+		log.Printf("Warning: seed categories failed: %v", err)
 	}
 
 	// --- Services ---
@@ -82,6 +82,6 @@ func main() {
 	log.Printf("Frontend: %s", cfg.Server.FrontendURL)
 
 	if err := r.Run(addr); err != nil {
-		log.Fatalf("Erreur démarrage serveur: %v", err)
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }

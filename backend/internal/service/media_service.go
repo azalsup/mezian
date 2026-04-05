@@ -18,12 +18,12 @@ import (
 	"github.com/google/uuid"
 )
 
-// Erreurs métier des médias.
+// Business errors for media.
 var (
-	ErrMediaNotFound    = errors.New("média introuvable")
-	ErrMediaForbidden   = errors.New("accès non autorisé à ce média")
-	ErrTooManyMedia     = errors.New("nombre maximum de médias atteint pour cette annonce")
-	ErrInvalidMediaType = errors.New("type de fichier non autorisé")
+	ErrMediaNotFound    = errors.New("media introuvable")
+	ErrMediaForbidden   = errors.New("unauthorized access to this media")
+	ErrTooManyMedia     = errors.New("nombre maximum de media atteint pour cette ad")
+	ErrInvalidMediaType = errors.New("unauthorized file type")
 	ErrFileTooLarge     = errors.New("fichier trop volumineux")
 	ErrInvalidYouTube   = errors.New("URL YouTube invalide")
 )
@@ -40,7 +40,7 @@ type MediaService struct {
 	cfg       *config.Config
 }
 
-// NewMediaService crée un nouveau MediaService.
+// NewMediaService creates un nouveau MediaService.
 func NewMediaService(mediaRepo *repository.MediaRepo, adRepo *repository.AdRepo, cfg *config.Config) *MediaService {
 	return &MediaService{
 		mediaRepo: mediaRepo,
@@ -51,7 +51,7 @@ func NewMediaService(mediaRepo *repository.MediaRepo, adRepo *repository.AdRepo,
 
 // UploadImage traite l'upload d'une image, la redimensionne et génère une miniature.
 func (s *MediaService) UploadImage(adID, userID uint, file multipart.File, header *multipart.FileHeader) (*models.Media, error) {
-	// Vérifier la propriété de l'annonce
+	// Verify ad ownership
 	ad, err := s.adRepo.FindByID(adID)
 	if err != nil {
 		return nil, ErrAdNotFound
@@ -60,47 +60,47 @@ func (s *MediaService) UploadImage(adID, userID uint, file multipart.File, heade
 		return nil, ErrMediaForbidden
 	}
 
-	// Vérifier le nombre de médias existants
+	// Check the number of existing media
 	count, err := s.mediaRepo.CountByAdID(adID)
 	if err != nil {
-		return nil, fmt.Errorf("comptage médias: %w", err)
+		return nil, fmt.Errorf("comptage media: %w", err)
 	}
 	if int(count) >= s.cfg.Media.MaxPerAd {
 		return nil, ErrTooManyMedia
 	}
 
-	// Vérifier le type MIME
+	// Check the MIME type
 	contentType := header.Header.Get("Content-Type")
 	if !s.isAllowedType(contentType) {
 		return nil, ErrInvalidMediaType
 	}
 
-	// Vérifier la taille
+	// Check the size
 	maxBytes := int64(s.cfg.Media.MaxSizeMB) * 1024 * 1024
 	if header.Size > maxBytes {
 		return nil, ErrFileTooLarge
 	}
 
-	// Créer le répertoire d'upload si besoin
+	// Create the upload directory if needed
 	uploadDir := filepath.Join(s.cfg.Media.UploadDir, "ads", fmt.Sprintf("%d", adID))
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
-		return nil, fmt.Errorf("création répertoire: %w", err)
+		return nil, fmt.Errorf("creation directory: %w", err)
 	}
 	thumbDir := filepath.Join(s.cfg.Media.UploadDir, "thumbs", fmt.Sprintf("%d", adID))
 	if err := os.MkdirAll(thumbDir, 0755); err != nil {
-		return nil, fmt.Errorf("création répertoire thumbs: %w", err)
+		return nil, fmt.Errorf("creation directory thumbs: %w", err)
 	}
 
-	// Décoder l'image
+	// Decode the image
 	img, err := decodeImage(file, contentType)
 	if err != nil {
-		return nil, fmt.Errorf("décodage image: %w", err)
+		return nil, fmt.Errorf("image decoding: %w", err)
 	}
 
 	// Redimensionner l'image principale (max 1200px de large)
 	resized := imaging.Fit(img, 1200, 1200, imaging.Lanczos)
 
-	// Générer un nom de fichier unique
+	// Generate a unique filename
 	ext := contentTypeToExt(contentType)
 	filename := uuid.NewString() + ext
 
@@ -110,7 +110,7 @@ func (s *MediaService) UploadImage(adID, userID uint, file multipart.File, heade
 		return nil, fmt.Errorf("sauvegarde image: %w", err)
 	}
 
-	// Générer et sauvegarder la miniature
+	// Generate and save the thumbnail
 	thumb := imaging.Fill(img,
 		s.cfg.Media.ThumbnailWidth,
 		s.cfg.Media.ThumbnailHeight,
@@ -119,7 +119,7 @@ func (s *MediaService) UploadImage(adID, userID uint, file multipart.File, heade
 	thumbFilename := "thumb_" + filename
 	thumbPath := filepath.Join(thumbDir, thumbFilename)
 	if err := imaging.Save(thumb, thumbPath); err != nil {
-		// Ne pas bloquer si la miniature échoue
+		// Do not block if thumbnail creation fails
 		thumbPath = ""
 	}
 
@@ -131,7 +131,7 @@ func (s *MediaService) UploadImage(adID, userID uint, file multipart.File, heade
 		thumbURL = &tu
 	}
 
-	// Déterminer si c'est la première image (couverture par défaut)
+	// Determine if this is the first image (default cover)
 	isCover := count == 0
 
 	media := &models.Media{
@@ -147,15 +147,15 @@ func (s *MediaService) UploadImage(adID, userID uint, file multipart.File, heade
 		// Nettoyer les fichiers en cas d'erreur DB
 		os.Remove(imagePath)    //nolint:errcheck
 		os.Remove(thumbPath)    //nolint:errcheck
-		return nil, fmt.Errorf("sauvegarde média: %w", err)
+		return nil, fmt.Errorf("sauvegarde media: %w", err)
 	}
 
 	return media, nil
 }
 
-// AddYouTube ajoute un lien vidéo YouTube à une annonce.
+// AddYouTube adds a YouTube video link to an ad.
 func (s *MediaService) AddYouTube(adID, userID uint, youtubeURL string) (*models.Media, error) {
-	// Vérifier la propriété de l'annonce
+	// Verify ad ownership
 	ad, err := s.adRepo.FindByID(adID)
 	if err != nil {
 		return nil, ErrAdNotFound
@@ -164,16 +164,16 @@ func (s *MediaService) AddYouTube(adID, userID uint, youtubeURL string) (*models
 		return nil, ErrMediaForbidden
 	}
 
-	// Vérifier le nombre de médias existants
+	// Check the number of existing media
 	count, err := s.mediaRepo.CountByAdID(adID)
 	if err != nil {
-		return nil, fmt.Errorf("comptage médias: %w", err)
+		return nil, fmt.Errorf("comptage media: %w", err)
 	}
 	if int(count) >= s.cfg.Media.MaxPerAd {
 		return nil, ErrTooManyMedia
 	}
 
-	// Extraire l'ID vidéo YouTube
+	// Extract the YouTube video ID
 	videoID, err := extractYouTubeID(youtubeURL)
 	if err != nil {
 		return nil, ErrInvalidYouTube
@@ -193,20 +193,20 @@ func (s *MediaService) AddYouTube(adID, userID uint, youtubeURL string) (*models
 	}
 
 	if err := s.mediaRepo.Create(media); err != nil {
-		return nil, fmt.Errorf("sauvegarde média YouTube: %w", err)
+		return nil, fmt.Errorf("sauvegarde media YouTube: %w", err)
 	}
 
 	return media, nil
 }
 
-// DeleteMedia supprime un média (fichier + entrée DB).
+// DeleteMedia removes a media item (file + DB entry).
 func (s *MediaService) DeleteMedia(mediaID, userID uint, userRole string) error {
 	media, err := s.mediaRepo.FindByID(mediaID)
 	if err != nil {
 		return ErrMediaNotFound
 	}
 
-	// Vérifier la propriété via l'annonce
+	// Verify ownership via the ad
 	ad, err := s.adRepo.FindByID(media.AdID)
 	if err != nil {
 		return ErrAdNotFound
@@ -215,7 +215,7 @@ func (s *MediaService) DeleteMedia(mediaID, userID uint, userRole string) error 
 		return ErrMediaForbidden
 	}
 
-	// Supprimer le fichier physique si c'est une image locale
+	// Delete the physical file if it is a local image
 	if media.Type == "image" {
 		localPath := filepath.Join(s.cfg.Media.UploadDir, strings.TrimPrefix(media.URL, "/uploads/"))
 		os.Remove(localPath) //nolint:errcheck
@@ -228,7 +228,7 @@ func (s *MediaService) DeleteMedia(mediaID, userID uint, userRole string) error 
 	return s.mediaRepo.Delete(mediaID)
 }
 
-// SetCover définit un média comme image de couverture.
+// SetCover définit un media comme image de couverture.
 func (s *MediaService) SetCover(mediaID, userID uint) error {
 	media, err := s.mediaRepo.FindByID(mediaID)
 	if err != nil {
@@ -246,7 +246,7 @@ func (s *MediaService) SetCover(mediaID, userID uint) error {
 	return s.mediaRepo.SetCover(media.AdID, mediaID)
 }
 
-// UpdateOrder met à jour l'ordre d'affichage d'un média.
+// UpdateOrder updates l'ordre d'affichage d'un media.
 func (s *MediaService) UpdateOrder(mediaID, userID uint, sortOrder int) error {
 	media, err := s.mediaRepo.FindByID(mediaID)
 	if err != nil {
@@ -264,12 +264,12 @@ func (s *MediaService) UpdateOrder(mediaID, userID uint, sortOrder int) error {
 	return s.mediaRepo.UpdateOrder(mediaID, sortOrder)
 }
 
-// GetAdMedia retourne tous les médias d'une annonce.
+// GetAdMedia returns tous les media d'une ad.
 func (s *MediaService) GetAdMedia(adID uint) ([]models.Media, error) {
 	return s.mediaRepo.FindByAdID(adID)
 }
 
-// isAllowedType vérifie si le type MIME est autorisé.
+// isAllowedType verifies si le type MIME est autorisé.
 func (s *MediaService) isAllowedType(contentType string) bool {
 	for _, t := range s.cfg.Media.AllowedTypes {
 		if t == contentType {
@@ -287,7 +287,7 @@ func decodeImage(file multipart.File, contentType string) (image.Image, error) {
 	case "image/png", "image/webp":
 		return imaging.Decode(file)
 	default:
-		return nil, fmt.Errorf("type non supporté: %s", contentType)
+		return nil, fmt.Errorf("unsupported type: %s", contentType)
 	}
 }
 
@@ -305,7 +305,7 @@ func contentTypeToExt(contentType string) string {
 	}
 }
 
-// extractYouTubeID extrait l'ID vidéo d'une URL YouTube.
+// extractYouTubeID extracts a YouTube video ID from a YouTube URL.
 func extractYouTubeID(rawURL string) (string, error) {
 	// Essayer le regex d'abord
 	matches := youtubeRegexp.FindStringSubmatch(rawURL)

@@ -6,13 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// CategoryRepo gère les opérations base de données sur les catégories.
+// CategoryRepo handles database operations for categories.
 type CategoryRepo struct{ db *gorm.DB }
 
-// NewCategoryRepo crée un nouveau CategoryRepo.
+// NewCategoryRepo creates a new CategoryRepo.
 func NewCategoryRepo(db *gorm.DB) *CategoryRepo { return &CategoryRepo{db} }
 
-// FindAll retourne toutes les catégories racines avec leurs enfants et définitions d'attributs.
+// FindAll returns all root categories with their children and attribute definitions.
 func (r *CategoryRepo) FindAll() ([]models.Category, error) {
 	var categories []models.Category
 	err := r.db.
@@ -28,7 +28,7 @@ func (r *CategoryRepo) FindAll() ([]models.Category, error) {
 	return categories, err
 }
 
-// FindBySlug récupère une catégorie (avec ses attributs) par slug.
+// FindBySlug retrieves a category (with its attributes) by slug.
 func (r *CategoryRepo) FindBySlug(slug string) (*models.Category, error) {
 	var cat models.Category
 	err := r.db.
@@ -43,7 +43,7 @@ func (r *CategoryRepo) FindBySlug(slug string) (*models.Category, error) {
 	return &cat, err
 }
 
-// FindByID récupère une catégorie par ID.
+// FindByID retrieves a category by its ID.
 func (r *CategoryRepo) FindByID(id uint) (*models.Category, error) {
 	var cat models.Category
 	err := r.db.
@@ -54,7 +54,7 @@ func (r *CategoryRepo) FindByID(id uint) (*models.Category, error) {
 	return &cat, err
 }
 
-// SeedDefaults insère les catégories par défaut si la table est vide.
+// SeedDefaults inserts default categories if the table is empty.
 func (r *CategoryRepo) SeedDefaults() error {
 	var count int64
 	r.db.Model(&models.Category{}).Count(&count)
@@ -130,17 +130,17 @@ func (r *CategoryRepo) SeedDefaults() error {
 		},
 	}
 
-	// Seed des attributs pour les catégories clés (seront ajoutés via update)
+	// Seed attributes for key categories (will be added via update)
 	if err := r.db.Create(&categories).Error; err != nil {
 		return err
 	}
 
-	// Récupérer les IDs des sous-catégories pour ajouter des attributs spécifiques
+	// Retrieve subcategory IDs to add specific attributes
 	return r.seedAttributeDefinitions()
 }
 
 func (r *CategoryRepo) seedAttributeDefinitions() error {
-	// Appartements à vendre
+	// Apartments for sale
 	aptVente := &models.Category{}
 	if err := r.db.Where("slug = ?", "appartements-vente").First(aptVente).Error; err == nil {
 		enumValuesString := `["Studio","F1","F2","F3","F4","F5","F6+"]`

@@ -17,18 +17,18 @@ const (
 
 // NotificationService définit l'interface d'envoi de notifications.
 type NotificationService interface {
-	// SendOTP envoie un code OTP à un numéro de téléphone via le canal spécifié.
+	// SendOTP envoie un code OTP à un numéro de phone via le canal spécifié.
 	SendOTP(phone, code string, channel NotificationChannel) error
 	// SendSMS envoie un SMS brut.
 	SendSMS(phone, message string) error
 }
 
-// --- Mock (développement) ---
+// --- Mock (development) ---
 
 // MockNotificationService journalise les messages dans la console.
 type MockNotificationService struct{}
 
-// NewMockNotificationService crée un service de notification mock.
+// NewMockNotificationService creates un service de notification mock.
 func NewMockNotificationService() *MockNotificationService {
 	return &MockNotificationService{}
 }
@@ -52,7 +52,7 @@ type TwilioSMSService struct {
 	fromNumber string
 }
 
-// NewTwilioSMSService crée un service Twilio.
+// NewTwilioSMSService creates un service Twilio.
 func NewTwilioSMSService(cfg config.TwilioConfig) *TwilioSMSService {
 	return &TwilioSMSService{
 		accountSID: cfg.AccountSID,
@@ -83,7 +83,7 @@ type WhatsAppService struct {
 	phoneNumberID string
 }
 
-// NewWhatsAppService crée un service WhatsApp.
+// NewWhatsAppService creates un service WhatsApp.
 func NewWhatsAppService(cfg config.WhatsAppConfig) *WhatsAppService {
 	return &WhatsAppService{
 		apiURL:        cfg.APIURL,
@@ -104,7 +104,7 @@ func (w *WhatsAppService) SendSMS(phone, message string) error {
 	return nil
 }
 
-// NewNotificationService crée le service de notification selon la configuration.
+// NewNotificationService creates le service de notification selon la configuration.
 func NewNotificationService(cfg *config.Config) NotificationService {
 	switch cfg.Notification.Provider {
 	case "twilio":

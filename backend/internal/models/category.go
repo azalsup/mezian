@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-// Category — hiérarchique (niveau 1: Immobilier/Automobile, niveau 2: sous-catégories).
+// Category — hierarchical (level 1: Real estate/Automotive, level 2: subcategories).
 type Category struct {
 	gorm.Model
 	Slug      string    `gorm:"uniqueIndex;not null"  json:"slug"`
@@ -18,7 +18,7 @@ type Category struct {
 	AttributeDefinitions []AttributeDefinition `gorm:"foreignKey:CategoryID" json:"attribute_definitions,omitempty"`
 }
 
-// AttributeDefinition — schéma des champs spécifiques à une catégorie.
+// AttributeDefinition — schema for fields specific to a category.
 // Exemples: surface_m2 (immobilier), year/mileage_km (automobile).
 type AttributeDefinition struct {
 	gorm.Model

@@ -1,7 +1,7 @@
 /**
- * Client HTTP de base pour l'API Mezian.
- * Utilise fetch natif (compatible navigateur et Node 18+).
- * Gère : injection du Bearer token, refresh automatique, erreurs typées.
+ * Base HTTP client for the Mezian API.
+ * Uses native fetch (browser and Node 18+ compatible).
+ * Handles: Bearer token injection, automatic refresh, typed errors.
  */
 
 import type { ApiError, AuthTokens } from "../types/index.js";
@@ -19,11 +19,11 @@ export class MezianApiError extends Error {
 export interface HttpClientOptions {
   /** URL de base, ex: "http://localhost:8080/api/v1" */
   baseUrl: string;
-  /** Callback pour récupérer le token d'accès courant */
+  /** Callback to retrieve the current access token */
   getAccessToken?: () => string | null;
-  /** Callback appelé avec les nouveaux tokens après un refresh réussi */
+  /** Callback called with new tokens after a successful refresh */
   onTokensRefreshed?: (tokens: AuthTokens) => void;
-  /** Callback appelé en cas d'échec du refresh (déconnexion) */
+  /** Callback called when refresh fails (logout) */
   onAuthFailure?: () => void;
 }
 
@@ -41,7 +41,7 @@ export class HttpClient {
   }
 
   // ---------------------------------------------------------------------------
-  // Méthodes publiques
+  // Public methods
   // ---------------------------------------------------------------------------
 
   async get<T>(path: string, params?: Record<string, unknown>): Promise<T> {
@@ -61,7 +61,7 @@ export class HttpClient {
     return this.request<T>("DELETE", this.buildUrl(path));
   }
 
-  /** Upload multipart/form-data (pour les images) */
+  /** Upload multipart/form-data (for images) */
   async upload<T>(path: string, formData: FormData): Promise<T> {
     return this.request<T>("POST", this.buildUrl(path), formData, true);
   }

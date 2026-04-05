@@ -1,4 +1,4 @@
-// Package database initialise la connexion SQLite via GORM et applique les migrations.
+// Package database initializes the SQLite connection via GORM and applies migrations.
 package database
 
 import (
@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// Connect ouvre la base SQLite et effectue l'auto-migration du schéma.
+// Connect opens the SQLite database and performs schema auto-migration.
 func Connect(cfg *config.Config) (*gorm.DB, error) {
 	logLevel := logger.Silent
 	if cfg.Server.Mode == "debug" {
@@ -25,7 +25,7 @@ func Connect(cfg *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("ouverture SQLite: %w", err)
 	}
 
-	// Activer les clés étrangères (SQLite les désactive par défaut)
+	// Enable foreign keys (SQLite disables them by default)
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, fmt.Errorf("récupération sql.DB: %w", err)

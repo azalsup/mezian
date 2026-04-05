@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Shop — boutique pro payante. Un utilisateur peut avoir une boutique active.
+// Shop — paid professional shop. A user can have an active shop.
 type Shop struct {
 	gorm.Model
 	UserID      uint       `gorm:"uniqueIndex;not null"       json:"user_id"`

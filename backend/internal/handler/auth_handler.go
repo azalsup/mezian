@@ -13,18 +13,18 @@ import (
 	"mezian/internal/service"
 )
 
-// AuthHandler gère les routes d'authentification.
+// AuthHandler handles authentication routes.
 type AuthHandler struct {
 	authSvc  *service.AuthService
 	userRepo *repository.UserRepo
 }
 
-// NewAuthHandler crée un nouveau AuthHandler.
+// NewAuthHandler creates a new AuthHandler.
 func NewAuthHandler(authSvc *service.AuthService, userRepo *repository.UserRepo) *AuthHandler {
 	return &AuthHandler{authSvc: authSvc, userRepo: userRepo}
 }
 
-// sendOTPRequest est le body de POST /auth/send-otp.
+// sendOTPRequest is the body for POST /auth/send-otp.
 type sendOTPRequest struct {
 	Phone   string `json:"phone"   binding:"required"`
 	Channel string `json:"channel" binding:"required,oneof=sms whatsapp"`
@@ -33,7 +33,7 @@ type sendOTPRequest struct {
 
 // SendOTP godoc
 // POST /auth/send-otp
-// Envoie un code OTP au numéro de téléphone indiqué.
+// Sends an OTP code to the provided phone number.
 func (h *AuthHandler) SendOTP(c *gin.Context) {
 	var req sendOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -46,10 +46,10 @@ func (h *AuthHandler) SendOTP(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "code OTP envoyé"})
+	c.JSON(http.StatusOK, gin.H{"message": "OTP code sent"})
 }
 
-// verifyOTPRequest est le body de POST /auth/verify-otp.
+// verifyOTPRequest is the body for POST /auth/verify-otp.
 type verifyOTPRequest struct {
 	Phone       string `json:"phone"        binding:"required"`
 	Code        string `json:"code"         binding:"required"`
@@ -59,7 +59,7 @@ type verifyOTPRequest struct {
 
 // VerifyOTP godoc
 // POST /auth/verify-otp
-// Vérifie un OTP. Si purpose=signup, crée le compte. Si purpose=login, connecte l'utilisateur.
+// Verifies an OTP. If purpose=signup, creates the account. If purpose=login, logs in the user.
 func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 	var req verifyOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -67,7 +67,7 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	// Vérifier l'OTP
+	// Verify the OTP
 	if err := h.authSvc.VerifyOTP(req.Phone, req.Code, req.Purpose); err != nil {
 		respondError(c, err)
 		return
@@ -101,20 +101,20 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 		})
 
 	default:
-		// phone_change: juste confirmer la vérification
-		c.JSON(http.StatusOK, gin.H{"message": "OTP vérifié"})
+		// phone_change: just confirm verification
+		c.JSON(http.StatusOK, gin.H{"message": "OTP verified"})
 	}
 }
 
-// loginRequest est le body de POST /auth/login.
+// loginRequest is the body for POST /auth/login.
 type loginRequest struct {
-	Identifier string `json:"identifier" binding:"required"` // téléphone ou email
+	Identifier string `json:"identifier" binding:"required"` // phone or email
 	Password   string `json:"password"   binding:"required"`
 }
 
 // Login godoc
 // POST /auth/login
-// Authentifie un utilisateur avec téléphone/email + mot de passe.
+// Authenticates a user with phone/email + password.
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -134,7 +134,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-// registerRequest est le body de POST /auth/register.
+// registerRequest is the body for POST /auth/register.
 type registerRequest struct {
 	Phone       string `json:"phone"        binding:"required"`
 	Email       string `json:"email"`
@@ -144,7 +144,7 @@ type registerRequest struct {
 
 // Register godoc
 // POST /auth/register
-// Crée un compte utilisateur avec mot de passe.
+// Creates a user account with password.
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -164,14 +164,14 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 }
 
-// refreshRequest est le body de POST /auth/refresh.
+// refreshRequest is the body for POST /auth/refresh.
 type refreshRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
 // Refresh godoc
 // POST /auth/refresh
-// Génère une nouvelle paire de tokens à partir d'un refresh token valide.
+// Generates a new token pair from a valid refresh token.
 func (h *AuthHandler) Refresh(c *gin.Context) {
 	var req refreshRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -190,19 +190,19 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 
 // Logout godoc
 // POST /auth/logout
-// Révoque tous les refresh tokens de l'utilisateur connecté.
+// Revokes all refresh tokens of the authenticated user.
 func (h *AuthHandler) Logout(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 	if err := h.authSvc.Logout(userID); err != nil {
 		respondError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "déconnecté"})
+	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
 
 // GetMe godoc
 // GET /auth/me
-// Retourne le profil de l'utilisateur connecté.
+// Returns the authenticated user's profile.
 func (h *AuthHandler) GetMe(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 	user, err := h.userRepo.FindByID(userID)
@@ -227,7 +227,7 @@ type updateMeRequest struct {
 
 // UpdateMe godoc
 // PUT /auth/me
-// Met à jour le profil de l'utilisateur connecté.
+// Updates the authenticated user's profile.
 func (h *AuthHandler) UpdateMe(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 	user, err := h.userRepo.FindByID(userID)
@@ -251,7 +251,7 @@ func (h *AuthHandler) UpdateMe(c *gin.Context) {
 	}
 	if req.Email != "" {
 		email := strings.ToLower(strings.TrimSpace(req.Email))
-		// Vérifier que l'email n'est pas déjà pris par un autre utilisateur
+		// Check that the email is not already used by another user
 		existing, err := h.userRepo.FindByEmail(email)
 		if err == nil && existing.Model.ID != user.Model.ID {
 			respondError(c, service.ErrEmailAlreadyUsed)

@@ -1,0 +1,78 @@
+<nav class="bg-white border-b sticky top-0 z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="h-16 flex items-center justify-between">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-x-3">
+        <div class="w-9 h-9 bg-[#006233] text-white rounded-2xl flex items-center justify-center text-2xl">🇲🇦</div>
+        <h1 class="logo-font text-3xl tracking-tight text-[#006233]">mezian</h1>
+      </div>
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-x-4">
+
+        <!-- Sell button -->
+        <button
+          (click)="onSellClick()"
+          class="bg-[#006233] hover:bg-[#005229] text-white text-base font-semibold px-8 h-11 rounded-3xl flex items-center gap-x-2 transition-all">
+          <i class="fa-solid fa-plus"></i>
+          <span>{{ lang.t('sell') }}</span>
+        </button>
+
+        <!-- Profile / Register -->
+        <div class="relative" (click)="toggleProfileMenu()">
+          <button class="flex items-center gap-x-3 px-6 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors">
+            <i class="fa-solid fa-circle-user text-2xl text-[#006233]"></i>
+            <span class="font-medium">{{ isLoggedIn ? lang.t('profile') : lang.t('register') }}</span>
+            <i class="fa-solid fa-chevron-down text-xs"></i>
+          </button>
+
+          <!-- Dropdown -->
+          @if (showProfileMenu) {
+            <div class="absolute end-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50">
+
+              @if (!isLoggedIn) {
+                <!-- Guest -->
+                <div class="px-6 py-4 space-y-3">
+                  <button (click)="createProfile()"
+                          class="w-full bg-[#006233] text-white h-12 rounded-3xl font-medium">
+                    {{ lang.t('createProfile') }}
+                  </button>
+                  <button (click)="login()"
+                          class="w-full border border-gray-300 h-12 rounded-3xl">
+                    {{ lang.t('alreadyAccount') }}
+                  </button>
+                </div>
+              } @else {
+                <!-- Logged in -->
+                <div class="px-4">
+                  <div class="flex items-center gap-3 p-4 border-b">
+                    <i class="fa-solid fa-circle-user text-5xl text-[#006233]"></i>
+                    <div>
+                      <p class="font-semibold">{{ userPhone }}</p>
+                      <p class="text-xs text-gray-500">{{ lang.t('location') }}</p>
+                    </div>
+                  </div>
+                  <a href="#" class="block px-4 py-3 hover:bg-gray-50">{{ lang.t('myProfile') }}</a>
+                  <a href="#" class="block px-4 py-3 hover:bg-gray-50">{{ lang.t('myShop') }}</a>
+                  <a href="#" (click)="logout()"
+                     class="block px-4 py-3 text-red-600 hover:bg-gray-50">
+                    {{ lang.t('logout') }}
+                  </a>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Language switcher -->
+        <div (click)="lang.toggle()"
+             class="flex bg-gray-100 rounded-3xl text-xs font-medium cursor-pointer overflow-hidden select-none">
+          <div class="lang-pill" [class.lang-pill--active]="lang.current() === 'fr'">FR</div>
+          <div class="lang-pill" [class.lang-pill--active]="lang.current() === 'ar'">عربي</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</nav>

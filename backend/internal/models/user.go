@@ -1,4 +1,4 @@
-// Package models contient les structs GORM mappées sur les tables SQLite.
+// Package models contains GORM structs mapped to SQLite tables.
 package models
 
 import (
@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// User — le téléphone est l'identifiant principal, l'email est optionnel.
+// User — phone is the primary identifier, email is optional.
 type User struct {
 	gorm.Model
 	Phone        string  `gorm:"uniqueIndex;not null"    json:"phone"`           // E.164: +212XXXXXXXXX
@@ -20,7 +20,7 @@ type User struct {
 	Role         string  `gorm:"default:'user';not null" json:"role"` // user | admin
 }
 
-// OTPCode — code à usage unique envoyé par SMS ou WhatsApp.
+// OTPCode — one-time code sent by SMS or WhatsApp.
 type OTPCode struct {
 	ID        uint       `gorm:"primaryKey;autoIncrement" json:"id"`
 	Phone     string     `gorm:"not null;index"           json:"phone"`
@@ -33,7 +33,7 @@ type OTPCode struct {
 	CreatedAt time.Time  `gorm:"autoCreateTime"           json:"created_at"`
 }
 
-// RefreshToken — stocké hashé (SHA-256), jamais en clair.
+// RefreshToken — stored hashed (SHA-256), never in cleartext.
 type RefreshToken struct {
 	ID        uint       `gorm:"primaryKey;autoIncrement" json:"id"`
 	UserID    uint       `gorm:"not null;index"           json:"-"`

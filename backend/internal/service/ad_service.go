@@ -14,14 +14,14 @@ import (
 	"mezian/internal/repository"
 )
 
-// Erreurs métier des annonces.
+// Business errors for ads.
 var (
-	ErrAdNotFound   = errors.New("annonce introuvable")
-	ErrAdForbidden  = errors.New("accès non autorisé à cette annonce")
-	ErrShopAdsLimit = errors.New("limite d'annonces atteinte pour ce plan")
+	ErrAdNotFound   = errors.New("ad not found")
+	ErrAdForbidden  = errors.New("unauthorized access to this ad")
+	ErrShopAdsLimit = errors.New("ad limit reached for this plan")
 )
 
-// CreateAdInput regroupe les données nécessaires à la création d'une annonce.
+// CreateAdInput groups the data required to create an ad.
 type CreateAdInput struct {
 	UserID     uint
 	CategoryID uint
@@ -36,7 +36,7 @@ type CreateAdInput struct {
 	Attributes []models.AdAttribute
 }
 
-// UpdateAdInput regroupe les champs modifiables d'une annonce.
+// UpdateAdInput groups the editable fields of an ad.
 type UpdateAdInput struct {
 	Title      *string
 	Body       *string
@@ -48,20 +48,20 @@ type UpdateAdInput struct {
 	Attributes []models.AdAttribute
 }
 
-// AdService contient la logique métier des annonces.
+// AdService contains the business logic for ads.
 type AdService struct {
 	adRepo   *repository.AdRepo
 	shopRepo *repository.ShopRepo
 }
 
-// NewAdService crée un nouveau AdService.
+// NewAdService creates a new AdService.
 func NewAdService(adRepo *repository.AdRepo, shopRepo *repository.ShopRepo) *AdService {
 	return &AdService{adRepo: adRepo, shopRepo: shopRepo}
 }
 
-// CreateAd crée une nouvelle annonce après vérification des droits et des limites de plan.
+// CreateAd creates a new ad after checking permissions and plan limits.
 func (s *AdService) CreateAd(input CreateAdInput) (*models.Ad, error) {
-	// Vérifier les limites de la boutique si applicable
+	// Check shop limits if applicable
 	if input.ShopID != nil {
 		if err := s.checkShopAdLimit(*input.ShopID); err != nil {
 			return nil, err
@@ -70,7 +70,7 @@ func (s *AdService) CreateAd(input CreateAdInput) (*models.Ad, error) {
 
 	slug, err := s.generateUniqueSlug(input.Title)
 	if err != nil {
-		return nil, fmt.Errorf("génération slug: %w", err)
+		return nil, fmt.Errorf("slug generation: %w", err)
 	}
 
 	currency := input.Currency
@@ -98,14 +98,14 @@ func (s *AdService) CreateAd(input CreateAdInput) (*models.Ad, error) {
 	}
 
 	if err := s.adRepo.Create(ad); err != nil {
-		return nil, fmt.Errorf("création annonce: %w", err)
+		return nil, fmt.Errorf("creation ad: %w", err)
 	}
 
 	// Recharger avec toutes les relations
 	return s.adRepo.FindByID(ad.Model.ID)
 }
 
-// UpdateAd modifie une annonce existante (owner ou admin uniquement).
+// UpdateAd updates an existing ad (owner or admin only).
 func (s *AdService) UpdateAd(slug string, requesterID uint, requesterRole string, input UpdateAdInput) (*models.Ad, error) {
 	ad, err := s.adRepo.FindBySlug(slug)
 	if err != nil {
@@ -143,20 +143,20 @@ func (s *AdService) UpdateAd(slug string, requesterID uint, requesterRole string
 	}
 
 	if err := s.adRepo.Update(ad); err != nil {
-		return nil, fmt.Errorf("mise à jour annonce: %w", err)
+		return nil, fmt.Errorf("update ad: %w", err)
 	}
 
-	// Mettre à jour les attributs si fournis
+	// Update attributes if provided
 	if input.Attributes != nil {
 		if err := s.adRepo.UpdateAttributes(ad.Model.ID, input.Attributes); err != nil {
-			return nil, fmt.Errorf("mise à jour attributs: %w", err)
+			return nil, fmt.Errorf("update attributs: %w", err)
 		}
 	}
 
 	return s.adRepo.FindBySlug(slug)
 }
 
-// DeleteAd supprime une annonce (owner ou admin uniquement).
+// DeleteAd deletes an ad (owner or admin only).
 func (s *AdService) DeleteAd(slug string, requesterID uint, requesterRole string) error {
 	ad, err := s.adRepo.FindBySlug(slug)
 	if err != nil {
@@ -173,7 +173,7 @@ func (s *AdService) DeleteAd(slug string, requesterID uint, requesterRole string
 	return s.adRepo.Delete(ad.Model.ID)
 }
 
-// GetAd récupère une annonce par slug et incrémente le compteur de vues.
+// GetAd retrieves an ad by slug and increments the view counter.
 func (s *AdService) GetAd(slug string) (*models.Ad, error) {
 	ad, err := s.adRepo.FindBySlug(slug)
 	if err != nil {
@@ -183,7 +183,7 @@ func (s *AdService) GetAd(slug string) (*models.Ad, error) {
 		return nil, err
 	}
 
-	// Incrémenter les vues de façon non bloquante
+	// Increment views non-blocking
 	adID := ad.Model.ID
 	go s.adRepo.IncrementViews(adID) //nolint:errcheck
 
@@ -191,46 +191,46 @@ func (s *AdService) GetAd(slug string) (*models.Ad, error) {
 	return ad, nil
 }
 
-// ListAds retourne les annonces filtrées et paginées.
+// ListAds returns filtered and paginated ads.
 func (s *AdService) ListAds(f repository.AdFilters) (*repository.AdListResult, error) {
 	return s.adRepo.List(f)
 }
 
-// GetUserAds retourne les annonces d'un utilisateur.
+// GetUserAds returns a user's ads.
 func (s *AdService) GetUserAds(userID uint, page, limit int) (*repository.AdListResult, error) {
 	return s.adRepo.FindByUser(userID, page, limit)
 }
 
-// checkShopAdLimit vérifie si la boutique peut encore publier des annonces.
+// checkShopAdLimit verifies if the shop can still publish ads.
 func (s *AdService) checkShopAdLimit(shopID uint) error {
 	shop, err := s.shopRepo.FindByID(shopID)
 	if err != nil {
-		return fmt.Errorf("boutique introuvable: %w", err)
+		return fmt.Errorf("shop not found: %w", err)
 	}
 
 	if !shop.IsSubscriptionValid() {
 		return ErrShopAdsLimit
 	}
 
-	// Les limites fines sont gérées par le ShopService
+	// Fine limits are handled by ShopService
 	return nil
 }
 
-// generateUniqueSlug crée un slug unique à partir du titre.
+// generateUniqueSlug creates a unique slug from the title.
 func (s *AdService) generateUniqueSlug(title string) (string, error) {
 	base := slugify(title)
 	if base == "" {
-		base = "annonce"
+		base = "ad"
 	}
 
-	// Suffixe UUID court pour garantir l'unicité sans requête DB
+	// Short UUID suffix to guarantee uniqueness without a DB query
 	suffix := uuid.NewString()[:8]
 	return fmt.Sprintf("%s-%s", base, suffix), nil
 }
 
-// slugify convertit un texte en slug URL-safe (sans dépendances externes).
+// slugify converts text into a URL-safe slug (without external dependencies).
 func slugify(s string) string {
-	// Table de translittération pour les caractères courants (fr/ar → ASCII)
+	// Transliteration table for common characters (fr/ar → ASCII)
 	replacer := strings.NewReplacer(
 		"à", "a", "â", "a", "ä", "a", "á", "a", "ã", "a",
 		"è", "e", "é", "e", "ê", "e", "ë", "e",
@@ -251,7 +251,7 @@ func slugify(s string) string {
 	// Minuscules
 	result = strings.ToLower(result)
 
-	// Supprimer les caractères non-ASCII restants (arabe, etc.) et remplacer par des tirets
+	// Remove remaining non-ASCII characters (Arabic, etc.) and replace them with dashes
 	var sb strings.Builder
 	for _, r := range result {
 		if unicode.IsLetter(r) || unicode.IsDigit(r) {
@@ -268,10 +268,10 @@ func slugify(s string) string {
 	re := regexp.MustCompile(`-+`)
 	result = re.ReplaceAllString(result, "-")
 
-	// Supprimer les tirets en début et fin
+	// Remove leading and trailing dashes
 	result = strings.Trim(result, "-")
 
-	// Limiter la longueur à 80 caractères
+	// Limit length to 80 characters
 	if len(result) > 80 {
 		result = result[:80]
 		result = strings.TrimRight(result, "-")

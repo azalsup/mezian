@@ -1,6 +1,6 @@
 /**
- * Ressource Catégories — lecture seule, publique.
- * Retourne l'arbre complet avec sous-catégories et définitions d'attributs.
+ * Categories resource — read-only, public.
+ * Returns the full tree with subcategories and attribute definitions.
  */
 
 import type { HttpClient } from "../utils/http.js";
@@ -10,7 +10,7 @@ export class CategoriesResource {
   constructor(private http: HttpClient) {}
 
   /**
-   * Retourne toutes les catégories racines avec leurs enfants et attributs.
+   * Returns all root categories with their children and attributes.
    *
    * @example
    * const cats = await sdk.categories.list();
@@ -21,7 +21,7 @@ export class CategoriesResource {
   }
 
   /**
-   * Retourne une catégorie spécifique avec ses attributs.
+   * Returns a specific category with its attributes.
    *
    * @param slug - ex: "voitures", "appartements-vente"
    */

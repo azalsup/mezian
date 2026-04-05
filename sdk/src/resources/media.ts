@@ -1,6 +1,6 @@
 /**
- * Ressource Médias — upload d'images et ajout de vidéos YouTube.
- * Toutes les opérations requièrent un access token.
+ * Media resource — image upload and YouTube video addition.
+ * All operations require an access token.
  */
 
 import type { HttpClient } from "../utils/http.js";
@@ -10,11 +10,11 @@ export class MediaResource {
   constructor(private http: HttpClient) {}
 
   /**
-   * Upload une image pour une annonce.
+   * Uploads an image for an ad.
    * Accepte JPEG, PNG, WebP (max configuré dans config.yaml).
    * L'image est redimensionnée en thumbnail automatiquement.
    *
-   * @param adId  - ID de l'annonce (numérique, pas le slug)
+   * @param adId  - Ad ID (numeric, not slug)
    * @param file  - Fichier image (File API du navigateur ou Blob)
    *
    * @example
@@ -28,9 +28,9 @@ export class MediaResource {
   }
 
   /**
-   * Ajoute un lien YouTube à une annonce (utile pour l'immobilier).
+   * Adds a YouTube link to an ad (useful for real estate).
    *
-   * @param adId     - ID de l'annonce
+   * @param adId     - Ad ID
    * @param youtubeUrl - URL complète YouTube, ex: "https://www.youtube.com/watch?v=..."
    */
   addYouTube(adId: number, youtubeUrl: string): Promise<Media> {
@@ -38,21 +38,21 @@ export class MediaResource {
   }
 
   /**
-   * Supprime un média (image ou YouTube).
+   * Deletes media (image or YouTube).
    */
   delete(mediaId: number): Promise<void> {
     return this.http.delete(`/media/${mediaId}`);
   }
 
   /**
-   * Définit un média comme image de couverture de l'annonce.
+   * Sets a media item as the ad cover image.
    */
   setCover(mediaId: number): Promise<Media> {
     return this.http.put(`/media/${mediaId}/cover`);
   }
 
   /**
-   * Met à jour l'ordre d'affichage d'un média.
+   * Updates the display order of a media item.
    */
   updateOrder(mediaId: number, sortOrder: number): Promise<Media> {
     return this.http.put(`/media/${mediaId}/order`, { sort_order: sortOrder });

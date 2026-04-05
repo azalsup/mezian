@@ -9,24 +9,24 @@ import (
 	"mezian/internal/service"
 )
 
-// MediaHandler gère les routes de gestion des médias.
+// MediaHandler handles media management routes.
 type MediaHandler struct {
 	mediaSvc *service.MediaService
 }
 
-// NewMediaHandler crée un nouveau MediaHandler.
+// NewMediaHandler creates a new MediaHandler.
 func NewMediaHandler(mediaSvc *service.MediaService) *MediaHandler {
 	return &MediaHandler{mediaSvc: mediaSvc}
 }
 
 // UploadImage godoc
 // POST /ads/:id/media
-// Upload une image pour une annonce (multipart/form-data, champ "image").
+// Uploads an image for an ad (multipart/form-data, field "image").
 func (h *MediaHandler) UploadImage(c *gin.Context) {
 	adIDStr := c.Param("id")
 	adID, err := strconv.ParseUint(adIDStr, 10, 64)
 	if err != nil {
-		respondBadRequest(c, "identifiant d'annonce invalide")
+		respondBadRequest(c, "invalid ad identifier")
 		return
 	}
 
@@ -55,12 +55,12 @@ type addYouTubeRequest struct {
 
 // AddYouTube godoc
 // POST /ads/:id/media/youtube
-// Associe une vidéo YouTube à une annonce.
+// Associates a YouTube video with an ad.
 func (h *MediaHandler) AddYouTube(c *gin.Context) {
 	adIDStr := c.Param("id")
 	adID, err := strconv.ParseUint(adIDStr, 10, 64)
 	if err != nil {
-		respondBadRequest(c, "identifiant d'annonce invalide")
+		respondBadRequest(c, "invalid ad identifier")
 		return
 	}
 
@@ -83,12 +83,12 @@ func (h *MediaHandler) AddYouTube(c *gin.Context) {
 
 // DeleteMedia godoc
 // DELETE /media/:id
-// Supprime un média (fichier + entrée DB).
+// Supprime un media (fichier + entrée DB).
 func (h *MediaHandler) DeleteMedia(c *gin.Context) {
 	mediaIDStr := c.Param("id")
 	mediaID, err := strconv.ParseUint(mediaIDStr, 10, 64)
 	if err != nil {
-		respondBadRequest(c, "identifiant de média invalide")
+		respondBadRequest(c, "invalid media identifier")
 		return
 	}
 
@@ -100,17 +100,17 @@ func (h *MediaHandler) DeleteMedia(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "média supprimé"})
+	c.JSON(200, gin.H{"message": "media deleted"})
 }
 
 // SetCover godoc
 // PUT /media/:id/cover
-// Définit un média comme image de couverture de l'annonce.
+// Sets a media item as the ad cover image.
 func (h *MediaHandler) SetCover(c *gin.Context) {
 	mediaIDStr := c.Param("id")
 	mediaID, err := strconv.ParseUint(mediaIDStr, 10, 64)
 	if err != nil {
-		respondBadRequest(c, "identifiant de média invalide")
+		respondBadRequest(c, "invalid media identifier")
 		return
 	}
 
@@ -121,7 +121,7 @@ func (h *MediaHandler) SetCover(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "image de couverture mise à jour"})
+	c.JSON(200, gin.H{"message": "cover image updated"})
 }
 
 // updateOrderRequest est le body de PUT /media/:id/order.
@@ -131,12 +131,12 @@ type updateOrderRequest struct {
 
 // UpdateOrder godoc
 // PUT /media/:id/order
-// Met à jour le sort_order d'un média.
+// Updates the sort_order of a media item.
 func (h *MediaHandler) UpdateOrder(c *gin.Context) {
 	mediaIDStr := c.Param("id")
 	mediaID, err := strconv.ParseUint(mediaIDStr, 10, 64)
 	if err != nil {
-		respondBadRequest(c, "identifiant de média invalide")
+		respondBadRequest(c, "invalid media identifier")
 		return
 	}
 
@@ -153,5 +153,5 @@ func (h *MediaHandler) UpdateOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "ordre mis à jour"})
+	c.JSON(200, gin.H{"message": "order updated"})
 }

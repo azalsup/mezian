@@ -7,19 +7,19 @@ import (
 	"mezian/internal/service"
 )
 
-// ShopHandler gère les routes des boutiques.
+// ShopHandler handles shop routes.
 type ShopHandler struct {
 	shopSvc *service.ShopService
 }
 
-// NewShopHandler crée un nouveau ShopHandler.
+// NewShopHandler creates a new ShopHandler.
 func NewShopHandler(shopSvc *service.ShopService) *ShopHandler {
 	return &ShopHandler{shopSvc: shopSvc}
 }
 
 // GetShop godoc
 // GET /shops/:slug
-// Retourne la page publique d'une boutique.
+// Returns a shop's public page.
 func (h *ShopHandler) GetShop(c *gin.Context) {
 	slug := c.Param("slug")
 	shop, err := h.shopSvc.GetShopBySlug(slug)
@@ -41,7 +41,7 @@ type createShopRequest struct {
 
 // CreateShop godoc
 // POST /shops
-// Crée une boutique pour l'utilisateur connecté.
+// Creates a shop for the authenticated user.
 func (h *ShopHandler) CreateShop(c *gin.Context) {
 	var req createShopRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,7 +81,7 @@ type updateShopRequest struct {
 
 // UpdateShop godoc
 // PUT /shops/:slug
-// Modifie une boutique (owner uniquement).
+// Updates a shop (owner only).
 func (h *ShopHandler) UpdateShop(c *gin.Context) {
 	slug := c.Param("slug")
 	userID := middleware.GetUserID(c)
@@ -112,7 +112,7 @@ func (h *ShopHandler) UpdateShop(c *gin.Context) {
 
 // GetMyShop godoc
 // GET /users/me/shop
-// Retourne la boutique de l'utilisateur connecté.
+// Returns the authenticated user's shop.
 func (h *ShopHandler) GetMyShop(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 	shop, err := h.shopSvc.GetMyShop(userID)

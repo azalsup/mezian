@@ -10,15 +10,15 @@ import (
 	"gorm.io/gorm"
 )
 
-// Erreurs métier des boutiques.
+// Business errors for shops.
 var (
-	ErrShopNotFound      = errors.New("boutique introuvable")
-	ErrShopForbidden     = errors.New("accès non autorisé à cette boutique")
-	ErrShopAlreadyExists = errors.New("vous possédez déjà une boutique")
-	ErrShopSlugTaken     = errors.New("ce nom de boutique est déjà pris")
+	ErrShopNotFound      = errors.New("shop not found")
+	ErrShopForbidden     = errors.New("unauthorized access to this shop")
+	ErrShopAlreadyExists = errors.New("you already own a shop")
+	ErrShopSlugTaken     = errors.New("this shop name is already taken")
 )
 
-// CreateShopInput regroupe les données nécessaires à la création d'une boutique.
+// CreateShopInput groups the data required to create a shop.
 type CreateShopInput struct {
 	UserID      uint
 	Name        string
@@ -28,7 +28,7 @@ type CreateShopInput struct {
 	Plan        string
 }
 
-// UpdateShopInput regroupe les champs modifiables d'une boutique.
+// UpdateShopInput groups the editable fields of a shop.
 type UpdateShopInput struct {
 	Name        *string
 	Description *string
@@ -38,14 +38,14 @@ type UpdateShopInput struct {
 	CoverURL    *string
 }
 
-// ShopService gère la logique métier des boutiques.
+// ShopService handles the business logic for shops.
 type ShopService struct {
 	shopRepo *repository.ShopRepo
 	adRepo   *repository.AdRepo
 	cfg      *config.Config
 }
 
-// NewShopService crée un nouveau ShopService.
+// NewShopService creates a new ShopService.
 func NewShopService(shopRepo *repository.ShopRepo, adRepo *repository.AdRepo, cfg *config.Config) *ShopService {
 	return &ShopService{
 		shopRepo: shopRepo,
@@ -54,16 +54,16 @@ func NewShopService(shopRepo *repository.ShopRepo, adRepo *repository.AdRepo, cf
 	}
 }
 
-// CreateShop crée une nouvelle boutique pour un utilisateur.
+// CreateShop creates a new shop for a user.
 func (s *ShopService) CreateShop(input CreateShopInput) (*models.Shop, error) {
 	if s.shopRepo.ExistsByUserID(input.UserID) {
 		return nil, ErrShopAlreadyExists
 	}
 
-	// Générer un slug unique depuis le nom
+	// Generate a unique slug from the name
 	baseSlug := slugify(input.Name)
 	if baseSlug == "" {
-		baseSlug = fmt.Sprintf("boutique-%d", input.UserID)
+		baseSlug = fmt.Sprintf("shop-%d", input.UserID)
 	}
 
 	slug := baseSlug
@@ -90,7 +90,7 @@ func (s *ShopService) CreateShop(input CreateShopInput) (*models.Shop, error) {
 	}
 
 	if err := s.shopRepo.Create(shop); err != nil {
-		return nil, fmt.Errorf("création boutique: %w", err)
+		return nil, fmt.Errorf("creation shop: %w", err)
 	}
 
 	return shop, nil
@@ -130,13 +130,13 @@ func (s *ShopService) UpdateShop(slug string, requesterID uint, input UpdateShop
 	}
 
 	if err := s.shopRepo.Update(shop); err != nil {
-		return nil, fmt.Errorf("mise à jour boutique: %w", err)
+		return nil, fmt.Errorf("update shop: %w", err)
 	}
 
 	return shop, nil
 }
 
-// GetShopBySlug récupère une boutique publique par son slug.
+// GetShopBySlug retrieves a public shop by its slug.
 func (s *ShopService) GetShopBySlug(slug string) (*models.Shop, error) {
 	shop, err := s.shopRepo.FindBySlug(slug)
 	if err != nil {
@@ -148,7 +148,7 @@ func (s *ShopService) GetShopBySlug(slug string) (*models.Shop, error) {
 	return shop, nil
 }
 
-// GetMyShop récupère la boutique de l'utilisateur connecté.
+// GetMyShop retrieves the authenticated user's shop.
 func (s *ShopService) GetMyShop(userID uint) (*models.Shop, error) {
 	shop, err := s.shopRepo.FindByUserID(userID)
 	if err != nil {
@@ -160,7 +160,7 @@ func (s *ShopService) GetMyShop(userID uint) (*models.Shop, error) {
 	return shop, nil
 }
 
-// CanPublishAd vérifie si la boutique peut encore publier des annonces selon son plan.
+// CanPublishAd checks whether the shop can still publish ads according to its plan.
 func (s *ShopService) CanPublishAd(shopID uint) (bool, error) {
 	shop, err := s.shopRepo.FindByID(shopID)
 	if err != nil {
@@ -171,10 +171,10 @@ func (s *ShopService) CanPublishAd(shopID uint) (bool, error) {
 		return false, nil
 	}
 
-	// Obtenir la limite selon le plan
+	// Get the limit by plan
 	maxAds := s.maxAdsForPlan(shop.Plan)
 	if maxAds == -1 {
-		return true, nil // Illimité
+		return true, nil // Unlimited
 	}
 
 	count, err := s.adRepo.CountActiveByShop(shopID)
@@ -185,7 +185,7 @@ func (s *ShopService) CanPublishAd(shopID uint) (bool, error) {
 	return count < int64(maxAds), nil
 }
 
-// maxAdsForPlan retourne la limite d'annonces selon le plan.
+// maxAdsForPlan returns the ads limit for the plan.
 func (s *ShopService) maxAdsForPlan(plan string) int {
 	switch plan {
 	case "pro":

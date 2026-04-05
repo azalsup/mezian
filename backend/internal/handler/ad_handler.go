@@ -11,25 +11,25 @@ import (
 	"mezian/internal/service"
 )
 
-// AdHandler gère les routes des annonces.
+// AdHandler handles ad routes.
 type AdHandler struct {
 	adSvc *service.AdService
 }
 
-// NewAdHandler crée un nouveau AdHandler.
+// NewAdHandler creates a new AdHandler.
 func NewAdHandler(adSvc *service.AdService) *AdHandler {
 	return &AdHandler{adSvc: adSvc}
 }
 
 // ListAds godoc
 // GET /ads
-// Retourne la liste paginée des annonces avec filtres optionnels.
+// Retourne la liste paginée des ads avec filtres optionnels.
 func (h *AdHandler) ListAds(c *gin.Context) {
 	f := repository.AdFilters{
 		City:   c.Query("city"),
 		Search: c.Query("q"),
 		Sort:   c.Query("sort"),
-		Status: "active", // toujours actives pour le public
+		Status: "active", // always active for public
 	}
 
 	if v := c.Query("category"); v != "" {
@@ -80,7 +80,7 @@ func (h *AdHandler) ListAds(c *gin.Context) {
 
 // GetAd godoc
 // GET /ads/:slug
-// Retourne une annonce complète par son slug.
+// Retourne une ad complète par son slug.
 func (h *AdHandler) GetAd(c *gin.Context) {
 	slug := c.Param("slug")
 	ad, err := h.adSvc.GetAd(slug)
@@ -107,7 +107,7 @@ type createAdRequest struct {
 
 // CreateAd godoc
 // POST /ads
-// Crée une nouvelle annonce pour l'utilisateur connecté.
+// Creates a new ad for the authenticated user.
 func (h *AdHandler) CreateAd(c *gin.Context) {
 	var req createAdRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -140,7 +140,7 @@ func (h *AdHandler) CreateAd(c *gin.Context) {
 	respondCreated(c, ad)
 }
 
-// updateAdRequest est le body de PUT /ads/:slug.
+// updateAdRequest is the body for PUT /ads/:slug.
 type updateAdRequest struct {
 	Title      *string                `json:"title"`
 	Body       *string                `json:"body"`
@@ -199,12 +199,12 @@ func (h *AdHandler) DeleteAd(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "annonce supprimée"})
+	c.JSON(200, gin.H{"message": "ad deleted"})
 }
 
 // GetMyAds godoc
 // GET /users/me/ads
-// Retourne les annonces de l'utilisateur connecté.
+// Returns the authenticated user's ads.
 func (h *AdHandler) GetMyAds(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 

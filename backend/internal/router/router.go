@@ -13,7 +13,7 @@ import (
 	"mezian/internal/service"
 )
 
-// Deps regroupe toutes les dépendances injectées dans le router.
+// Deps groups all dependencies injected into the router.
 type Deps struct {
 	AuthHandler     *handler.AuthHandler
 	AdHandler       *handler.AdHandler
@@ -24,7 +24,7 @@ type Deps struct {
 	Config          *config.Config
 }
 
-// New crée et configure le moteur Gin avec toutes les routes.
+// New creates et configure le moteur Gin avec toutes les routes.
 func New(deps *Deps) *gin.Engine {
 	r := gin.New()
 
@@ -65,14 +65,14 @@ func New(deps *Deps) *gin.Engine {
 		}
 	}
 
-	// --- Catégories (publiques) ---
+	// --- Categories (public) ---
 	categories := api.Group("/categories")
 	{
 		categories.GET("", deps.CategoryHandler.ListCategories)
 		categories.GET("/:slug", deps.CategoryHandler.GetCategory)
 	}
 
-	// --- Annonces ---
+	// --- Ads ---
 	ads := api.Group("/ads")
 	{
 		// Routes publiques (avec auth optionnelle pour enrichir la réponse)
@@ -87,13 +87,13 @@ func New(deps *Deps) *gin.Engine {
 			adsProtected.PUT("/:slug", deps.AdHandler.UpdateAd)
 			adsProtected.DELETE("/:slug", deps.AdHandler.DeleteAd)
 
-			// Médias d'une annonce (route imbriquée)
+			// Médias d'une ad (route imbriquée)
 			adsProtected.POST("/:id/media", deps.MediaHandler.UploadImage)
 			adsProtected.POST("/:id/media/youtube", deps.MediaHandler.AddYouTube)
 		}
 	}
 
-	// --- Médias (standalone) ---
+	// --- Media (standalone) ---
 	media := api.Group("/media")
 	media.Use(middleware.RequireAuth(deps.AuthService))
 	{
@@ -102,7 +102,7 @@ func New(deps *Deps) *gin.Engine {
 		media.PUT("/:id/order", deps.MediaHandler.UpdateOrder)
 	}
 
-	// --- Boutiques ---
+	// --- Shops ---
 	shops := api.Group("/shops")
 	{
 		shops.GET("/:slug", deps.ShopHandler.GetShop)
@@ -136,7 +136,7 @@ func corsMiddleware(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
 
-		// Vérifier si l'origine est autorisée
+		// Check if origin is allowed
 		if allowedOrigins[origin] {
 			c.Header("Access-Control-Allow-Origin", origin)
 		} else if len(cfg.Server.CORSOrigins) == 0 {

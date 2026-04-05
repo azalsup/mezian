@@ -1,15 +1,18 @@
-/* ===== Variables globales ===== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Global variables ===== */
 :root {
-  --red:       #C0392B;
-  --red-dark:  #96281b;
-  --red-light: #f9e5e3;
-  --navy:      #1a1a2e;
-  --grey-50:   #f8f9fa;
-  --grey-100:  #f1f3f5;
-  --grey-200:  #e9ecef;
-  --grey-500:  #adb5bd;
-  --grey-700:  #495057;
-  --white:     #ffffff;
+  --green:      #006233;
+  --green-dark: #005229;
+  --navy:       #1a1a2e;
+  --grey-50:    #f8f9fa;
+  --grey-100:   #f1f3f5;
+  --grey-200:   #e9ecef;
+  --grey-500:   #adb5bd;
+  --grey-700:   #495057;
+  --white:      #ffffff;
 
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -19,27 +22,21 @@
   --shadow-lg: 0 12px 48px rgba(0,0,0,.14);
 }
 
-/* ===== Reset de base ===== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+/* ===== Base ===== */
 html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
   color: var(--navy);
   background: var(--white);
   -webkit-font-smoothing: antialiased;
 }
 
-a { color: inherit; text-decoration: none; }
-
-img, svg { display: block; max-width: 100%; }
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-  border: none;
-  background: none;
+/* Arabic: switch to Cairo font and enable RTL */
+[dir='rtl'] body {
+  font-family: 'Cairo', 'Inter', Arial, sans-serif;
 }
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+img, svg { display: block; max-width: 100%; }

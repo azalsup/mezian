@@ -1,4 +1,4 @@
-// Package handler contient les handlers HTTP Gin.
+// Package handler contains Gin HTTP handlers.
 package handler
 
 import (
@@ -10,17 +10,17 @@ import (
 	"mezian/internal/service"
 )
 
-// respondOK envoie une réponse 200 JSON.
+// respondOK sends a 200 JSON response.
 func respondOK(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-// respondCreated envoie une réponse 201 JSON.
+// respondCreated sends a 201 JSON response.
 func respondCreated(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusCreated, gin.H{"data": data})
 }
 
-// respondError envoie une réponse d'erreur JSON avec le bon code HTTP.
+// respondError sends a JSON error response with the correct HTTP status code.
 func respondError(c *gin.Context, err error) {
 	code := http.StatusInternalServerError
 	msg := "erreur interne du serveur"
@@ -60,13 +60,13 @@ func respondError(c *gin.Context, err error) {
 		msg = err.Error()
 
 	default:
-		// Ne pas exposer les détails des erreurs internes en production
+		// Do not expose internal error details in production
 	}
 
 	c.JSON(code, gin.H{"error": msg})
 }
 
-// respondBadRequest envoie une réponse 400 avec un message personnalisé.
+// respondBadRequest sends a 400 response with a custom message.
 func respondBadRequest(c *gin.Context, msg string) {
 	c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 }

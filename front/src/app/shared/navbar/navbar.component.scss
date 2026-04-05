@@ -1,0 +1,13 @@
+.logo-font {
+  font-family: 'Pacifico', cursive;
+}
+
+.lang-pill {
+  padding: 0.375rem 1.25rem;
+  transition: background-color 0.2s, color 0.2s;
+
+  &--active {
+    background-color: #006233;
+    color: #ffffff;
+  }
+}

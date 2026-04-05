@@ -1,7 +1,7 @@
 /**
- * Ressource Boutiques — gestion des boutiques pro.
- * La lecture est publique. Création/modification requièrent un token.
- * Un utilisateur ne peut avoir qu'une seule boutique.
+ * Ressource Shops — gestion des boutiques pro.
+ * Read access is public. Create/update require a token.
+ * Each user can only have one shop.
  */
 
 import type { HttpClient } from "../utils/http.js";
@@ -17,38 +17,38 @@ export class ShopsResource {
   constructor(private http: HttpClient) {}
 
   /**
-   * Retourne une boutique publique avec son profil.
+   * Returns a public shop profile.
    *
-   * @param slug - Slug de la boutique, ex: "auto-occasion-casa"
+   * @param slug - Shop slug, e.g. "auto-occasion-casa"
    */
   get(slug: string): Promise<Shop> {
     return this.http.get(`/shops/${slug}`);
   }
 
   /**
-   * Retourne les annonces actives d'une boutique.
+   * Returns a shop's active ads.
    */
   getAds(slug: string, page = 1, limit = 20): Promise<Paginated<Ad>> {
     return this.http.get(`/shops/${slug}/ads`, { page, limit });
   }
 
   /**
-   * Crée la boutique de l'utilisateur connecté.
-   * Chaque utilisateur ne peut créer qu'une seule boutique.
+   * Creates the authenticated user's shop.
+   * Each user can create only one shop.
    */
   create(req: CreateShopRequest): Promise<Shop> {
     return this.http.post("/shops", req);
   }
 
   /**
-   * Met à jour la boutique de l'utilisateur connecté.
+   * Updates the authenticated user's shop.
    */
   update(slug: string, req: UpdateShopRequest): Promise<Shop> {
     return this.http.put(`/shops/${slug}`, req);
   }
 
   /**
-   * Retourne la boutique de l'utilisateur connecté.
+   * Returns the authenticated user's shop.
    */
   getMyShop(): Promise<Shop> {
     return this.http.get("/users/me/shop");

@@ -7,13 +7,13 @@
 // Utilitaires
 // ---------------------------------------------------------------------------
 
-/** Réponse d'erreur standard de l'API */
+/** Standard API error response */
 export interface ApiError {
   error: string;
   details?: Record<string, string>;
 }
 
-/** Réponse paginée générique */
+/** Generic paginated response */
 export interface Paginated<T> {
   data: T[];
   total: number;
@@ -23,7 +23,7 @@ export interface Paginated<T> {
 }
 
 // ---------------------------------------------------------------------------
-// Utilisateur & Auth
+// User & Auth
 // ---------------------------------------------------------------------------
 
 export type UserRole = "user" | "admin";
@@ -41,7 +41,7 @@ export interface User {
   updated_at: string;
 }
 
-/** Tokens retournés après une auth réussie */
+/** Tokens returned after successful auth */
 export interface AuthTokens {
   access_token: string;
   refresh_token: string;
@@ -49,13 +49,13 @@ export interface AuthTokens {
   expires_in: number; // secondes
 }
 
-/** Réponse complète d'une connexion/inscription */
+/** Complete login/register response */
 export interface AuthResponse {
   tokens: AuthTokens;
   user: User;
 }
 
-// Corps des requêtes auth
+// Auth request bodies
 export interface SendOtpRequest {
   phone: string;
   /** Canal d'envoi. Défaut: sms */
@@ -71,7 +71,7 @@ export interface VerifyOtpRequest {
 }
 
 export interface LoginRequest {
-  /** Téléphone E.164 ou email */
+  /** E.164 phone number or email */
   identifier: string;
   password: string;
 }
@@ -95,7 +95,7 @@ export interface RefreshTokenRequest {
 }
 
 // ---------------------------------------------------------------------------
-// Catégories & Attributs
+// Categories & Attributes
 // ---------------------------------------------------------------------------
 
 export type AttributeDataType = "integer" | "float" | "string" | "boolean" | "enum";
@@ -129,7 +129,7 @@ export interface Category {
 }
 
 // ---------------------------------------------------------------------------
-// Annonces
+// Ads
 // ---------------------------------------------------------------------------
 
 export type AdStatus = "draft" | "active" | "sold" | "expired" | "deleted";
@@ -162,7 +162,7 @@ export interface Ad {
   shop_id?: number;
   slug: string;
   title: string;
-  /** Corps en Markdown */
+  /** Body in Markdown */
   body: string;
   price?: number;
   currency: Currency;
@@ -182,7 +182,7 @@ export interface Ad {
   attributes?: AdAttribute[];
 }
 
-// Corps des requêtes annonces
+// Ad request bodies
 export interface CreateAdRequest {
   category_id: number;
   title: string;
@@ -212,7 +212,7 @@ export interface AdFilters {
 }
 
 // ---------------------------------------------------------------------------
-// Boutiques
+// Shops
 // ---------------------------------------------------------------------------
 
 export type ShopPlan = "starter" | "pro" | "premium";
@@ -222,7 +222,7 @@ export interface Shop {
   user_id: number;
   slug: string;
   name: string;
-  /** Description en Markdown */
+  /** Description in Markdown */
   description?: string;
   logo_url?: string;
   cover_url?: string;

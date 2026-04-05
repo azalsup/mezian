@@ -5,11 +5,11 @@ export const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./pages/home/home.component').then((m) => m.HomeComponent),
-    title: 'Mezian — Petites annonces Maroc',
+    title: 'Mezian — Petites annonces au Maroc',
   },
-  // Futures routes
-  // { path: 'annonces', ... }
-  // { path: 'annonces/:slug', ... }
+  // Future routes
+  // { path: 'ads', ... }
+  // { path: 'ads/:slug', ... }
   // { path: 'auth', ... }
   { path: '**', redirectTo: '' },
 ];

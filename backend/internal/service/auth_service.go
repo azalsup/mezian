@@ -18,40 +18,40 @@ import (
 	"gorm.io/gorm"
 )
 
-// Erreurs métier de l'authentification.
+// Business errors for authentication.
 var (
-	ErrUserNotFound      = errors.New("utilisateur introuvable")
-	ErrInvalidOTP        = errors.New("code OTP invalide ou expiré")
-	ErrOTPMaxAttempts    = errors.New("trop de tentatives OTP")
-	ErrOTPRateLimit      = errors.New("trop d'OTP demandés, réessayez dans 1 heure")
+	ErrUserNotFound      = errors.New("user not found")
+	ErrInvalidOTP        = errors.New("invalid or expired OTP code")
+	ErrOTPMaxAttempts    = errors.New("too many OTP attempts")
+	ErrOTPRateLimit      = errors.New("too many OTP requests, try again in 1 hour")
 	ErrInvalidPassword   = errors.New("mot de passe incorrect")
-	ErrInvalidToken      = errors.New("token invalide ou expiré")
-	ErrPhoneAlreadyUsed  = errors.New("ce numéro de téléphone est déjà utilisé")
-	ErrEmailAlreadyUsed  = errors.New("cet email est déjà utilisé")
+	ErrInvalidToken      = errors.New("invalid or expired token")
+	ErrPhoneAlreadyUsed  = errors.New("this phone number is already used")
+	ErrEmailAlreadyUsed  = errors.New("this email is already used")
 )
 
-// TokenPair regroupe un access token et un refresh token.
+// TokenPair groups an access token and a refresh token.
 type TokenPair struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresIn    int    `json:"expires_in"` // secondes
 }
 
-// JWTClaims étend les claims JWT standard.
+// JWTClaims extends the standard JWT claims.
 type JWTClaims struct {
 	UserID uint   `json:"uid"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-// AuthService gère l'authentification: OTP, JWT, mots de passe.
+// AuthService handles authentication: OTP, JWT, and passwords.
 type AuthService struct {
 	userRepo *repository.UserRepo
 	notif    NotificationService
 	cfg      *config.Config
 }
 
-// NewAuthService crée un nouveau AuthService.
+// NewAuthService creates a new AuthService.
 func NewAuthService(userRepo *repository.UserRepo, notif NotificationService, cfg *config.Config) *AuthService {
 	return &AuthService{
 		userRepo: userRepo,
@@ -60,27 +60,27 @@ func NewAuthService(userRepo *repository.UserRepo, notif NotificationService, cf
 	}
 }
 
-// SendOTP génère un code OTP, le hache, le sauvegarde et l'envoie par notification.
+// SendOTP generates an OTP code, hashes it, saves it, and sends it by notification.
 func (s *AuthService) SendOTP(phone, purpose string, channel NotificationChannel) error {
-	// Vérifier le rate limit
+	// Check the rate limit
 	count, err := s.userRepo.CountOTPLastHour(phone)
 	if err != nil {
-		return fmt.Errorf("vérification rate limit: %w", err)
+		return fmt.Errorf("rate limit verification: %w", err)
 	}
 	if count >= int64(s.cfg.OTP.RateLimitPerHour) {
 		return ErrOTPRateLimit
 	}
 
-	// Générer le code OTP
+	// Generate the OTP code
 	code, err := generateOTPCode(s.cfg.OTP.Length)
 	if err != nil {
-		return fmt.Errorf("génération OTP: %w", err)
+		return fmt.Errorf("OTP generation: %w", err)
 	}
 
 	// Hacher le code
 	hash, err := bcrypt.GenerateFromPassword([]byte(code), bcrypt.DefaultCost)
 	if err != nil {
-		return fmt.Errorf("hachage OTP: %w", err)
+		return fmt.Errorf("OTP hashing: %w", err)
 	}
 
 	otp := &models.OTPCode{
@@ -92,46 +92,46 @@ func (s *AuthService) SendOTP(phone, purpose string, channel NotificationChannel
 	}
 
 	if err := s.userRepo.SaveOTP(otp); err != nil {
-		return fmt.Errorf("sauvegarde OTP: %w", err)
+		return fmt.Errorf("OTP saving: %w", err)
 	}
 
 	// Envoyer la notification
 	return s.notif.SendOTP(phone, code, channel)
 }
 
-// VerifyOTP vérifie un code OTP et le marque comme utilisé si valide.
+// VerifyOTP verifies an OTP code and marks it as used if valid.
 func (s *AuthService) VerifyOTP(phone, code, purpose string) error {
 	otp, err := s.userRepo.FindValidOTPSQLite(phone, purpose)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrInvalidOTP
 		}
-		return fmt.Errorf("recherche OTP: %w", err)
+		return fmt.Errorf("OTP search: %w", err)
 	}
 
-	// Vérifier le nombre de tentatives
+	// Check the number of attempts
 	if otp.Attempts >= s.cfg.OTP.MaxAttempts {
 		return ErrOTPMaxAttempts
 	}
 
-	// Incrémenter les tentatives
+	// Increment attempts
 	otp.Attempts++
 	if saveErr := s.userRepo.UpdateOTP(otp); saveErr != nil {
-		return fmt.Errorf("mise à jour tentatives: %w", saveErr)
+		return fmt.Errorf("update attempts: %w", saveErr)
 	}
 
-	// Vérifier le code
+	// Verify the code
 	if err := bcrypt.CompareHashAndPassword([]byte(otp.CodeHash), []byte(code)); err != nil {
 		return ErrInvalidOTP
 	}
 
-	// Marquer comme utilisé
+	// Mark as used
 	now := time.Now()
 	otp.UsedAt = &now
 	return s.userRepo.UpdateOTP(otp)
 }
 
-// RegisterWithOTP crée un compte utilisateur après vérification OTP.
+// RegisterWithOTP creates a user after OTP verification.
 func (s *AuthService) RegisterWithOTP(phone, displayName string) (*models.User, *TokenPair, error) {
 	if s.userRepo.ExistsByPhone(phone) {
 		return nil, nil, ErrPhoneAlreadyUsed
@@ -145,7 +145,7 @@ func (s *AuthService) RegisterWithOTP(phone, displayName string) (*models.User, 
 	}
 
 	if err := s.userRepo.Create(user); err != nil {
-		return nil, nil, fmt.Errorf("création utilisateur: %w", err)
+		return nil, nil, fmt.Errorf("user creation: %w", err)
 	}
 
 	tokens, err := s.GenerateTokenPair(user.ID)
@@ -156,14 +156,14 @@ func (s *AuthService) RegisterWithOTP(phone, displayName string) (*models.User, 
 	return user, tokens, nil
 }
 
-// LoginWithOTP connecte un utilisateur existant via OTP (téléphone).
+// LoginWithOTP connects an existing user via OTP (phone).
 func (s *AuthService) LoginWithOTP(phone string) (*models.User, *TokenPair, error) {
 	user, err := s.userRepo.FindByPhone(phone)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil, ErrUserNotFound
 		}
-		return nil, nil, fmt.Errorf("recherche utilisateur: %w", err)
+		return nil, nil, fmt.Errorf("user lookup: %w", err)
 	}
 
 	tokens, err := s.GenerateTokenPair(user.ID)
@@ -174,7 +174,7 @@ func (s *AuthService) LoginWithOTP(phone string) (*models.User, *TokenPair, erro
 	return user, tokens, nil
 }
 
-// RegisterWithPassword crée un compte avec mot de passe.
+// RegisterWithPassword creates an account with a password.
 func (s *AuthService) RegisterWithPassword(phone, email, password, displayName string) (*models.User, *TokenPair, error) {
 	if s.userRepo.ExistsByPhone(phone) {
 		return nil, nil, ErrPhoneAlreadyUsed
@@ -185,7 +185,7 @@ func (s *AuthService) RegisterWithPassword(phone, email, password, displayName s
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, nil, fmt.Errorf("hachage mot de passe: %w", err)
+		return nil, nil, fmt.Errorf("password hashing: %w", err)
 	}
 	hashStr := string(hash)
 
@@ -201,7 +201,7 @@ func (s *AuthService) RegisterWithPassword(phone, email, password, displayName s
 	}
 
 	if err := s.userRepo.Create(user); err != nil {
-		return nil, nil, fmt.Errorf("création utilisateur: %w", err)
+		return nil, nil, fmt.Errorf("user creation: %w", err)
 	}
 
 	tokens, err := s.GenerateTokenPair(user.ID)
@@ -212,14 +212,14 @@ func (s *AuthService) RegisterWithPassword(phone, email, password, displayName s
 	return user, tokens, nil
 }
 
-// LoginWithPassword authentifie un utilisateur par téléphone ou email + mot de passe.
+// LoginWithPassword authenticates a user by phone or email and password.
 func (s *AuthService) LoginWithPassword(identifier, password string) (*models.User, *TokenPair, error) {
 	user, err := s.userRepo.FindByPhoneOrEmail(identifier)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil, ErrUserNotFound
 		}
-		return nil, nil, fmt.Errorf("recherche utilisateur: %w", err)
+		return nil, nil, fmt.Errorf("user lookup: %w", err)
 	}
 
 	if user.PasswordHash == nil {
@@ -303,7 +303,7 @@ func (s *AuthService) RefreshTokens(rawToken string) (*TokenPair, error) {
 
 	// Rotation: révoquer l'ancien token
 	if err := s.userRepo.RevokeRefreshToken(rt.ID); err != nil {
-		return nil, fmt.Errorf("révocation ancien token: %w", err)
+		return nil, fmt.Errorf("old token revocation: %w", err)
 	}
 
 	return s.GenerateTokenPair(rt.UserID)
@@ -329,12 +329,12 @@ func (s *AuthService) ValidateAccessToken(tokenStr string) (*JWTClaims, error) {
 	return claims, nil
 }
 
-// Logout révoque tous les refresh tokens de l'utilisateur.
+// Logout révoque tous les refresh tokens de l'user.
 func (s *AuthService) Logout(userID uint) error {
 	return s.userRepo.RevokeAllUserTokens(userID)
 }
 
-// generateOTPCode génère un code numérique aléatoire de longueur donnée.
+// generateOTPCode generates a random numeric code of the given length.
 func generateOTPCode(length int) (string, error) {
 	if length <= 0 {
 		length = 6

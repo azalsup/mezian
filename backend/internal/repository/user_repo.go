@@ -1,4 +1,4 @@
-// Package repository encapsule les accès base de données.
+// Package repository encapsule les accès database.
 package repository
 
 import (
@@ -10,41 +10,41 @@ import (
 	"gorm.io/gorm"
 )
 
-// UserRepo gère les opérations base de données sur les utilisateurs.
+// UserRepo handles database operations for users.
 type UserRepo struct{ db *gorm.DB }
 
-// NewUserRepo crée un nouveau UserRepo.
+// NewUserRepo creates un nouveau UserRepo.
 func NewUserRepo(db *gorm.DB) *UserRepo { return &UserRepo{db} }
 
-// FindByID récupère un utilisateur par son ID.
+// FindByID retrieves a user by its ID.
 func (r *UserRepo) FindByID(id uint) (*models.User, error) {
 	var u models.User
 	err := r.db.First(&u, id).Error
 	return &u, err
 }
 
-// FindByPhone récupère un utilisateur par son numéro de téléphone.
+// FindByPhone retrieves a user by phone number.
 func (r *UserRepo) FindByPhone(phone string) (*models.User, error) {
 	var u models.User
 	err := r.db.Where("phone = ?", phone).First(&u).Error
 	return &u, err
 }
 
-// FindByEmail récupère un utilisateur par son email.
+// FindByEmail retrieves a user by their email.
 func (r *UserRepo) FindByEmail(email string) (*models.User, error) {
 	var u models.User
 	err := r.db.Where("email = ?", email).First(&u).Error
 	return &u, err
 }
 
-// FindByPhoneOrEmail récupère un utilisateur par téléphone ou email.
+// FindByPhoneOrEmail retrieves a user by phone or email.
 func (r *UserRepo) FindByPhoneOrEmail(identifier string) (*models.User, error) {
 	var u models.User
 	err := r.db.Where("phone = ? OR email = ?", identifier, identifier).First(&u).Error
 	return &u, err
 }
 
-// Create insère un nouvel utilisateur.
+// Create inserts a new user.
 func (r *UserRepo) Create(u *models.User) error {
 	return r.db.Create(u).Error
 }
@@ -54,7 +54,7 @@ func (r *UserRepo) Update(u *models.User) error {
 	return r.db.Save(u).Error
 }
 
-// ExistsByPhone retourne true si un utilisateur avec ce numéro existe.
+// ExistsByPhone returns true if a user with that phone exists.
 func (r *UserRepo) ExistsByPhone(phone string) bool {
 	var count int64
 	r.db.Model(&models.User{}).Where("phone = ?", phone).Count(&count)
@@ -78,7 +78,7 @@ func (r *UserRepo) SaveOTP(otp *models.OTPCode) error {
 	return r.db.Create(otp).Error
 }
 
-// FindValidOTPSQLite cherche un OTP valide (non expiré, non utilisé) — compatible SQLite.
+// FindValidOTPSQLite searches for a valid OTP (not expired, not used) — SQLite compatible.
 func (r *UserRepo) FindValidOTPSQLite(phone, purpose string) (*models.OTPCode, error) {
 	var otp models.OTPCode
 	err := r.db.Where(
@@ -91,12 +91,12 @@ func (r *UserRepo) FindValidOTPSQLite(phone, purpose string) (*models.OTPCode, e
 	return &otp, err
 }
 
-// UpdateOTP sauvegarde les modifications d'un OTP (ex: marquer comme utilisé).
+// UpdateOTP saves OTP changes (e.g. mark as used).
 func (r *UserRepo) UpdateOTP(otp *models.OTPCode) error {
 	return r.db.Save(otp).Error
 }
 
-// CountOTPLastHour retourne le nombre d'OTP envoyés au cours de la dernière heure.
+// CountOTPLastHour returns the number of OTPs sent in the last hour.
 func (r *UserRepo) CountOTPLastHour(phone string) (int64, error) {
 	var count int64
 	err := r.db.Model(&models.OTPCode{}).
@@ -110,20 +110,20 @@ func (r *UserRepo) SaveRefreshToken(rt *models.RefreshToken) error {
 	return r.db.Create(rt).Error
 }
 
-// FindRefreshToken récupère un refresh token par son hash.
+// FindRefreshToken retrieves a refresh token by its hash.
 func (r *UserRepo) FindRefreshToken(hash string) (*models.RefreshToken, error) {
 	var rt models.RefreshToken
 	err := r.db.Where("token_hash = ?", hash).First(&rt).Error
 	return &rt, err
 }
 
-// RevokeRefreshToken révoque un refresh token par son ID.
+// RevokeRefreshToken revokes a refresh token by its ID.
 func (r *UserRepo) RevokeRefreshToken(id uint) error {
 	now := time.Now()
 	return r.db.Model(&models.RefreshToken{}).Where("id = ?", id).Update("revoked_at", &now).Error
 }
 
-// RevokeAllUserTokens révoque tous les refresh tokens actifs d'un utilisateur.
+// RevokeAllUserTokens revokes all active refresh tokens for a user.
 func (r *UserRepo) RevokeAllUserTokens(userID uint) error {
 	now := time.Now()
 	return r.db.Model(&models.RefreshToken{}).
