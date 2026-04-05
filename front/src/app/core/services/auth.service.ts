@@ -133,7 +133,6 @@ export class AuthService {
     this.refreshToken = res.tokens.refresh_token;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(res.tokens));
     this.currentUser.set(res.user);
-    this.closeModal();
   }
 
   private clearSession(): void {

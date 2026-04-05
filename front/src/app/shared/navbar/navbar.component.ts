@@ -1,4 +1,5 @@
 import { Component, HostListener, inject, ElementRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { LangService } from '../../core/services/lang.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -8,17 +9,18 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './navbar.component.scss',
 })
 export class NavbarComponent {
-  protected readonly lang = inject(LangService);
-  protected readonly auth = inject(AuthService);
-  private  readonly el   = inject(ElementRef);
+  protected readonly lang   = inject(LangService);
+  protected readonly auth   = inject(AuthService);
+  private  readonly router  = inject(Router);
+  private  readonly el      = inject(ElementRef);
 
   showProfileMenu = false;
 
   onSellClick(): void {
     if (!this.auth.isLoggedIn()) {
-      this.auth.openModal('register');
+      this.router.navigate(['/register']);
     }
-    // TODO: navigate to ad creation
+    // TODO: navigate to ad creation when logged in
   }
 
   toggleProfileMenu(): void {
@@ -27,17 +29,18 @@ export class NavbarComponent {
 
   openRegister(): void {
     this.showProfileMenu = false;
-    this.auth.openModal('register');
+    this.router.navigate(['/register']);
   }
 
   openLogin(): void {
     this.showProfileMenu = false;
-    this.auth.openModal('login');
+    this.router.navigate(['/login']);
   }
 
   logout(): void {
     this.showProfileMenu = false;
     this.auth.logout();
+    this.router.navigate(['/']);
   }
 
   @HostListener('document:click', ['$event'])

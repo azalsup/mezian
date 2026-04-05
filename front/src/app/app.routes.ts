@@ -4,12 +4,22 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/home/home.component').then((m) => m.HomeComponent),
+      import('./pages/home/home.component').then(m => m.HomeComponent),
     title: 'Mezian — Petites annonces au Maroc',
   },
-  // Future routes
-  // { path: 'ads', ... }
-  // { path: 'ads/:slug', ... }
-  // { path: 'auth', ... }
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/auth-page/auth-page.component').then(m => m.AuthPageComponent),
+    title: 'Connexion — Mezian',
+    data: { screen: 'login' },
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./features/auth/auth-page/auth-page.component').then(m => m.AuthPageComponent),
+    title: 'Créer un compte — Mezian',
+    data: { screen: 'reg-credentials' },
+  },
   { path: '**', redirectTo: '' },
 ];
