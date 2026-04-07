@@ -1,6 +1,14 @@
 export const environment = {
   apiBaseUrl: '/api/v1',
 
+  /**
+   * SDK log level. Controls what the MezianApiClient logs to the browser console.
+   * 'debug' → log every request/response.
+   * 'warn'  → log only warnings and errors (default for production).
+   * 'none'  → completely silent.
+   */
+  logLevel: 'warn' as 'debug' | 'info' | 'warn' | 'error' | 'none',
+
   auth: {
     /** Set to false to hide OTP option and force password-only auth */
     otpEnabled: true,

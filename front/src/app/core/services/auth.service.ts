@@ -1,56 +1,27 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { AuthApi, MezianApiClient } from '../../sdk';
+import type { AuthTokens, AuthResponse, RegisterPayload, User } from '../../sdk';
 
-export interface AuthTokens {
-  access_token: string;
-  refresh_token: string;
-  token_type: 'Bearer';
-  expires_in: number;
-}
-
-export interface User {
-  id: number;
-  phone: string;
-  email?: string;
-  is_verified: boolean;
-  display_name: string;
-  avatar_url?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  country?: string;
-  role: 'user' | 'admin';
-  created_at: string;
-  updated_at: string;
-}
-
-export interface AuthResponse {
-  tokens: AuthTokens;
-  user: User;
-}
-
-export interface RegisterPayload {
-  phone?: string;
-  email?: string;
-  password: string;
-  display_name: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  country?: string;
-}
-
-const STORAGE_KEY = 'mezian_tokens';
-const API = environment.apiBaseUrl;
+// Re-export types so existing consumers keep their import path working.
+export type { AuthTokens, AuthResponse, RegisterPayload, User };
 
 /** Exposes auth config from environment so templates can read it. */
 export const authConfig = environment.auth;
 
+const STORAGE_KEY = 'mezian_tokens';
+
+/**
+ * AuthService — session management, UI signals, modal state.
+ *
+ * Does NOT make HTTP calls directly. All backend communication is
+ * delegated to AuthApi (which uses MezianApiClient).
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly authApi   = inject(AuthApi);
+  private readonly apiClient = inject(MezianApiClient);
 
   readonly currentUser = signal<User | null>(null);
   readonly isLoggedIn  = computed(() => this.currentUser() !== null);
@@ -59,7 +30,6 @@ export class AuthService {
   readonly modalOpen = signal(false);
   readonly modalMode = signal<'login' | 'register'>('login');
 
-  private accessToken: string | null  = null;
   private refreshToken: string | null = null;
 
   constructor() {
@@ -80,63 +50,43 @@ export class AuthService {
   // ── OTP flow ─────────────────────────────────────────────────────────────
 
   sendOtp(phone: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${API}/auth/send-otp`, {
-      phone,
-      channel: 'sms',
-      purpose: 'login',
-    });
+    return this.authApi.sendOtp(phone);
   }
 
   verifyOtp(phone: string, code: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API}/auth/verify-otp`, {
-      phone,
-      code,
-      purpose: 'login',
-    }).pipe(tap(res => this.setSession(res)));
+    return this.authApi.verifyOtp(phone, code).pipe(tap(r => this.setSession(r)));
   }
 
   // ── Password flow ────────────────────────────────────────────────────────
 
   login(identifier: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API}/auth/login`, { identifier, password })
-      .pipe(tap(res => this.setSession(res)));
+    return this.authApi.login(identifier, password).pipe(tap(r => this.setSession(r)));
   }
 
   register(payload: RegisterPayload): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API}/auth/register`, payload)
-      .pipe(tap(res => this.setSession(res)));
+    return this.authApi.register(payload).pipe(tap(r => this.setSession(r)));
   }
 
   // ── Logout ───────────────────────────────────────────────────────────────
 
   logout(): void {
-    if (this.refreshToken && this.accessToken) {
-      this.http
-        .post(
-          `${API}/auth/logout`,
-          { refresh_token: this.refreshToken },
-          { headers: new HttpHeaders({ Authorization: `Bearer ${this.accessToken}` }) },
-        )
-        .subscribe({ error: () => {} });
+    if (this.refreshToken) {
+      this.authApi.logout(this.refreshToken).subscribe({ error: () => {} });
     }
     this.clearSession();
-  }
-
-  getAuthHeader(): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Bearer ${this.accessToken ?? ''}` });
   }
 
   // ── Session helpers ──────────────────────────────────────────────────────
 
   private setSession(res: AuthResponse): void {
-    this.accessToken  = res.tokens.access_token;
+    this.apiClient.setToken(res.tokens.access_token);
     this.refreshToken = res.tokens.refresh_token;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(res.tokens));
     this.currentUser.set(res.user);
   }
 
   private clearSession(): void {
-    this.accessToken  = null;
+    this.apiClient.setToken(null);
     this.refreshToken = null;
     localStorage.removeItem(STORAGE_KEY);
     this.currentUser.set(null);
@@ -147,20 +97,14 @@ export class AuthService {
     if (!raw) return;
     try {
       const tokens: AuthTokens = JSON.parse(raw);
-      this.accessToken  = tokens.access_token;
+      this.apiClient.setToken(tokens.access_token);
       this.refreshToken = tokens.refresh_token;
-      this.loadMe();
-    } catch {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }
-
-  private loadMe(): void {
-    this.http
-      .get<User>(`${API}/auth/me`, { headers: this.getAuthHeader() })
-      .subscribe({
+      this.authApi.me().subscribe({
         next:  user => this.currentUser.set(user),
         error: ()   => this.clearSession(),
       });
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }
 }
