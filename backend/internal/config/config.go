@@ -116,9 +116,26 @@ type PlanConfig struct {
     DurationDays int     `yaml:"duration_days"`
 }
 
-// Load looks for config/config.local.yaml then config/config.yaml.
+// Load reads configuration. Resolution order:
+//
+//  1. If APP_ENV is set (e.g. "production"):
+//     config/config.{APP_ENV}.yaml → config/config.yaml
+//  2. Otherwise (local development):
+//     config/config.local.yaml → config/config.yaml
+//
+// After loading the file, JWT_SECRET, DB_PATH and PORT env vars override
+// the corresponding values.
 func Load() (*Config, error) {
-    paths := []string{"config/config.local.yaml", "config/config.yaml"}
+    var paths []string
+    if env := os.Getenv("APP_ENV"); env != "" {
+        paths = []string{
+            fmt.Sprintf("config/config.%s.yaml", env),
+            "config/config.yaml",
+        }
+    } else {
+        paths = []string{"config/config.local.yaml", "config/config.yaml"}
+    }
+
     var data []byte
     var err error
     for _, p := range paths {

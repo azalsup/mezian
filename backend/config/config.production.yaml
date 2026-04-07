@@ -1,0 +1,7 @@
+server:
+  port: 3000
+  mode: release
+  base_url: "https://api.daba.incipyo.com"
+  frontend_url: "https://daba.incipyo.com"
+  cors_origins:
+    - "https://daba.incipyo.com"
