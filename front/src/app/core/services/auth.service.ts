@@ -1,4 +1,5 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthApi, ApiClient } from '../../sdk';
@@ -20,8 +21,9 @@ const STORAGE_KEY = 'auth_tokens';
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly authApi   = inject(AuthApi);
-  private readonly apiClient = inject(ApiClient);
+  private readonly authApi    = inject(AuthApi);
+  private readonly apiClient  = inject(ApiClient);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly currentUser = signal<User | null>(null);
   readonly isLoggedIn  = computed(() => this.currentUser() !== null);
@@ -33,7 +35,9 @@ export class AuthService {
   private refreshToken: string | null = null;
 
   constructor() {
-    this.restoreSession();
+    if (isPlatformBrowser(this.platformId)) {
+      this.restoreSession();
+    }
   }
 
   // ── Modal ────────────────────────────────────────────────────────────────
@@ -81,14 +85,18 @@ export class AuthService {
   private setSession(res: AuthResponse): void {
     this.apiClient.setToken(res.tokens.access_token);
     this.refreshToken = res.tokens.refresh_token;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(res.tokens));
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(res.tokens));
+    }
     this.currentUser.set(res.user);
   }
 
   private clearSession(): void {
     this.apiClient.setToken(null);
     this.refreshToken = null;
-    localStorage.removeItem(STORAGE_KEY);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     this.currentUser.set(null);
   }
 
