@@ -1,5 +1,5 @@
 /**
- * Types TypeScript miroirs des structs Go du backend Mezian.
+ * Types TypeScript miroirs des structs Go du backend Daba.
  * Chaque interface correspond exactement aux champs JSON retournés par l'API.
  */
 

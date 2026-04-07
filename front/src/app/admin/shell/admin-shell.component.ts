@@ -20,7 +20,7 @@ interface NavItem {
 
         <!-- Logo -->
         <div class="px-6 py-5 border-b border-gray-700">
-          <span class="text-lg font-bold tracking-wide text-white">Mezian</span>
+          <span class="text-lg font-bold tracking-wide text-white">Daba</span>
           <span class="ml-2 text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full">Admin</span>
         </div>
 

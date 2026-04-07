@@ -1,5 +1,5 @@
 /**
- * Base HTTP client for the Mezian API.
+ * Base HTTP client for the Daba API.
  * Uses native fetch (browser and Node 18+ compatible).
  * Handles: Bearer token injection, automatic refresh, typed errors.
  */

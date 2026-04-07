@@ -12,7 +12,7 @@ const LEVEL_RANK: Record<LogLevel, number> = {
 };
 
 /**
- * Centralized logger for the Mezian SDK.
+ * Centralized logger for the Daba SDK.
  * Log level is controlled by environment.logLevel (default: 'warn').
  * Set to 'debug' to trace every HTTP request/response.
  */
@@ -27,7 +27,7 @@ export class ApiLogger {
 
   private emit(level: LogLevel, ...args: unknown[]): void {
     if (LEVEL_RANK[level] < this.minRank) return;
-    const tag = `[mezian-sdk][${level.toUpperCase()}]`;
+    const tag = `[daba-sdk][${level.toUpperCase()}]`;
     switch (level) {
       case 'debug': console.debug(tag, ...args); break;
       case 'info':  console.info (tag, ...args); break;

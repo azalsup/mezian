@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import { ApiLogger } from './api-logger';
 
 /**
- * Core HTTP client for the Mezian backend.
+ * Core HTTP client for the Daba backend.
  *
  * - Single entry point for every GET / POST (and other verbs) to the API.
  * - Attaches the Bearer token automatically when one is stored.

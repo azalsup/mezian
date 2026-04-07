@@ -22,9 +22,9 @@ otp:
   rate_limit_per_hour: 3
 
 admin:
-  email: "admin@mezian.ma"
+  email: "admin@daba.ma"
   phone: "+212600000001"
-  password: "Admin@Mezian2024!"
+  password: "Admin@Daba2024!"
   display_name: "Administrateur"
 
 seed:

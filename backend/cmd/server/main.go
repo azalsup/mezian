@@ -1,4 +1,4 @@
-// Package main — Mezian server entry point.
+// Package main — Daba server entry point.
 package main
 
 import (
@@ -103,7 +103,7 @@ func main() {
 	r := router.New(deps)
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
-	log.Printf("Serveur Mezian démarré sur %s (mode: %s)", addr, cfg.Server.Mode)
+	log.Printf("Serveur Daba démarré sur %s (mode: %s)", addr, cfg.Server.Mode)
 	log.Printf("Frontend: %s", cfg.Server.FrontendURL)
 
 	if err := r.Run(addr); err != nil {

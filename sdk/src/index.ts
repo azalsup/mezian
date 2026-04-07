@@ -1,11 +1,11 @@
 /**
- * @classifieds/sdk — SDK TypeScript officiel pour l'API Mezian
+ * @classifieds/sdk — SDK TypeScript officiel pour l'API Daba
  *
  * Usage basique :
  * ```ts
  * import { ClassifiedsClient } from "@classifieds/sdk";
  *
- * const sdk = new ClassifiedsClient({ baseUrl: "https://api.mezian.ma/api/v1" });
+ * const sdk = new ClassifiedsClient({ baseUrl: "https://api.daba.ma/api/v1" });
  *
  * // Browse ads without login
  * const result = await sdk.ads.list({ city: "Casablanca", limit: 20 });
@@ -52,7 +52,7 @@ export interface ClassifiedsClientOptions {
 }
 
 /**
- * Main entry point for the Mezian SDK.
+ * Main entry point for the Daba SDK.
  * Instanciez une seule fois dans votre application.
  */
 export class ClassifiedsClient {

@@ -1,6 +1,6 @@
-# Mezian — Classified Ads Platform
+# Daba — Classified Ads Platform
 
-Mezian is an online classified ads platform for the Moroccan market. It allows individuals and professionals to publish, manage, and browse ads, with the option to create an online shop.
+Daba is an online classified ads platform for the Moroccan market. It allows individuals and professionals to publish, manage, and browse ads, with the option to create an online shop.
 
 ---
 
@@ -20,10 +20,10 @@ Mezian is an online classified ads platform for the Moroccan market. It allows i
 ## Project structure
 
 ```
-mezian/
+daba/
 ├── backend/    # Go REST API (Gin)
 ├── front/      # Angular 19 application
-└── sdk/        # TypeScript SDK (@mezian/sdk)
+└── sdk/        # TypeScript SDK (@daba/sdk)
 ```
 
 ---
@@ -169,7 +169,7 @@ npm run build
 
 ## TypeScript SDK
 
-The `@mezian/sdk` SDK allows you to interact with the API from any JavaScript/TypeScript app.
+The `@daba/sdk` SDK allows you to interact with the API from any JavaScript/TypeScript app.
 
 ### Build
 

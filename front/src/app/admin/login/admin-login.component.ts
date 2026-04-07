@@ -11,7 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
       <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-8">
         <div class="text-center mb-8">
           <h1 class="text-2xl font-bold text-gray-900">Administration</h1>
-          <p class="text-sm text-gray-500 mt-1">Mezian — accès restreint</p>
+          <p class="text-sm text-gray-500 mt-1">Daba — accès restreint</p>
         </div>
 
         @if (error()) {
@@ -30,7 +30,7 @@ import { AuthService } from '../../core/services/auth.service';
               [(ngModel)]="identifier"
               name="identifier"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="admin@mezian.ma"
+              placeholder="admin@daba.ma"
               autocomplete="username"
             />
           </div>
