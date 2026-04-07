@@ -15,6 +15,7 @@ type Config struct {
 	JWT          JWTConfig          `yaml:"jwt"`
 	OTP          OTPConfig          `yaml:"otp"`
 	Auth         AuthConfig         `yaml:"auth"`
+	Seed         SeedConfig         `yaml:"seed"`
 	Notification NotificationConfig `yaml:"notification"`
 	Media        MediaConfig        `yaml:"media"`
 	Plans        PlansConfig        `yaml:"plans"`
@@ -43,6 +44,13 @@ type OTPConfig struct {
 	TTLMinutes       int `yaml:"ttl_minutes"`
 	MaxAttempts      int `yaml:"max_attempts"`
 	RateLimitPerHour int `yaml:"rate_limit_per_hour"`
+}
+
+// SeedConfig controls category seeding behaviour.
+type SeedConfig struct {
+	// Force: if true, wipes and recreates all categories on startup.
+	// Set to true once to reset, then back to false.
+	Force bool `yaml:"force"`
 }
 
 // AuthConfig controls registration and login behaviour.

@@ -45,9 +45,18 @@ func main() {
 	shopRepo := repository.NewShopRepo(db)
 	mediaRepo := repository.NewMediaRepo(db)
 
-	// Seed default categories if the table is empty
-	if err := catRepo.SeedDefaults(); err != nil {
-		log.Printf("Warning: seed categories failed: %v", err)
+	// Seed categories (or force-reseed if config says so)
+	if cfg.Seed.Force {
+		log.Println("seed.force = true → wiping and recreating all categories...")
+		if err := catRepo.ForceReseed(); err != nil {
+			log.Printf("Warning: force reseed failed: %v", err)
+		} else {
+			log.Println("Categories reseeded successfully.")
+		}
+	} else {
+		if err := catRepo.SeedDefaults(); err != nil {
+			log.Printf("Warning: category seed failed: %v", err)
+		}
 	}
 
 	// --- Services ---

@@ -21,6 +21,9 @@ otp:
   max_attempts: 5
   rate_limit_per_hour: 3
 
+seed:
+  force: false   # set to true once to wipe and recreate all categories
+
 auth:
   otp_enabled: true              # false → disable OTP flows, password-only
   primary_identifier: phone      # phone | email — which field is shown first
