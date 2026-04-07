@@ -4,7 +4,7 @@ package service
 import (
     "fmt"
     "log"
-    "mezian/internal/config"
+    "classifieds/internal/config"
 )
 
 // NotificationChannel représente le canal d'envoi d'un message.

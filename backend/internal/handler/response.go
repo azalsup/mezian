@@ -7,7 +7,7 @@ import (
 
     "github.com/gin-gonic/gin"
 
-    "mezian/internal/service"
+    "classifieds/internal/service"
 )
 
 // respondOK sends a 200 JSON response.
@@ -69,4 +69,9 @@ func respondError(c *gin.Context, err error) {
 // respondBadRequest sends a 400 response with a custom message.
 func respondBadRequest(c *gin.Context, msg string) {
     c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+}
+
+// respondNotFound sends a 404 response with a custom message.
+func respondNotFound(c *gin.Context, msg string) {
+    c.JSON(http.StatusNotFound, gin.H{"error": msg})
 }

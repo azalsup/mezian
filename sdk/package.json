@@ -1,7 +1,7 @@
 {
-  "name": "@mezian/sdk",
+  "name": "@classifieds/sdk",
   "version": "0.1.0",
-  "description": "TypeScript SDK for the Mezian API (Moroccan classifieds)",
+  "description": "TypeScript SDK for the Classifieds API (Moroccan classifieds)",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

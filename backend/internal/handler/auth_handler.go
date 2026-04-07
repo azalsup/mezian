@@ -8,9 +8,9 @@ import (
     "github.com/gin-gonic/gin"
     "gorm.io/gorm"
 
-    "mezian/internal/middleware"
-    "mezian/internal/repository"
-    "mezian/internal/service"
+    "classifieds/internal/middleware"
+    "classifieds/internal/repository"
+    "classifieds/internal/service"
 )
 
 // AuthHandler handles authentication routes.

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { MezianApiClient } from './mezian-api.client';
+import { ApiClient } from './api-client';
 import { Category } from './types';
 
 /**
@@ -8,7 +8,7 @@ import { Category } from './types';
  */
 @Injectable({ providedIn: 'root' })
 export class CategoriesApi {
-  private readonly api = inject(MezianApiClient);
+  private readonly api = inject(ApiClient);
 
   /** Returns all root categories with their children and attribute definitions. */
   getAll(): Observable<Category[]> {

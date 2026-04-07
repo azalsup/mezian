@@ -1,0 +1,188 @@
+<div class="max-w-5xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-xl font-bold text-gray-900">Gestion des rôles</h2>
+      <p class="text-sm text-gray-500 mt-0.5">Définissez les rôles et leurs permissions.</p>
+    </div>
+    <button
+      (click)="openCreate()"
+      class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+    >
+      <i class="fa-solid fa-plus"></i>
+      Nouveau rôle
+    </button>
+  </div>
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="text-center py-16 text-gray-400">
+      <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+    </div>
+  }
+
+  <!-- Role cards -->
+  @if (!loading()) {
+    <div class="space-y-4">
+      @for (role of roles(); track role.id) {
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="font-semibold text-gray-900">{{ role.name }}</h3>
+                <code class="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{{ role.slug }}</code>
+                @if (role.is_system) {
+                  <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Système</span>
+                }
+              </div>
+              @if (role.description) {
+                <p class="text-sm text-gray-500 mb-3">{{ role.description }}</p>
+              }
+              <!-- Permissions -->
+              <div class="flex flex-wrap gap-1.5">
+                @for (perm of role.permissions; track perm.id) {
+                  <span class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-0.5 rounded-full">
+                    {{ perm.key }}
+                  </span>
+                }
+                @if (!role.permissions || role.permissions.length === 0) {
+                  <span class="text-xs text-gray-400 italic">Aucune permission</span>
+                }
+              </div>
+            </div>
+            <!-- Actions -->
+            <div class="flex gap-2 flex-shrink-0">
+              <button
+                (click)="openEdit(role)"
+                class="text-xs text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <i class="fa-solid fa-pencil mr-1"></i>Modifier
+              </button>
+              @if (!role.is_system) {
+                <button
+                  (click)="deleteRole(role)"
+                  class="text-xs text-red-600 hover:text-red-800 border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  <i class="fa-solid fa-trash mr-1"></i>Supprimer
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- ── Form Modal ──────────────────────────────────────────────────────────── -->
+@if (showForm()) {
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+
+      <!-- Modal header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h3 class="font-semibold text-gray-900">
+          {{ editingId() ? 'Modifier le rôle' : 'Nouveau rôle' }}
+        </h3>
+        <button (click)="closeForm()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+
+        @if (formError()) {
+          <div class="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+            {{ formError() }}
+          </div>
+        }
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+          <input
+            type="text"
+            [(ngModel)]="formName"
+            (input)="slugify()"
+            name="formName"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Modérateur"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+          <input
+            type="text"
+            [(ngModel)]="formSlug"
+            name="formSlug"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="moderateur"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea
+            [(ngModel)]="formDescription"
+            name="formDescription"
+            rows="2"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Description du rôle..."
+          ></textarea>
+        </div>
+
+        <!-- Permissions grouped -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
+          <div class="space-y-3">
+            @for (group of permGroups() | keyvalue; track group.key) {
+              <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{{ group.key }}</p>
+                <div class="space-y-1.5">
+                  @for (perm of group.value; track perm.id) {
+                    <label class="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        [checked]="isPermSelected(perm.id)"
+                        (change)="togglePerm(perm.id)"
+                        class="mt-0.5 accent-indigo-600"
+                      />
+                      <span class="text-sm text-gray-700">
+                        {{ perm.label_fr }}
+                        <code class="ml-1 text-xs text-gray-400">{{ perm.key }}</code>
+                      </span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
+        <button
+          (click)="closeForm()"
+          class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          (click)="submit()"
+          [disabled]="saving()"
+          class="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
+        >
+          {{ saving() ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

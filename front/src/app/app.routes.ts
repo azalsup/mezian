@@ -21,5 +21,11 @@ export const routes: Routes = [
     title: 'Créer un compte — Mezian',
     data: { screen: 'reg-credentials' },
   },
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./admin/admin.routes').then(m => m.ADMIN_ROUTES),
+    title: 'Administration — Mezian',
+  },
   { path: '**', redirectTo: '' },
 ];

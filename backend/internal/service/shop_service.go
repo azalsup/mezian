@@ -3,9 +3,9 @@ package service
 import (
     "errors"
     "fmt"
-    "mezian/internal/config"
-    "mezian/internal/models"
-    "mezian/internal/repository"
+    "classifieds/internal/config"
+    "classifieds/internal/models"
+    "classifieds/internal/repository"
 
     "gorm.io/gorm"
 )

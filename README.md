@@ -10,7 +10,7 @@ Mezian is an online classified ads platform for the Moroccan market. It allows i
 |-------|------------|
 | Backend | Go 1.22 + [Gin](https://github.com/gin-gonic/gin) |
 | Frontend | Angular 19 (standalone components) |
-| SDK | TypeScript (`@mezian/sdk`) |
+| SDK | TypeScript (`@classifieds/sdk`) |
 | Database | SQLite + [GORM](https://gorm.io) |
 | Authentication | JWT + OTP (WhatsApp / SMS) |
 | Images | Upload + thumbnails via [imaging](https://github.com/disintegration/imaging) |
@@ -182,9 +182,9 @@ npm run build
 ### Usage
 
 ```typescript
-import { MezianClient } from '@mezian/sdk';
+import { ClassifiedsClient } from '@classifieds/sdk';
 
-const client = new MezianClient({ baseURL: 'http://localhost:8080' });
+const client = new ClassifiedsClient({ baseURL: 'http://localhost:8080' });
 
 // Authentication
 await client.auth.sendOtp({ phone: '+212600000000' });

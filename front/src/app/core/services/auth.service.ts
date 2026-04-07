@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthApi, MezianApiClient } from '../../sdk';
+import { AuthApi, ApiClient } from '../../sdk';
 import type { AuthTokens, AuthResponse, RegisterPayload, User } from '../../sdk';
 
 // Re-export types so existing consumers keep their import path working.
@@ -10,18 +10,18 @@ export type { AuthTokens, AuthResponse, RegisterPayload, User };
 /** Exposes auth config from environment so templates can read it. */
 export const authConfig = environment.auth;
 
-const STORAGE_KEY = 'mezian_tokens';
+const STORAGE_KEY = 'auth_tokens';
 
 /**
  * AuthService — session management, UI signals, modal state.
  *
  * Does NOT make HTTP calls directly. All backend communication is
- * delegated to AuthApi (which uses MezianApiClient).
+ * delegated to AuthApi (which uses ApiClient).
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly authApi   = inject(AuthApi);
-  private readonly apiClient = inject(MezianApiClient);
+  private readonly apiClient = inject(ApiClient);
 
   readonly currentUser = signal<User | null>(null);
   readonly isLoggedIn  = computed(() => this.currentUser() !== null);

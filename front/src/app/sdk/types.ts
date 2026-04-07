@@ -18,7 +18,8 @@ export interface User {
   city?:        string;
   postal_code?: string;
   country?:     string;
-  role:         'user' | 'admin';
+  role:         'user' | 'admin' | 'moderator' | string;
+  roles?:       Role[];
   created_at:   string;
   updated_at:   string;
 }
@@ -37,6 +38,34 @@ export interface RegisterPayload {
   city?:         string;
   postal_code?:  string;
   country?:      string;
+}
+
+// ── RBAC ──────────────────────────────────────────────────────────────────────
+
+export interface Permission {
+  id:          number;
+  key:         string;   // e.g. "categories.write"
+  group:       string;   // e.g. "categories"
+  label_fr:    string;
+  description: string;
+}
+
+export interface Role {
+  id:           number;
+  name:         string;
+  slug:         string;
+  description:  string;
+  is_system:    boolean;
+  permissions?: Permission[];
+  created_at:   string;
+  updated_at:   string;
+}
+
+export interface UserListResponse {
+  data:      User[];
+  total:     number;
+  page:      number;
+  page_size: number;
 }
 
 // ── Categories ────────────────────────────────────────────────────────────────

@@ -10,8 +10,8 @@ import (
     "github.com/google/uuid"
     "gorm.io/gorm"
 
-    "mezian/internal/models"
-    "mezian/internal/repository"
+    "classifieds/internal/models"
+    "classifieds/internal/repository"
 )
 
 // Business errors for ads.

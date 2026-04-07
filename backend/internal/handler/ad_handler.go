@@ -5,10 +5,10 @@ import (
 
     "github.com/gin-gonic/gin"
 
-    "mezian/internal/middleware"
-    "mezian/internal/models"
-    "mezian/internal/repository"
-    "mezian/internal/service"
+    "classifieds/internal/middleware"
+    "classifieds/internal/models"
+    "classifieds/internal/repository"
+    "classifieds/internal/service"
 )
 
 // AdHandler handles ad routes.

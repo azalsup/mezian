@@ -8,7 +8,7 @@ server:
     - "http://localhost:3000"
 
 database:
-  path: "./mezian.db"
+  path: "./classifieds.db"
 
 jwt:
   secret: "CHANGE_ME_IN_PRODUCTION_min32chars!!"
@@ -20,6 +20,12 @@ otp:
   ttl_minutes: 10
   max_attempts: 5
   rate_limit_per_hour: 3
+
+admin:
+  email: "admin@mezian.ma"
+  phone: "+212600000001"
+  password: "Admin@Mezian2024!"
+  display_name: "Administrateur"
 
 seed:
   force: false   # set to true once to wipe and recreate all categories

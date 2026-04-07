@@ -5,8 +5,8 @@ import (
 
     "github.com/gin-gonic/gin"
 
-    "mezian/internal/middleware"
-    "mezian/internal/service"
+    "classifieds/internal/middleware"
+    "classifieds/internal/service"
 )
 
 // MediaHandler handles media management routes.

@@ -15,6 +15,7 @@ type Config struct {
     JWT          JWTConfig          `yaml:"jwt"`
     OTP          OTPConfig          `yaml:"otp"`
     Auth         AuthConfig         `yaml:"auth"`
+    Admin        AdminConfig        `yaml:"admin"`
     Seed         SeedConfig         `yaml:"seed"`
     Notification NotificationConfig `yaml:"notification"`
     Media        MediaConfig        `yaml:"media"`
@@ -51,6 +52,14 @@ type SeedConfig struct {
     // Force: if true, wipes and recreates all categories on startup.
     // Set to true once to reset, then back to false.
     Force bool `yaml:"force"`
+}
+
+// AdminConfig defines the default super-admin account created on first startup.
+type AdminConfig struct {
+    Email       string `yaml:"email"`
+    Phone       string `yaml:"phone"`
+    Password    string `yaml:"password"`
+    DisplayName string `yaml:"display_name"`
 }
 
 // AuthConfig controls registration and login behaviour.

@@ -5,7 +5,7 @@ import (
     "errors"
     "time"
 
-    "mezian/internal/models"
+    "classifieds/internal/models"
 
     "gorm.io/gorm"
 )

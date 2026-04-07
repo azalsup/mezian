@@ -1,7 +1,7 @@
 package handler
 
 import (
-    "mezian/internal/repository"
+    "classifieds/internal/repository"
 
     "github.com/gin-gonic/gin"
 )

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { MezianApiClient } from './mezian-api.client';
+import { ApiClient } from './api-client';
 import { AuthResponse, RegisterPayload, User } from './types';
 
 /**
@@ -10,7 +10,7 @@ import { AuthResponse, RegisterPayload, User } from './types';
  */
 @Injectable({ providedIn: 'root' })
 export class AuthApi {
-  private readonly api = inject(MezianApiClient);
+  private readonly api = inject(ApiClient);
 
   sendOtp(phone: string): Observable<{ message: string }> {
     return this.api.post('/auth/send-otp', {

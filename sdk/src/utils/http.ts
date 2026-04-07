@@ -6,13 +6,13 @@
 
 import type { ApiError, AuthTokens } from "../types/index.js";
 
-export class MezianApiError extends Error {
+export class ApiError extends Error {
   constructor(
     public readonly status: number,
     public readonly body: ApiError,
   ) {
     super(body.error ?? `HTTP ${status}`);
-    this.name = "MezianApiError";
+    this.name = "ApiError";
   }
 }
 
@@ -122,7 +122,7 @@ export class HttpClient {
       : null;
 
     if (!res.ok) {
-      throw new MezianApiError(res.status, json ?? { error: res.statusText });
+      throw new ApiError(res.status, json ?? { error: res.statusText });
     }
 
     return json as T;

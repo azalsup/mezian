@@ -1,11 +1,11 @@
 /**
- * @mezian/sdk — SDK TypeScript officiel pour l'API Mezian
+ * @classifieds/sdk — SDK TypeScript officiel pour l'API Mezian
  *
  * Usage basique :
  * ```ts
- * import { MezianClient } from "@mezian/sdk";
+ * import { ClassifiedsClient } from "@classifieds/sdk";
  *
- * const sdk = new MezianClient({ baseUrl: "https://api.mezian.ma/api/v1" });
+ * const sdk = new ClassifiedsClient({ baseUrl: "https://api.mezian.ma/api/v1" });
  *
  * // Browse ads without login
  * const result = await sdk.ads.list({ city: "Casablanca", limit: 20 });
@@ -29,9 +29,9 @@ import { ShopsResource } from "./resources/shops.js";
 import type { AuthTokens } from "./types/index.js";
 
 export * from "./types/index.js";
-export { MezianApiError } from "./utils/http.js";
+export { ApiError } from "./utils/http.js";
 
-export interface MezianClientOptions {
+export interface ClassifiedsClientOptions {
   /** URL de base de l'API, ex: "http://localhost:8080/api/v1" */
   baseUrl: string;
   /**
@@ -55,7 +55,7 @@ export interface MezianClientOptions {
  * Main entry point for the Mezian SDK.
  * Instanciez une seule fois dans votre application.
  */
-export class MezianClient {
+export class ClassifiedsClient {
   /** Access authentication operations */
   readonly auth: AuthResource;
   /** Access ads operations */
@@ -70,7 +70,7 @@ export class MezianClient {
   private tokens: AuthTokens | null;
   private readonly http: HttpClient;
 
-  constructor(opts: MezianClientOptions) {
+  constructor(opts: ClassifiedsClientOptions) {
     this.tokens = opts.initialTokens ?? null;
 
     const httpOpts: HttpClientOptions = {

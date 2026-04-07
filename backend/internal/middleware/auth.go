@@ -7,7 +7,7 @@ import (
 
     "github.com/gin-gonic/gin"
 
-    "mezian/internal/service"
+    "classifieds/internal/service"
 )
 
 const (

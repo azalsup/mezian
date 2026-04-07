@@ -1,7 +1,7 @@
 package repository
 
 import (
-    "mezian/internal/models"
+    "classifieds/internal/models"
 
     "gorm.io/gorm"
 )

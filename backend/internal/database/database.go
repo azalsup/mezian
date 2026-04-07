@@ -3,8 +3,8 @@ package database
 
 import (
     "fmt"
-    "mezian/internal/config"
-    "mezian/internal/models"
+    "classifieds/internal/config"
+    "classifieds/internal/models"
 
     "github.com/glebarez/sqlite"
     "gorm.io/gorm"
@@ -60,6 +60,8 @@ func migrate(db *gorm.DB) error {
     defer sqlDB.Exec("PRAGMA foreign_keys = ON") //nolint:errcheck
 
     return db.AutoMigrate(
+        &models.Permission{},
+        &models.Role{},
         &models.User{},
         &models.OTPCode{},
         &models.RefreshToken{},

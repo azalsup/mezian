@@ -6,7 +6,7 @@ import (
     "log"
     "os"
 
-    "mezian/internal/models"
+    "classifieds/internal/models"
 
     "gorm.io/gorm"
 )
