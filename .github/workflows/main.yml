@@ -1,0 +1,35 @@
+name: Build and Deploy to Hostinger via SCP
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+        cache-dependency-path: front/package-lock.json
+    - name: Install dependencies
+      run: |
+        cd front
+        npm ci
+    - name: Build Angular project
+      run: |
+        cd front
+        npx ng build --base-href=/ --output-mode static
+    - name: Deploy via SCP to Hostinger
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT}}
+        source: "front/dist/front/browser/"
+        target: "/home/${{ secrets.SSH_USER }}/domains/daba.incipyo.com/public_html"
+        strip_components: 4
