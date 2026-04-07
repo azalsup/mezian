@@ -2,140 +2,140 @@
 package router
 
 import (
-	"net/http"
-	"time"
+    "net/http"
+    "time"
 
-	cors "github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+    cors "github.com/gin-contrib/cors"
+    "github.com/gin-gonic/gin"
 
-	"mezian/internal/config"
-	"mezian/internal/handler"
-	"mezian/internal/middleware"
-	"mezian/internal/service"
+    "mezian/internal/config"
+    "mezian/internal/handler"
+    "mezian/internal/middleware"
+    "mezian/internal/service"
 )
 
 // Deps groups all dependencies injected into the router.
 type Deps struct {
-	AuthHandler     *handler.AuthHandler
-	AdHandler       *handler.AdHandler
-	CategoryHandler *handler.CategoryHandler
-	MediaHandler    *handler.MediaHandler
-	ShopHandler     *handler.ShopHandler
-	AuthService     *service.AuthService
-	Config          *config.Config
+    AuthHandler     *handler.AuthHandler
+    AdHandler       *handler.AdHandler
+    CategoryHandler *handler.CategoryHandler
+    MediaHandler    *handler.MediaHandler
+    ShopHandler     *handler.ShopHandler
+    AuthService     *service.AuthService
+    Config          *config.Config
 }
 
 // New creates et configure le moteur Gin avec toutes les routes.
 func New(deps *Deps) *gin.Engine {
-	r := gin.New()
+    r := gin.New()
 
-	// Middlewares globaux
-	r.Use(gin.Logger())
-	r.Use(gin.Recovery())
+    // Middlewares globaux
+    r.Use(gin.Logger())
+    r.Use(gin.Recovery())
 
-	origins := deps.Config.Server.CORSOrigins
-	if len(origins) == 0 {
-		origins = []string{"*"}
-	}
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     origins,
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           86400 * time.Second,
-	}))
+    origins := deps.Config.Server.CORSOrigins
+    if len(origins) == 0 {
+        origins = []string{"*"}
+    }
+    r.Use(cors.New(cors.Config{
+        AllowOrigins:     origins,
+        AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+        MaxAge:           86400 * time.Second,
+    }))
 
-	// Servir les fichiers statiques (uploads)
-	r.Static("/uploads", deps.Config.Media.UploadDir)
+    // Servir les fichiers statiques (uploads)
+    r.Static("/uploads", deps.Config.Media.UploadDir)
 
-	// Health check
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-			"time":   time.Now().UTC(),
-		})
-	})
+    // Health check
+    r.GET("/health", func(c *gin.Context) {
+        c.JSON(http.StatusOK, gin.H{
+            "status": "ok",
+            "time":   time.Now().UTC(),
+        })
+    })
 
-	api := r.Group("/api/v1")
+    api := r.Group("/api/v1")
 
-	// --- Auth (public) ---
-	auth := api.Group("/auth")
-	{
-		auth.POST("/send-otp", deps.AuthHandler.SendOTP)
-		auth.POST("/verify-otp", deps.AuthHandler.VerifyOTP)
-		auth.POST("/login", deps.AuthHandler.Login)
-		auth.POST("/register", deps.AuthHandler.Register)
-		auth.POST("/refresh", deps.AuthHandler.Refresh)
+    // --- Auth (public) ---
+    auth := api.Group("/auth")
+    {
+        auth.POST("/send-otp", deps.AuthHandler.SendOTP)
+        auth.POST("/verify-otp", deps.AuthHandler.VerifyOTP)
+        auth.POST("/login", deps.AuthHandler.Login)
+        auth.POST("/register", deps.AuthHandler.Register)
+        auth.POST("/refresh", deps.AuthHandler.Refresh)
 
-		// Routes protégées
-		authProtected := auth.Group("")
-		authProtected.Use(middleware.RequireAuth(deps.AuthService))
-		{
-			authProtected.POST("/logout", deps.AuthHandler.Logout)
-			authProtected.GET("/me", deps.AuthHandler.GetMe)
-			authProtected.PUT("/me", deps.AuthHandler.UpdateMe)
-		}
-	}
+        // Routes protégées
+        authProtected := auth.Group("")
+        authProtected.Use(middleware.RequireAuth(deps.AuthService))
+        {
+            authProtected.POST("/logout", deps.AuthHandler.Logout)
+            authProtected.GET("/me", deps.AuthHandler.GetMe)
+            authProtected.PUT("/me", deps.AuthHandler.UpdateMe)
+        }
+    }
 
-	// --- Categories (public) ---
-	categories := api.Group("/categories")
-	{
-		categories.GET("", deps.CategoryHandler.ListCategories)
-		categories.GET("/:slug", deps.CategoryHandler.GetCategory)
-	}
+    // --- Categories (public) ---
+    categories := api.Group("/categories")
+    {
+        categories.GET("", deps.CategoryHandler.ListCategories)
+        categories.GET("/:slug", deps.CategoryHandler.GetCategory)
+    }
 
-	// --- Ads ---
-	ads := api.Group("/ads")
-	{
-		// Routes publiques (avec auth optionnelle pour enrichir la réponse)
-		ads.GET("", middleware.OptionalAuth(deps.AuthService), deps.AdHandler.ListAds)
-		ads.GET("/:slug", middleware.OptionalAuth(deps.AuthService), deps.AdHandler.GetAd)
+    // --- Ads ---
+    ads := api.Group("/ads")
+    {
+        // Routes publiques (avec auth optionnelle pour enrichir la réponse)
+        ads.GET("", middleware.OptionalAuth(deps.AuthService), deps.AdHandler.ListAds)
+        ads.GET("/:slug", middleware.OptionalAuth(deps.AuthService), deps.AdHandler.GetAd)
 
-		// Routes protégées
-		adsProtected := ads.Group("")
-		adsProtected.Use(middleware.RequireAuth(deps.AuthService))
-		{
-			adsProtected.POST("", deps.AdHandler.CreateAd)
-			adsProtected.PUT("/:slug", deps.AdHandler.UpdateAd)
-			adsProtected.DELETE("/:slug", deps.AdHandler.DeleteAd)
+        // Routes protégées
+        adsProtected := ads.Group("")
+        adsProtected.Use(middleware.RequireAuth(deps.AuthService))
+        {
+            adsProtected.POST("", deps.AdHandler.CreateAd)
+            adsProtected.PUT("/:slug", deps.AdHandler.UpdateAd)
+            adsProtected.DELETE("/:slug", deps.AdHandler.DeleteAd)
 
-			// Médias d'une ad (route imbriquée)
-			adsProtected.POST("/:id/media", deps.MediaHandler.UploadImage)
-			adsProtected.POST("/:id/media/youtube", deps.MediaHandler.AddYouTube)
-		}
-	}
+            // Médias d'une ad (route imbriquée)
+            adsProtected.POST("/:id/media", deps.MediaHandler.UploadImage)
+            adsProtected.POST("/:id/media/youtube", deps.MediaHandler.AddYouTube)
+        }
+    }
 
-	// --- Media (standalone) ---
-	media := api.Group("/media")
-	media.Use(middleware.RequireAuth(deps.AuthService))
-	{
-		media.DELETE("/:id", deps.MediaHandler.DeleteMedia)
-		media.PUT("/:id/cover", deps.MediaHandler.SetCover)
-		media.PUT("/:id/order", deps.MediaHandler.UpdateOrder)
-	}
+    // --- Media (standalone) ---
+    media := api.Group("/media")
+    media.Use(middleware.RequireAuth(deps.AuthService))
+    {
+        media.DELETE("/:id", deps.MediaHandler.DeleteMedia)
+        media.PUT("/:id/cover", deps.MediaHandler.SetCover)
+        media.PUT("/:id/order", deps.MediaHandler.UpdateOrder)
+    }
 
-	// --- Shops ---
-	shops := api.Group("/shops")
-	{
-		shops.GET("/:slug", deps.ShopHandler.GetShop)
+    // --- Shops ---
+    shops := api.Group("/shops")
+    {
+        shops.GET("/:slug", deps.ShopHandler.GetShop)
 
-		shopsProtected := shops.Group("")
-		shopsProtected.Use(middleware.RequireAuth(deps.AuthService))
-		{
-			shopsProtected.POST("", deps.ShopHandler.CreateShop)
-			shopsProtected.PUT("/:slug", deps.ShopHandler.UpdateShop)
-		}
-	}
+        shopsProtected := shops.Group("")
+        shopsProtected.Use(middleware.RequireAuth(deps.AuthService))
+        {
+            shopsProtected.POST("", deps.ShopHandler.CreateShop)
+            shopsProtected.PUT("/:slug", deps.ShopHandler.UpdateShop)
+        }
+    }
 
-	// --- Routes utilisateur ---
-	users := api.Group("/users")
-	users.Use(middleware.RequireAuth(deps.AuthService))
-	{
-		users.GET("/me/ads", deps.AdHandler.GetMyAds)
-		users.GET("/me/shop", deps.ShopHandler.GetMyShop)
-	}
+    // --- Routes utilisateur ---
+    users := api.Group("/users")
+    users.Use(middleware.RequireAuth(deps.AuthService))
+    {
+        users.GET("/me/ads", deps.AdHandler.GetMyAds)
+        users.GET("/me/shop", deps.ShopHandler.GetMyShop)
+    }
 
-	return r
+    return r
 }
 
