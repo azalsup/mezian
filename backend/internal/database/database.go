@@ -47,6 +47,18 @@ func Connect(cfg *config.Config) (*gorm.DB, error) {
 }
 
 func migrate(db *gorm.DB) error {
+	// SQLite's AutoMigrate recreates tables (drop + rename) when the schema
+	// changes. Foreign key constraints would block the DROP, so we disable
+	// them for the duration of the migration and restore them immediately after.
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+	if _, err := sqlDB.Exec("PRAGMA foreign_keys = OFF"); err != nil {
+		return fmt.Errorf("disable FK for migration: %w", err)
+	}
+	defer sqlDB.Exec("PRAGMA foreign_keys = ON") //nolint:errcheck
+
 	return db.AutoMigrate(
 		&models.User{},
 		&models.OTPCode{},

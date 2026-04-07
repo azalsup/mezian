@@ -120,8 +120,12 @@ func (r *CategoryRepo) SeedDefaults() error {
 // ForceReseed drops and recreates all categories and attribute definitions.
 // Triggered by config flag seed.force = true.
 func (r *CategoryRepo) ForceReseed() error {
+	// Disable FK constraints for the duration of the wipe so that the
+	// self-referential parent_id on categories doesn't block the DELETEs.
+	r.db.Exec("PRAGMA foreign_keys = OFF")
 	r.db.Exec("DELETE FROM attribute_definitions")
 	r.db.Exec("DELETE FROM categories")
+	r.db.Exec("PRAGMA foreign_keys = ON")
 	return r.seedCategories()
 }
 
