@@ -23,23 +23,138 @@ Daba is an online classified ads platform for the Moroccan market. It allows ind
 daba/
 ├── backend/    # Go REST API (Gin)
 ├── front/      # Angular 19 application
-└── sdk/        # TypeScript SDK (@daba/sdk)
+├── sdk/        # TypeScript SDK (@daba/sdk)
+├── build.sh    # Production build script
+├── serve_backend.sh  # Run backend in dev
+├── serve_front.sh    # Run frontend in dev
+└── start.sh    # Run production build
 ```
 
 ---
 
-## Backend
+## Development Setup
 
-### Run the server
+### Prerequisites
 
-```bash
-cd backend
-go run ./cmd/server/main.go
-```
+- Go 1.22+
+- Node.js 18+
+- npm
+
+### Backend
+
+1. Navigate to backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. Install dependencies:
+   ```bash
+   go mod download
+   ```
+
+3. Run the server:
+   ```bash
+   go run ./cmd/server/main.go
+   ```
 
 The server starts on **http://localhost:8080**.
 
-### Architecture
+### Frontend
+
+1. Navigate to frontend directory:
+   ```bash
+   cd front
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   ng serve
+   ```
+
+The frontend starts on **http://localhost:4200** (proxied to backend on `/api`).
+
+### SDK
+
+The SDK is used by the frontend to communicate with the backend.
+
+1. Navigate to SDK directory:
+   ```bash
+   cd sdk
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Build the SDK:
+   ```bash
+   npm run build
+   ```
+
+### Running Both in Development
+
+Use the provided scripts:
+
+- `./serve_backend.sh` - Start backend
+- `./serve_front.sh` - Start frontend
+
+Or run both manually in separate terminals.
+
+---
+
+## Production Build
+
+### Build Script
+
+Run the build script to create production artifacts:
+
+```bash
+./build.sh
+```
+
+This will:
+- Build the frontend with production API URL
+- Generate static files in `dist/front/browser`
+
+### Run Production
+
+Use the start script to run the production build:
+
+```bash
+./start.sh
+```
+
+This starts:
+- Backend on production config
+- Frontend static files served on http://localhost:4200
+
+### Manual Production Run
+
+1. Build backend binary:
+   ```bash
+   cd backend
+   go build -o ../bin/server ./cmd/server/main.go
+   ```
+
+2. Run backend:
+   ```bash
+   APP_ENV=production ./bin/server
+   ```
+
+3. Serve frontend:
+   ```bash
+   npx serve dist/front/browser -s -l 4200
+   ```
+
+---
+
+## Backend Architecture
 
 The API follows a layered architecture:
 
@@ -48,6 +163,54 @@ Handler → Service → Repository → Database (SQLite)
 ```
 
 - **Handler**: HTTP request processing (Gin)
+- **Service**: Business logic
+- **Repository**: Data access layer
+- **Database**: SQLite with GORM
+
+### API Endpoints
+
+- `GET /api/v1/ads` - List ads
+- `POST /api/v1/ads` - Create ad
+- `GET /api/v1/categories` - List categories
+- `POST /api/v1/auth/login` - Login
+- `POST /api/v1/auth/register` - Register
+
+### Configuration
+
+- `config/config.yaml` - Development config
+- `config/config.production.yaml` - Production config
+
+---
+
+## Frontend Architecture
+
+- **Standalone Components**: Angular 19 with standalone components
+- **Routing**: Lazy-loaded modules for admin and features
+- **State Management**: Signals for reactive state
+- **Styling**: Tailwind CSS + SCSS
+
+### Key Features
+
+- User authentication with OTP
+- Ad creation and management
+- Admin panel for user and role management
+- Responsive design
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make changes
+4. Run tests
+5. Submit a pull request
+
+---
+
+## License
+
+This project is licensed under the MIT License.
 - **Service**: business logic (Auth, Ad, Media, Shop, Notification)
 - **Repository**: data access (GORM)
 - **Middleware**: JWT authentication (`RequireAuth`, `OptionalAuth`)
@@ -154,7 +317,7 @@ Angular 19 application with standalone components and lazy loading.
 ```bash
 cd front
 npm install
-npm start
+ng build --configuration=production --base-href=/ --output-mode static
 ```
 
 The app starts on **http://localhost:4200**.
