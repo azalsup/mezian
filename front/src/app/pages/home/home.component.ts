@@ -1,21 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LangService } from '../../core/services/lang.service';
-import { SearchBarComponent } from '../../shared/search-bar/search-bar.component';
-import { PromoBannerComponent } from '../../shared/promo-banner/promo-banner.component';
-import { AdsListComponent } from '../../shared/ads-list/ads-list.component';
-import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [
-    CommonModule,
-    SearchBarComponent,
-    PromoBannerComponent,
-    AdsListComponent,
-    SiteFooterComponent,
-  ],
+  imports: [CommonModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
