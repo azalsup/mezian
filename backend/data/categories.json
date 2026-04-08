@@ -1,0 +1,134 @@
+{
+  "categories": [
+    {
+      "code": "vehicles",
+      "icon": "directions_car",
+      "sort_order": 1,
+      "name_fr": "Véhicules",
+      "name_ar": "مركبات",
+      "name_en": "Vehicles",
+      "featured": true,
+      "subcategories": [
+        { "code": "cars", "sort_order": 1, "icon": "directions_car", "name_fr": "Voitures", "name_ar": "سيارات", "name_en": "Cars" },
+        { "code": "motorcycles", "sort_order": 2, "icon": "two_wheeler", "name_fr": "Motos & Scooters", "name_ar": "دراجات نارية", "name_en": "Motorcycles" },
+        { "code": "trucks", "sort_order": 3, "icon": "local_shipping", "name_fr": "Utilitaires & Camions", "name_ar": "شاحنات", "name_en": "Trucks" },
+        { "code": "heavy_machinery", "sort_order": 4, "icon": "trailers", "name_fr": "Poids lourds", "name_ar": "شاحنات كبيرة", "name_en": "Heavy Machinery" },
+        { "code": "parts", "sort_order": 5, "icon": "build", "name_fr": "Pièces & Accessoires", "name_ar": "قطع غيار", "name_en": "Parts" }
+      ]
+    },
+    {
+      "code": "real_estate",
+      "icon": "home",
+      "sort_order": 2,
+      "name_fr": "Immobilier",
+      "name_ar": "عقارات",
+      "name_en": "Real Estate",
+      "featured": true,
+      "subcategories": [
+        { "code": "sale", "sort_order": 1, "icon": "apartment", "name_fr": "Ventes", "name_ar": "للبيع", "name_en": "Sale" },
+        { "code": "rent", "sort_order": 2, "icon": "key", "name_fr": "Location", "name_ar": "للكراء", "name_en": "Rent" },
+        { "code": "vacation", "sort_order": 3, "icon": "house", "name_fr": "Location de vacances", "name_ar": "كراء صيفي", "name_en": "Vacation Rentals" },
+        { "code": "land", "sort_order": 4, "icon": "landscape", "name_fr": "Terrains", "name_ar": "أراضي", "name_en": "Land" },
+        { "code": "commercial", "sort_order": 5, "icon": "store", "name_fr": "Bureaux & Commerces", "name_ar": "مكاتب ومحلات", "name_en": "Commercial" }
+      ]
+    },
+    {
+      "code": "employment",
+      "icon": "work",
+      "sort_order": 3,
+      "name_fr": "Emploi",
+      "name_ar": "توظيف",
+      "name_en": "Jobs",
+      "featured": true,
+      "subcategories": [
+        { "code": "job_offers", "sort_order": 1, "icon": "work", "name_fr": "Offres d'emploi", "name_ar": "عروض عمل", "name_en": "Work" },
+        { "code": "personal_services", "sort_order": 2, "icon": "person_search", "name_fr": "Services à la personne", "name_ar": "خدمات للأشخاص", "name_en": "Personal Services" }
+      ]
+    },
+    {
+      "code": "electronics",
+      "icon": "smartphone",
+      "sort_order": 4,
+      "name_fr": "Électronique",
+      "name_ar": "إلكترونيات",
+      "name_en": "Electronics",
+      "subcategories": [
+        { "code": "phones", "sort_order": 1, "icon": "smartphone", "name_fr": "Téléphones & Tablettes", "name_ar": "هواتف", "name_en": "Phones" },
+        { "code": "computers", "sort_order": 2, "icon": "computer", "name_fr": "Informatique", "name_ar": "حواسيب", "name_en": "Computers" },
+        { "code": "tv_audio", "sort_order": 3, "icon": "tv", "name_fr": "TV & Son", "name_ar": "تلفاز وصوت", "name_en": "TV & Audio" },
+        { "code": "camera", "sort_order": 4, "icon": "camera_alt", "name_fr": "Photo & Vidéo", "name_ar": "تصوير", "name_en": "Photo" }
+      ]
+    },
+    {
+      "code": "home",
+      "icon": "chair",
+      "sort_order": 5,
+      "name_fr": "Maison & Jardin",
+      "name_ar": "منزل وحديقة",
+      "name_en": "Home",
+      "subcategories": [
+        { "code": "furniture", "sort_order": 1, "icon": "chair", "name_fr": "Meubles", "name_ar": "أثاث", "name_en": "Furniture" },
+        { "code": "appliances", "sort_order": 2, "icon": "kitchen", "name_fr": "Électroménager", "name_ar": "أجهزة منزلية", "name_en": "Appliances" },
+        { "code": "decoration", "sort_order": 3, "icon": "format_paint", "name_fr": "Décoration", "name_ar": "ديكور", "name_en": "Decoration" },
+        { "code": "garden_diy", "sort_order": 4, "icon": "yard", "name_fr": "Jardin & Bricolage", "name_ar": "حديقة وإصلاح", "name_en": "Garden & DIY" }
+      ]
+    },
+    {
+      "code": "fashion",
+      "icon": "checkroom",
+      "sort_order": 6,
+      "name_fr": "Mode & Beauté",
+      "name_ar": "موضة وجمال",
+      "name_en": "Fashion",
+      "subcategories": [
+        { "code": "clothing", "sort_order": 1, "icon": "checkroom", "name_fr": "Vêtements", "name_ar": "ملابس", "name_en": "Clothing" },
+        { "code": "shoes", "sort_order": 2, "icon": "hiking", "name_fr": "Chaussures", "name_ar": "أحذية", "name_en": "Shoes" },
+        { "code": "accessories", "sort_order": 3, "icon": "diamond", "name_fr": "Accessoires", "name_ar": "إكسسوارات", "name_en": "Accessories" },
+        { "code": "baby", "sort_order": 4, "icon": "child_care", "name_fr": "Bébé", "name_ar": "أطفال", "name_en": "Baby" },
+        { "code": "beauty", "sort_order": 5, "icon": "face", "name_fr": "Beauté", "name_ar": "تجميل", "name_en": "Beauty" }
+      ]
+    },
+    {
+      "code": "leisure",
+      "icon": "sports_soccer",
+      "sort_order": 7,
+      "name_fr": "Loisirs",
+      "name_ar": "ترفيه",
+      "name_en": "Leisure",
+      "subcategories": [
+        { "code": "sport", "sort_order": 1, "icon": "fitness_center", "name_fr": "Sport", "name_ar": "رياضة", "name_en": "Sport" },
+        { "code": "media", "sort_order": 2, "icon": "menu_book", "name_fr": "Livres & Médias", "name_ar": "كتب وموسيقى", "name_en": "Media" },
+        { "code": "toys", "sort_order": 3, "icon": "sports_esports", "name_fr": "Jeux & Jouets", "name_ar": "ألعاب", "name_en": "Toys" },
+        { "code": "animals", "sort_order": 4, "icon": "pets", "name_fr": "Animaux", "name_ar": "حيوانات", "name_en": "Pets" }
+      ]
+    },
+    {
+      "code": "services",
+      "icon": "handyman",
+      "sort_order": 8,
+      "name_fr": "Services",
+      "name_ar": "خدمات",
+      "name_en": "Services",
+      "subcategories": [
+        { "code": "it_web", "sort_order": 1, "icon": "code", "name_fr": "Informatique & Web", "name_ar": "برمجة وويب", "name_en": "IT & Web" },
+        { "code": "crafts", "sort_order": 2, "icon": "plumbing", "name_fr": "Artisanat & Travaux", "name_ar": "إصلاح وبناء", "name_en": "Crafts" },
+        { "code": "education", "sort_order": 3, "icon": "school", "name_fr": "Cours & Formations", "name_ar": "دروس وتكوين", "name_en": "Education" },
+        { "code": "health", "sort_order": 4, "icon": "health_and_safety", "name_fr": "Santé", "name_ar": "صحة", "name_en": "Health" }
+      ]
+    },
+    {
+      "code": "professional",
+      "icon": "business_center",
+      "sort_order": 9,
+      "name_fr": "Matériel Pro",
+      "name_ar": "معدات مهنية",
+      "name_en": "Professional",
+      "subcategories": [
+        { "code": "industrial", "sort_order": 1, "icon": "precision_manufacturing", "name_fr": "Outillage & Machines", "name_ar": "آلات صناعية", "name_en": "Industrial" },
+        { "code": "hospitality", "sort_order": 2, "icon": "restaurant", "name_fr": "Restauration", "name_ar": "مطاعم وفنادق", "name_en": "Hospitality" },
+        { "code": "agriculture", "sort_order": 3, "icon": "agriculture", "name_fr": "Agriculture", "name_ar": "فلاحة", "name_en": "Agriculture" },
+        { "code": "office", "sort_order": 4, "icon": "inventory", "name_fr": "Bureau", "name_ar": "لوازم المكتب", "name_en": "Office" }
+      ]
+    }
+  ]
+}

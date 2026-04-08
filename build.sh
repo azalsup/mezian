@@ -10,9 +10,12 @@ APP_CONFIG="front/public/app-config.json"
 echo "Writing production app-config.json..."
 printf '{\n  "apiBaseUrl": "%s"\n}\n' "$PROD_API_URL" > "$APP_CONFIG"
 
+echo "Copying categories.json to frontend public/..."
+cp backend/data/categories.json front/public/categories.json
+
 echo "Building frontend (SSG)..."
 cd front
-npx ng build --configuration=production --base-href=/ --output-mode static
+npx ng build --base-href=/ --output-mode static
 cd ..
 
 echo "Restoring dev app-config.json..."

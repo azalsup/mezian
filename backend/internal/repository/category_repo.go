@@ -11,9 +11,53 @@ import (
     "gorm.io/gorm"
 )
 
+// ── JSON data structures ──────────────────────────────────────────────────────
+
 // vehicleCarData mirrors the structure of data/vehicles_cars.json.
 type vehicleCarData struct {
     Brands []string `json:"brands"`
+}
+
+// catJSON mirrors the structure of data/categories.json.
+type catJSON struct {
+    Categories []catEntry `json:"categories"`
+}
+
+type catEntry struct {
+    Code          string     `json:"code"`
+    Icon          string     `json:"icon"`
+    SortOrder     int        `json:"sort_order"`
+    NameFR        string     `json:"name_fr"`
+    NameAR        string     `json:"name_ar"`
+    NameEN        string     `json:"name_en"`
+    Featured      bool       `json:"featured"`
+    Subcategories []subEntry `json:"subcategories"`
+}
+
+type subEntry struct {
+    Code      string `json:"code"`
+    Icon      string `json:"icon"`
+    SortOrder int    `json:"sort_order"`
+    NameFR    string `json:"name_fr"`
+    NameAR    string `json:"name_ar"`
+    NameEN    string `json:"name_en"`
+}
+
+// loadCategoryTree reads data/categories.json.
+func loadCategoryTree() (*catJSON, error) {
+    paths := []string{"data/categories.json", "../data/categories.json"}
+    for _, p := range paths {
+        b, err := os.ReadFile(p)
+        if err != nil {
+            continue
+        }
+        var d catJSON
+        if err := json.Unmarshal(b, &d); err != nil {
+            return nil, fmt.Errorf("parsing %s: %w", p, err)
+        }
+        return &d, nil
+    }
+    return nil, fmt.Errorf("data/categories.json not found")
 }
 
 // loadVehicleCarBrands reads brand names from data/vehicles_cars.json.
@@ -146,10 +190,10 @@ func enumStr(values []string) *string {
 }
 
 // attr builds an AttributeDefinition concisely.
-// opts: pass a *string for unit (non-enum) or enum values (enum type).
-func attr(key, labelFR, labelAR, dataType string, required, filterable bool, order int, opts ...*string) models.AttributeDefinition {
+// labelEN is the English label. opts: *string for unit or enum values.
+func attr(key, labelFR, labelAR, labelEN, dataType string, required, filterable bool, order int, opts ...*string) models.AttributeDefinition {
     a := models.AttributeDefinition{
-        Key: key, LabelFR: labelFR, LabelAR: labelAR,
+        Key: key, LabelFR: labelFR, LabelAR: labelAR, LabelEN: labelEN,
         DataType: dataType, IsRequired: required, IsFilterable: filterable, SortOrder: order,
     }
     if len(opts) > 0 && opts[0] != nil {
@@ -162,418 +206,213 @@ func attr(key, labelFR, labelAR, dataType string, required, filterable bool, ord
     return a
 }
 
+// attrsBySlug returns the attribute definitions for a given subcategory slug.
+// The category hierarchy comes from categories.json; attributes stay in Go.
+func attrsBySlug(slug string, carBrands []string) []models.AttributeDefinition {
+    switch slug {
+    case "voitures":
+        return []models.AttributeDefinition{
+            attr("brand",     "Marque",        "العلامة التجارية", "Marca",    "enum",    true,  true,  1, enumStr(carBrands)),
+            attr("model",     "Modèle",        "الموديل",           "Model",    "string",  true,  true,  2),
+            attr("year",      "Année",         "السنة",             "Year",     "integer", true,  true,  3),
+            attr("mileage_km","Kilométrage",   "عدد الكيلومترات",   "Mileage",  "integer", true,  true,  4, str("km")),
+            attr("variant_name","Désignation commerciale","التسمية التجارية","Commercial name","string",false,false,5),
+            attr("trim",      "Finition",      "درجة التجهيز",      "Trim",     "string",  false, false, 6),
+            attr("segment",   "Segment",       "الفئة",             "Segment",  "enum",    false, true,  7,
+                enumStr([]string{"Citadine","Berline","Break","SUV/Crossover","Coupé","Cabriolet","Monospace","Pick-up"})),
+            attr("body_type", "Carrosserie",   "نوع الهيكل",        "Body type","enum",    false, true,  8,
+                enumStr([]string{"Citadine","Berline","Break","SUV","Crossover","Coupé","Cabriolet","Monospace","Fourgonnette","Pick-up","Autre"})),
+            attr("doors",     "Portes",        "عدد الأبواب",       "Doors",    "integer", false, true,  9),
+            attr("seats",     "Places",        "عدد المقاعد",       "Seats",    "integer", false, true,  10),
+            attr("fuel_type", "Carburant",     "نوع الوقود",        "Fuel",     "enum",    true,  true,  11,
+                enumStr([]string{"Essence (P)","Diesel (D)","Hybride (HEV)","Hybride rechargeable (PHEV)","Électrique (BEV)","GPL (LPG)","GNC (CNG)","Éthanol (E85)"})),
+            attr("transmission_type","Transmission","ناقل الحركة","Transmission","enum",false,true,12,
+                enumStr([]string{"Manuelle","Automatique","CVT","DSG / PDK","Semi-automatique"})),
+            attr("color",     "Couleur",       "اللون",             "Color",    "string",  false, true,  13),
+            attr("condition", "État",          "الحالة",            "Condition","enum",    true,  true,  14,
+                enumStr([]string{"Neuf","Très bon","Bon","Correct","Pour pièces"})),
+            attr("first_owner","Première main","يد أولى",           "First owner","boolean",false,true,15),
+        }
+    case "motos":
+        return []models.AttributeDefinition{
+            attr("brand",      "Marque",    "العلامة التجارية", "Brand",   "string",  true,  true,  1),
+            attr("model",      "Modèle",    "الموديل",           "Model",   "string",  true,  true,  2),
+            attr("year",       "Année",     "السنة",             "Year",    "integer", true,  true,  3),
+            attr("mileage_km", "Kilométrage","عدد الكيلومترات",  "Mileage", "integer", true,  true,  4, str("km")),
+            attr("cylinder_cc","Cylindrée", "سعة المحرك",        "Engine",  "integer", false, true,  5, str("cc")),
+            attr("fuel_type",  "Carburant", "نوع الوقود",        "Fuel",    "enum",    false, true,  6,
+                enumStr([]string{"Essence (P)","Électrique (BEV)"})),
+            attr("condition",  "État",      "الحالة",            "Condition","enum",   true,  true,  7,
+                enumStr([]string{"Neuf","Très bon","Bon","Correct"})),
+        }
+    case "utilitaires":
+        return []models.AttributeDefinition{
+            attr("brand",       "Marque",       "العلامة التجارية","Brand",   "string",  true,  true,  1),
+            attr("model",       "Modèle",       "الموديل",          "Model",   "string",  true,  true,  2),
+            attr("year",        "Année",        "السنة",            "Year",    "integer", true,  true,  3),
+            attr("mileage_km",  "Kilométrage",  "عدد الكيلومترات", "Mileage", "integer", true,  true,  4, str("km")),
+            attr("payload_kg",  "Charge utile", "الحمولة",          "Payload", "integer", false, true,  5, str("kg")),
+            attr("fuel_type",   "Carburant",    "نوع الوقود",       "Fuel",    "enum",    false, true,  6,
+                enumStr([]string{"Diesel (D)","Essence (P)","Électrique (BEV)","GPL (LPG)"})),
+        }
+    case "pieces-auto":
+        return []models.AttributeDefinition{
+            attr("compatible_brand","Marque compatible","متوافق مع","Compatible with","string",false,true,1),
+            attr("part_type","Type de pièce","نوع القطعة","Part type","enum",false,true,2,
+                enumStr([]string{"Moteur","Carrosserie","Électronique","Suspension","Freinage","Autre"})),
+            attr("condition","État","الحالة","Condition","enum",true,true,3,
+                enumStr([]string{"Neuf","Occasion"})),
+        }
+    case "appartements-vente", "appartements-location":
+        a := []models.AttributeDefinition{
+            attr("surface_m2","Surface","المساحة","Area","float",true,true,1,str("m²")),
+            attr("rooms","Pièces","عدد الغرف","Rooms","enum",true,true,2,
+                enumStr([]string{"Studio","F1","F2","F3","F4","F5","F6+"})),
+            attr("floor","Étage","الطابق","Floor","integer",false,false,3),
+            attr("has_elevator","Ascenseur","مصعد","Elevator","boolean",false,true,4),
+            attr("has_parking","Parking","موقف سيارة","Parking","boolean",false,true,5),
+        }
+        if slug == "appartements-vente" {
+            a = append(a, attr("condition","État","الحالة","Condition","enum",false,true,6,
+                enumStr([]string{"Neuf","Bon état","À rénover"})))
+        } else {
+            a = append(a, attr("furnished","Meublé","مفروش","Furnished","boolean",false,true,6))
+        }
+        return a
+    case "villas-vente", "villas-location":
+        a := []models.AttributeDefinition{
+            attr("surface_m2","Surface habitable","المساحة المبنية","Living area","float",true,true,1,str("m²")),
+            attr("land_m2","Terrain","مساحة الأرض","Land area","float",false,true,2,str("m²")),
+            attr("rooms","Chambres","عدد الغرف","Bedrooms","integer",false,true,3),
+            attr("has_pool","Piscine","حمام سباحة","Pool","boolean",false,true,4),
+            attr("has_garage","Garage","مرآب","Garage","boolean",false,true,5),
+        }
+        if slug == "villas-location" {
+            a = append(a, attr("furnished","Meublé","مفروش","Furnished","boolean",false,true,6))
+        }
+        return a
+    case "terrains":
+        return []models.AttributeDefinition{
+            attr("surface_m2","Superficie","المساحة","Area","float",true,true,1,str("m²")),
+            attr("is_constructible","Constructible","قابل للبناء","Buildable","boolean",true,true,2),
+            attr("is_connected","Viabilisé","مجهز بالشبكات","Serviced","boolean",false,true,3),
+        }
+    case "bureaux-commerces":
+        return []models.AttributeDefinition{
+            attr("surface_m2","Surface","المساحة","Area","float",true,true,1,str("m²")),
+            attr("type","Type","النوع","Type","enum",true,true,2,
+                enumStr([]string{"Bureau","Local commercial","Entrepôt","Plateau"})),
+            attr("has_parking","Parking","موقف سيارة","Parking","boolean",false,true,3),
+        }
+    case "telephones":
+        return []models.AttributeDefinition{
+            attr("brand","Marque","العلامة التجارية","Brand","enum",true,true,1,
+                enumStr([]string{"Apple","Samsung","Huawei","Xiaomi","Oppo","Realme","Autre"})),
+            attr("model","Modèle","الموديل","Model","string",true,false,2),
+            attr("storage_gb","Stockage","التخزين","Storage","enum",false,true,3,
+                enumStr([]string{"16 GB","32 GB","64 GB","128 GB","256 GB","512 GB","1 TB"})),
+            attr("condition","État","الحالة","Condition","enum",true,true,4,
+                enumStr([]string{"Neuf (scellé)","Comme neuf","Très bon","Bon","Acceptable"})),
+        }
+    case "informatique":
+        return []models.AttributeDefinition{
+            attr("type","Type","النوع","Type","enum",true,true,1,
+                enumStr([]string{"Laptop","PC fixe","Écran","Imprimante","Composant","Accessoire"})),
+            attr("brand","Marque","العلامة التجارية","Brand","string",false,true,2),
+            attr("ram_gb","RAM","الذاكرة العشوائية","RAM","enum",false,true,3,
+                enumStr([]string{"4 GB","8 GB","16 GB","32 GB","64 GB"})),
+            attr("condition","État","الحالة","Condition","enum",true,true,4,
+                enumStr([]string{"Neuf","Très bon","Bon","Acceptable"})),
+        }
+    case "offres-emploi":
+        return []models.AttributeDefinition{
+            attr("contract_type","Type de contrat","نوع العقد","Contract","enum",true,true,1,
+                enumStr([]string{"CDI","CDD","Freelance","Stage","Alternance","Temps partiel"})),
+            attr("sector","Secteur","القطاع","Sector","string",false,true,2),
+            attr("experience_years","Expérience","الخبرة","Experience","enum",false,true,3,
+                enumStr([]string{"Débutant","1-2 ans","3-5 ans","5-10 ans","+10 ans"})),
+            attr("remote","Télétravail","عمل عن بُعد","Remote","enum",false,true,4,
+                enumStr([]string{"Sur site","Hybride","Télétravail total"})),
+        }
+    case "demandes-emploi":
+        return []models.AttributeDefinition{
+            attr("contract_type","Type souhaité","نوع العقد المطلوب","Contract","enum",false,true,1,
+                enumStr([]string{"CDI","CDD","Freelance","Stage","Temps partiel"})),
+            attr("sector","Secteur","القطاع","Sector","string",false,true,2),
+            attr("experience_years","Années d'expérience","سنوات الخبرة","Experience","enum",false,true,3,
+                enumStr([]string{"Débutant","1-2 ans","3-5 ans","5-10 ans","+10 ans"})),
+        }
+    case "vetements-femme", "vetements-homme":
+        return []models.AttributeDefinition{
+            attr("size","Taille","المقاس","Size","enum",false,true,1,
+                enumStr([]string{"XS","S","M","L","XL","XXL","XXXL"})),
+            attr("condition","État","الحالة","Condition","enum",true,true,2,
+                enumStr([]string{"Neuf avec étiquette","Neuf sans étiquette","Très bon","Bon","Acceptable"})),
+        }
+    case "chaussures":
+        return []models.AttributeDefinition{
+            attr("size_eu","Pointure (EU)","المقاس (EU)","EU size","integer",false,true,1),
+            attr("gender","Genre","الجنس","Gender","enum",false,true,2,
+                enumStr([]string{"Femme","Homme","Enfant","Mixte"})),
+            attr("condition","État","الحالة","Condition","enum",true,true,3,
+                enumStr([]string{"Neuf","Très bon","Bon","Acceptable"})),
+        }
+    case "animaux":
+        return []models.AttributeDefinition{
+            attr("species","Espèce","النوع","Species","enum",false,true,1,
+                enumStr([]string{"Chien","Chat","Oiseau","Poisson","Reptile","Autre"})),
+            attr("vaccinated","Vacciné","ملقح","Vaccinated","boolean",false,true,2),
+        }
+    case "services-education":
+        return []models.AttributeDefinition{
+            attr("subject","Matière","المادة","Subject","string",false,true,1),
+            attr("level","Niveau","المستوى","Level","enum",false,true,2,
+                enumStr([]string{"Primaire","Collège","Lycée","Université","Professionnel","Tous niveaux"})),
+            attr("format","Format","الصيغة","Format","enum",false,true,3,
+                enumStr([]string{"Présentiel","En ligne","Les deux"})),
+        }
+    }
+    return nil
+}
+
 func (r *CategoryRepo) seedCategories() error {
-    // Load brand list from external JSON — logged inside loadVehicleCarBrands if missing.
     carBrands := loadVehicleCarBrands()
-    log.Printf("Seeding categories — loaded %d car brands from %s", len(carBrands), vehicleDataPath())
+    log.Printf("Seeding categories — %d car brands, reading hierarchy from data/categories.json", len(carBrands))
 
-    categories := []models.Category{
+    tree, err := loadCategoryTree()
+    if err != nil {
+        return fmt.Errorf("seedCategories: %w", err)
+    }
 
-        // ── Automobiles ───────────────────────────────────────────────────────
-        {
-            Slug: "automobiles", NameFR: "Automobiles", NameAR: "سيارات",
-            Icon: "fa-car", SortOrder: 1, IsActive: true,
-            Children: []models.Category{
-                {
-                    Slug: "voitures", NameFR: "Voitures", NameAR: "سيارات",
-                    Icon: "fa-car-side", SortOrder: 1, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        // ── Identification ──────────────────────────────────────
-                        attr("brand", "Marque", "العلامة التجارية", "enum", true, true, 1,
-                            enumStr(carBrands)),
-                        attr("model", "Modèle", "الموديل", "string", true, true, 2),
-                        attr("year", "Année", "السنة", "integer", true, true, 3),
-                        attr("mileage_km", "Kilométrage", "عدد الكيلومترات", "integer", true, true, 4, str("km")),
-                        // ── Version / finition ──────────────────────────────────
-                        attr("variant_name", "Désignation commerciale", "التسمية التجارية", "string", false, false, 5),
-                        attr("trim", "Finition / Version", "درجة التجهيز", "string", false, false, 6),
-                        // ── Carrosserie ─────────────────────────────────────────
-                        attr("segment", "Segment", "الفئة", "enum", false, true, 7,
-                            enumStr([]string{
-                                "Citadine",
-                                "Berline",
-                                "Break",
-                                "SUV/Crossover",
-                                "Coupé",
-                                "Cabriolet",
-                                "Monospace",
-                                "Pick-up",
-                            })),
-                        attr("body_type", "Carrosserie", "نوع الهيكل", "enum", false, true, 8,
-                            enumStr([]string{
-                                "Citadine",
-                                "Berline",
-                                "Break",
-                                "SUV",
-                                "Crossover",
-                                "Coupé",
-                                "Cabriolet",
-                                "Monospace",
-                                "Fourgonnette",
-                                "Pick-up",
-                                "Autre",
-                            })),
-                        attr("doors", "Nombre de portes", "عدد الأبواب", "integer", false, true, 9),
-                        attr("seats", "Nombre de places", "عدد المقاعد", "integer", false, true, 10),
-                        // ── Motorisation ────────────────────────────────────────
-                        attr("fuel_type", "Carburant", "نوع الوقود", "enum", true, true, 11,
-                            enumStr([]string{
-                                "Essence (P)",
-                                "Diesel (D)",
-                                "Hybride (HEV)",
-                                "Hybride rechargeable (PHEV)",
-                                "Électrique (BEV)",
-                                "GPL (LPG)",
-                                "GNC (CNG)",
-                                "Éthanol (E85)",
-                            })),
-                        attr("transmission_type", "Transmission", "ناقل الحركة", "enum", false, true, 12,
-                            enumStr([]string{
-                                "Manuelle",
-                                "Automatique",
-                                "CVT",
-                                "DSG / PDK",
-                                "Semi-automatique",
-                            })),
-                        // ── État ────────────────────────────────────────────────
-                        attr("color", "Couleur", "اللون", "string", false, true, 13),
-                        attr("condition", "État", "الحالة", "enum", true, true, 14,
-                            enumStr([]string{"Neuf", "Très bon", "Bon", "Correct", "Pour pièces"})),
-                        attr("first_owner", "Première main", "يد أولى", "boolean", false, true, 15),
-                    },
-                },
-                {
-                    Slug: "motos", NameFR: "Motos & Scooters", NameAR: "دراجات نارية",
-                    Icon: "fa-motorcycle", SortOrder: 2, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("brand", "Marque", "العلامة التجارية", "string", true, true, 1),
-                        attr("model", "Modèle", "الموديل", "string", true, true, 2),
-                        attr("year", "Année", "السنة", "integer", true, true, 3),
-                        attr("mileage_km", "Kilométrage", "عدد الكيلومترات", "integer", true, true, 4, str("km")),
-                        attr("cylinder_cc", "Cylindrée", "سعة المحرك", "integer", false, true, 5, str("cc")),
-                        attr("fuel_type", "Carburant", "نوع الوقود", "enum", false, true, 6,
-                            enumStr([]string{"Essence (P)", "Électrique (BEV)"})),
-                        attr("transmission_type", "Transmission", "ناقل الحركة", "enum", false, false, 7,
-                            enumStr([]string{"Manuelle", "Automatique", "Semi-automatique"})),
-                        attr("condition", "État", "الحالة", "enum", true, true, 8,
-                            enumStr([]string{"Neuf", "Très bon", "Bon", "Correct"})),
-                    },
-                },
-                {
-                    Slug: "utilitaires", NameFR: "Utilitaires & Camions", NameAR: "شاحنات",
-                    Icon: "fa-truck", SortOrder: 3, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("brand", "Marque", "العلامة التجارية", "string", true, true, 1),
-                        attr("model", "Modèle", "الموديل", "string", true, true, 2),
-                        attr("year", "Année", "السنة", "integer", true, true, 3),
-                        attr("mileage_km", "Kilométrage", "عدد الكيلومترات", "integer", true, true, 4, str("km")),
-                        attr("payload_kg", "Charge utile", "الحمولة", "integer", false, true, 5, str("kg")),
-                        attr("fuel_type", "Carburant", "نوع الوقود", "enum", false, true, 6,
-                            enumStr([]string{"Diesel (D)", "Essence (P)", "Électrique (BEV)", "GPL (LPG)"})),
-                        attr("transmission_type", "Transmission", "ناقل الحركة", "enum", false, false, 7,
-                            enumStr([]string{"Manuelle", "Automatique"})),
-                    },
-                },
-                {
-                    Slug: "pieces-auto", NameFR: "Pièces & Accessoires auto", NameAR: "قطع غيار",
-                    Icon: "fa-gears", SortOrder: 4, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("compatible_brand", "Marque compatible", "متوافق مع", "string", false, true, 1),
-                        attr("part_type", "Type de pièce", "نوع القطعة", "enum", false, true, 2,
-                            enumStr([]string{"Moteur", "Carrosserie", "Électronique", "Suspension", "Freinage", "Autre"})),
-                        attr("condition", "État", "الحالة", "enum", true, true, 3,
-                            enumStr([]string{"Neuf", "Occasion"})),
-                    },
-                },
-            },
-        },
+    var categories []models.Category
+    for _, entry := range tree.Categories {
+        parent := models.Category{
+            Slug:      entry.Code,
+            NameFR:    entry.NameFR,
+            NameAR:    entry.NameAR,
+            NameEN:    entry.NameEN,
+            Icon:      entry.Icon,
+            SortOrder: entry.SortOrder,
+            IsActive:  true,
+        }
+        parent.AttributeDefinitions = attrsBySlug(entry.Code, carBrands)
 
-        // ── Immobilier ────────────────────────────────────────────────────────
-        {
-            Slug: "immobilier", NameFR: "Immobilier", NameAR: "عقارات",
-            Icon: "fa-building", SortOrder: 2, IsActive: true,
-            Children: []models.Category{
-                {
-                    Slug: "appartements-vente", NameFR: "Appartements à vendre", NameAR: "شقق للبيع",
-                    Icon: "fa-building", SortOrder: 1, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("surface_m2", "Surface", "المساحة", "float", true, true, 1, str("m²")),
-                        attr("rooms", "Pièces", "عدد الغرف", "enum", true, true, 2,
-                            enumStr([]string{"Studio", "F1", "F2", "F3", "F4", "F5", "F6+"})),
-                        attr("floor", "Étage", "الطابق", "integer", false, false, 3),
-                        attr("total_floors", "Étages total", "عدد الطوابق", "integer", false, false, 4),
-                        attr("has_elevator", "Ascenseur", "مصعد", "boolean", false, true, 5),
-                        attr("has_parking", "Parking", "موقف سيارة", "boolean", false, true, 6),
-                        attr("has_balcony", "Balcon / Terrasse", "شرفة", "boolean", false, true, 7),
-                        attr("condition", "État", "الحالة", "enum", false, true, 8,
-                            enumStr([]string{"Neuf", "Bon état", "À rénover"})),
-                    },
-                },
-                {
-                    Slug: "appartements-location", NameFR: "Appartements à louer", NameAR: "شقق للإيجار",
-                    Icon: "fa-key", SortOrder: 2, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("surface_m2", "Surface", "المساحة", "float", true, true, 1, str("m²")),
-                        attr("rooms", "Pièces", "عدد الغرف", "enum", true, true, 2,
-                            enumStr([]string{"Studio", "F1", "F2", "F3", "F4", "F5", "F6+"})),
-                        attr("floor", "Étage", "الطابق", "integer", false, false, 3),
-                        attr("has_elevator", "Ascenseur", "مصعد", "boolean", false, true, 4),
-                        attr("has_parking", "Parking", "موقف سيارة", "boolean", false, true, 5),
-                        attr("furnished", "Meublé", "مفروش", "boolean", false, true, 6),
-                    },
-                },
-                {
-                    Slug: "villas-vente", NameFR: "Villas à vendre", NameAR: "فيلات للبيع",
-                    Icon: "fa-house-chimney", SortOrder: 3, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("surface_m2", "Surface habitable", "المساحة المبنية", "float", true, true, 1, str("m²")),
-                        attr("land_m2", "Superficie terrain", "مساحة الأرض", "float", false, true, 2, str("m²")),
-                        attr("rooms", "Chambres", "عدد الغرف", "integer", false, true, 3),
-                        attr("has_pool", "Piscine", "حمام سباحة", "boolean", false, true, 4),
-                        attr("has_garage", "Garage", "مرآب", "boolean", false, true, 5),
-                        attr("has_garden", "Jardin", "حديقة", "boolean", false, true, 6),
-                        attr("condition", "État", "الحالة", "enum", false, true, 7,
-                            enumStr([]string{"Neuf", "Bon état", "À rénover"})),
-                    },
-                },
-                {
-                    Slug: "villas-location", NameFR: "Villas à louer", NameAR: "فيلات للإيجار",
-                    Icon: "fa-house-chimney-user", SortOrder: 4, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("surface_m2", "Surface habitable", "المساحة المبنية", "float", true, true, 1, str("m²")),
-                        attr("rooms", "Chambres", "عدد الغرف", "integer", false, true, 2),
-                        attr("has_pool", "Piscine", "حمام سباحة", "boolean", false, true, 3),
-                        attr("has_garage", "Garage", "مرآب", "boolean", false, true, 4),
-                        attr("furnished", "Meublé", "مفروش", "boolean", false, true, 5),
-                    },
-                },
-                {
-                    Slug: "terrains", NameFR: "Terrains", NameAR: "أراضي",
-                    Icon: "fa-map", SortOrder: 5, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("surface_m2", "Superficie", "المساحة", "float", true, true, 1, str("m²")),
-                        attr("is_constructible", "Constructible", "قابل للبناء", "boolean", true, true, 2),
-                        attr("is_connected", "Viabilisé", "مجهز بالشبكات", "boolean", false, true, 3),
-                    },
-                },
-                {
-                    Slug: "bureaux-commerces", NameFR: "Bureaux & Commerces", NameAR: "مكاتب ومحلات",
-                    Icon: "fa-store", SortOrder: 6, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("surface_m2", "Surface", "المساحة", "float", true, true, 1, str("m²")),
-                        attr("type", "Type", "النوع", "enum", true, true, 2,
-                            enumStr([]string{"Bureau", "Local commercial", "Entrepôt", "Plateau"})),
-                        attr("has_parking", "Parking", "موقف سيارة", "boolean", false, true, 3),
-                    },
-                },
-            },
-        },
-
-        // ── Électronique ──────────────────────────────────────────────────────
-        {
-            Slug: "electronique", NameFR: "Électronique", NameAR: "إلكترونيات",
-            Icon: "fa-laptop", SortOrder: 3, IsActive: true,
-            Children: []models.Category{
-                {
-                    Slug: "telephones", NameFR: "Téléphones & Tablettes", NameAR: "هواتف وأجهزة لوحية",
-                    Icon: "fa-mobile-screen", SortOrder: 1, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("brand", "Marque", "العلامة التجارية", "enum", true, true, 1,
-                            enumStr([]string{"Apple", "Samsung", "Huawei", "Xiaomi", "Oppo", "Realme", "Autre"})),
-                        attr("model", "Modèle", "الموديل", "string", true, false, 2),
-                        attr("storage_gb", "Stockage", "التخزين", "enum", false, true, 3,
-                            enumStr([]string{"16 GB", "32 GB", "64 GB", "128 GB", "256 GB", "512 GB", "1 TB"})),
-                        attr("color", "Couleur", "اللون", "string", false, false, 4),
-                        attr("condition", "État", "الحالة", "enum", true, true, 5,
-                            enumStr([]string{"Neuf (scellé)", "Comme neuf", "Très bon", "Bon", "Acceptable"})),
-                    },
-                },
-                {
-                    Slug: "informatique", NameFR: "Informatique", NameAR: "حاسوب",
-                    Icon: "fa-desktop", SortOrder: 2, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("type", "Type", "النوع", "enum", true, true, 1,
-                            enumStr([]string{"Laptop", "PC fixe", "Écran", "Imprimante", "Composant", "Accessoire"})),
-                        attr("brand", "Marque", "العلامة التجارية", "string", false, true, 2),
-                        attr("cpu", "Processeur", "المعالج", "string", false, false, 3),
-                        attr("ram_gb", "RAM", "الذاكرة العشوائية", "enum", false, true, 4,
-                            enumStr([]string{"4 GB", "8 GB", "16 GB", "32 GB", "64 GB"})),
-                        attr("storage_gb", "Stockage", "التخزين", "string", false, false, 5),
-                        attr("condition", "État", "الحالة", "enum", true, true, 6,
-                            enumStr([]string{"Neuf", "Très bon", "Bon", "Acceptable"})),
-                    },
-                },
-                {
-                    Slug: "tv-audio", NameFR: "TV, Audio & Vidéo", NameAR: "تلفاز وصوت",
-                    Icon: "fa-tv", SortOrder: 3, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("type", "Type", "النوع", "enum", true, true, 1,
-                            enumStr([]string{"Télévision", "Home cinéma", "Enceinte", "Casque", "Autre"})),
-                        attr("brand", "Marque", "العلامة التجارية", "string", false, true, 2),
-                        attr("screen_inch", "Taille écran", "حجم الشاشة", "integer", false, true, 3, str("pouces")),
-                        attr("condition", "État", "الحالة", "enum", true, true, 4,
-                            enumStr([]string{"Neuf", "Très bon", "Bon", "Acceptable"})),
-                    },
-                },
-                {
-                    Slug: "appareils-photo", NameFR: "Photo & Vidéo", NameAR: "تصوير",
-                    Icon: "fa-camera", SortOrder: 4, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("type", "Type", "النوع", "enum", true, true, 1,
-                            enumStr([]string{"Appareil photo", "Caméra", "Objectif", "Accessoire"})),
-                        attr("brand", "Marque", "العلامة التجارية", "string", false, true, 2),
-                        attr("condition", "État", "الحالة", "enum", true, true, 3,
-                            enumStr([]string{"Neuf", "Très bon", "Bon", "Acceptable"})),
-                    },
-                },
-            },
-        },
-
-        // ── Maison & Jardin ───────────────────────────────────────────────────
-        {
-            Slug: "maison", NameFR: "Maison & Jardin", NameAR: "منزل وحديقة",
-            Icon: "fa-couch", SortOrder: 4, IsActive: true,
-            Children: []models.Category{
-                {Slug: "meubles", NameFR: "Meubles", NameAR: "أثاث", Icon: "fa-couch", SortOrder: 1, IsActive: true},
-                {Slug: "electromenager", NameFR: "Électroménager", NameAR: "أجهزة منزلية", Icon: "fa-blender", SortOrder: 2, IsActive: true},
-                {Slug: "decoration", NameFR: "Décoration", NameAR: "ديكور", Icon: "fa-paint-roller", SortOrder: 3, IsActive: true},
-                {Slug: "jardin", NameFR: "Jardin & Bricolage", NameAR: "حديقة وديكور", Icon: "fa-seedling", SortOrder: 4, IsActive: true},
-            },
-        },
-
-        // ── Emploi ────────────────────────────────────────────────────────────
-        {
-            Slug: "emploi", NameFR: "Emploi", NameAR: "توظيف",
-            Icon: "fa-briefcase", SortOrder: 5, IsActive: true,
-            Children: []models.Category{
-                {
-                    Slug: "offres-emploi", NameFR: "Offres d'emploi", NameAR: "عروض عمل",
-                    Icon: "fa-file-contract", SortOrder: 1, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("contract_type", "Type de contrat", "نوع العقد", "enum", true, true, 1,
-                            enumStr([]string{"CDI", "CDD", "Freelance", "Stage", "Alternance", "Temps partiel"})),
-                        attr("sector", "Secteur", "القطاع", "string", false, true, 2),
-                        attr("experience_years", "Expérience requise", "الخبرة المطلوبة", "enum", false, true, 3,
-                            enumStr([]string{"Débutant", "1-2 ans", "3-5 ans", "5-10 ans", "+10 ans"})),
-                        attr("remote", "Télétravail", "عمل عن بُعد", "enum", false, true, 4,
-                            enumStr([]string{"Sur site", "Hybride", "Télétravail total"})),
-                    },
-                },
-                {
-                    Slug: "demandes-emploi", NameFR: "Demandes d'emploi", NameAR: "طلبات عمل",
-                    Icon: "fa-user-tie", SortOrder: 2, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("contract_type", "Type souhaité", "نوع العقد المطلوب", "enum", false, true, 1,
-                            enumStr([]string{"CDI", "CDD", "Freelance", "Stage", "Temps partiel"})),
-                        attr("sector", "Secteur", "القطاع", "string", false, true, 2),
-                        attr("experience_years", "Années d'expérience", "سنوات الخبرة", "enum", false, true, 3,
-                            enumStr([]string{"Débutant", "1-2 ans", "3-5 ans", "5-10 ans", "+10 ans"})),
-                    },
-                },
-                {
-                    Slug: "stages", NameFR: "Stages & Alternance", NameAR: "تدريب",
-                    Icon: "fa-graduation-cap", SortOrder: 3, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("duration_months", "Durée", "المدة", "enum", false, false, 1,
-                            enumStr([]string{"1 mois", "2 mois", "3 mois", "6 mois", "1 an"})),
-                        attr("sector", "Secteur", "القطاع", "string", false, true, 2),
-                    },
-                },
-            },
-        },
-
-        // ── Services ──────────────────────────────────────────────────────────
-        {
-            Slug: "services", NameFR: "Services", NameAR: "خدمات",
-            Icon: "fa-screwdriver-wrench", SortOrder: 6, IsActive: true,
-            Children: []models.Category{
-                {Slug: "services-informatiques", NameFR: "Informatique & Web", NameAR: "خدمات إعلاميات", Icon: "fa-code", SortOrder: 1, IsActive: true},
-                {Slug: "services-artisanat", NameFR: "Artisanat & Construction", NameAR: "بناء وصناعة تقليدية", Icon: "fa-helmet-safety", SortOrder: 2, IsActive: true},
-                {
-                    Slug: "services-education", NameFR: "Cours & Formations", NameAR: "دروس وتكوين",
-                    Icon: "fa-chalkboard-user", SortOrder: 3, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("subject", "Matière", "المادة", "string", false, true, 1),
-                        attr("level", "Niveau", "المستوى", "enum", false, true, 2,
-                            enumStr([]string{"Primaire", "Collège", "Lycée", "Université", "Professionnel", "Tous niveaux"})),
-                        attr("format", "Format", "الصيغة", "enum", false, true, 3,
-                            enumStr([]string{"Présentiel", "En ligne", "Les deux"})),
-                    },
-                },
-                {Slug: "services-sante", NameFR: "Santé & Beauté", NameAR: "صحة وجمال", Icon: "fa-kit-medical", SortOrder: 4, IsActive: true},
-            },
-        },
-
-        // ── Mode & Beauté ─────────────────────────────────────────────────────
-        {
-            Slug: "mode", NameFR: "Mode & Beauté", NameAR: "موضة وجمال",
-            Icon: "fa-shirt", SortOrder: 7, IsActive: true,
-            Children: []models.Category{
-                {
-                    Slug: "vetements-femme", NameFR: "Vêtements Femme", NameAR: "ملابس نسائية",
-                    Icon: "fa-person-dress", SortOrder: 1, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("size", "Taille", "المقاس", "enum", false, true, 1,
-                            enumStr([]string{"XS", "S", "M", "L", "XL", "XXL", "XXXL"})),
-                        attr("condition", "État", "الحالة", "enum", true, true, 2,
-                            enumStr([]string{"Neuf avec étiquette", "Neuf sans étiquette", "Très bon", "Bon", "Acceptable"})),
-                    },
-                },
-                {
-                    Slug: "vetements-homme", NameFR: "Vêtements Homme", NameAR: "ملابس رجالية",
-                    Icon: "fa-person", SortOrder: 2, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("size", "Taille", "المقاس", "enum", false, true, 1,
-                            enumStr([]string{"XS", "S", "M", "L", "XL", "XXL", "XXXL"})),
-                        attr("condition", "État", "الحالة", "enum", true, true, 2,
-                            enumStr([]string{"Neuf avec étiquette", "Neuf sans étiquette", "Très bon", "Bon", "Acceptable"})),
-                    },
-                },
-                {
-                    Slug: "chaussures", NameFR: "Chaussures", NameAR: "أحذية",
-                    Icon: "fa-shoe-prints", SortOrder: 3, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("size_eu", "Pointure (EU)", "المقاس (EU)", "integer", false, true, 1),
-                        attr("gender", "Genre", "الجنس", "enum", false, true, 2,
-                            enumStr([]string{"Femme", "Homme", "Enfant", "Mixte"})),
-                        attr("condition", "État", "الحالة", "enum", true, true, 3,
-                            enumStr([]string{"Neuf", "Très bon", "Bon", "Acceptable"})),
-                    },
-                },
-                {Slug: "accessoires-mode", NameFR: "Accessoires", NameAR: "إكسسوارات", Icon: "fa-gem", SortOrder: 4, IsActive: true},
-            },
-        },
-
-        // ── Loisirs & Sport ───────────────────────────────────────────────────
-        {
-            Slug: "loisirs", NameFR: "Loisirs & Sport", NameAR: "ترفيه ورياضة",
-            Icon: "fa-futbol", SortOrder: 8, IsActive: true,
-            Children: []models.Category{
-                {Slug: "sport", NameFR: "Articles de sport", NameAR: "مستلزمات رياضية", Icon: "fa-dumbbell", SortOrder: 1, IsActive: true},
-                {Slug: "livres-musique", NameFR: "Livres, Musique & Films", NameAR: "كتب وموسيقى وأفلام", Icon: "fa-book", SortOrder: 2, IsActive: true},
-                {Slug: "jeux-jouets", NameFR: "Jeux & Jouets", NameAR: "ألعاب", Icon: "fa-gamepad", SortOrder: 3, IsActive: true},
-                {
-                    Slug: "animaux", NameFR: "Animaux", NameAR: "حيوانات",
-                    Icon: "fa-paw", SortOrder: 4, IsActive: true,
-                    AttributeDefinitions: []models.AttributeDefinition{
-                        attr("species", "Espèce", "النوع", "enum", false, true, 1,
-                            enumStr([]string{"Chien", "Chat", "Oiseau", "Poisson", "Reptile", "Autre"})),
-                        attr("age_months", "Âge", "العمر", "integer", false, false, 2),
-                        attr("vaccinated", "Vacciné", "ملقح", "boolean", false, true, 3),
-                    },
-                },
-            },
-        },
-
-        // ── Divers ────────────────────────────────────────────────────────────
-        {
-            Slug: "divers", NameFR: "Divers", NameAR: "متفرقات",
-            Icon: "fa-box-open", SortOrder: 9, IsActive: true,
-            Children: []models.Category{
-                {Slug: "divers-autres", NameFR: "Autres", NameAR: "أخرى", Icon: "fa-ellipsis", SortOrder: 1, IsActive: true},
-            },
-        },
+        for _, sub := range entry.Subcategories {
+            child := models.Category{
+                Slug:      sub.Code,
+                NameFR:    sub.NameFR,
+                NameAR:    sub.NameAR,
+                NameEN:    sub.NameEN,
+                Icon:      sub.Icon,
+                SortOrder: sub.SortOrder,
+                IsActive:  true,
+            }
+            child.AttributeDefinitions = attrsBySlug(sub.Code, carBrands)
+            parent.Children = append(parent.Children, child)
+        }
+        categories = append(categories, parent)
     }
 
     return r.db.Create(&categories).Error
 }
+

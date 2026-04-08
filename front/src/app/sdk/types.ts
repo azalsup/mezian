@@ -75,23 +75,25 @@ export interface AttributeDefinition {
   key:           string;
   label_fr:      string;
   label_ar:      string;
+  label_en:      string;
   data_type:     'string' | 'integer' | 'float' | 'boolean' | 'enum';
   unit?:         string;
-  enum_values?:  string[];   // parsed from JSON on the backend
+  enum_values?:  string[];
   is_required:   boolean;
   is_filterable: boolean;
   sort_order:    number;
 }
 
 export interface Category {
-  id:                    number;
-  slug:                  string;
-  name_fr:               string;
-  name_ar:               string;
-  icon?:                 string;
-  sort_order:            number;
-  is_active:             boolean;
-  parent_id?:            number;
-  children?:             Category[];
+  id:                     number;
+  slug:                   string;
+  name_fr:                string;
+  name_ar:                string;
+  name_en:                string;
+  icon?:                  string;
+  sort_order:             number;
+  is_active:              boolean;
+  parent_id?:             number;
+  children?:              Category[];
   attribute_definitions?: AttributeDefinition[];
 }

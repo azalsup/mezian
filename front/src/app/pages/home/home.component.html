@@ -37,29 +37,29 @@
     <div class="cat-nav__inner">
 
       <!-- Featured 3 first, then the rest -->
-      @for (cat of navCategories; track cat.slug) {
-        <div class="cat-nav__item" [class.cat-nav__item--featured]="cat.featured">
+      @for (cat of navCategories(); track cat.slug) {
+        <div class="cat-nav__item" [class.cat-nav__item--featured]="cat.sort_order <= 3">
           <button
             class="cat-nav__btn"
             [class.cat-nav__btn--open]="openCat() === cat.slug"
-            (click)="toggleCat(cat.slug); $event.stopPropagation()">
+            (click)="toggleCat(cat.slug, $event)">
             <span class="material-icons-round">{{ cat.icon }}</span>
-            <span>{{ lang.t(cat.labelKey) }}</span>
+            <span>{{ label(cat) }}</span>
             <span class="material-icons-round cat-nav__chevron">expand_more</span>
           </button>
 
           @if (openCat() === cat.slug) {
             <div class="cat-nav__dropdown" (click)="$event.stopPropagation()">
-              @if (cat.featured) {
+              @if (cat.sort_order <= 3) {
                 <a class="cat-nav__view-all" [href]="'/annonces/' + cat.slug">
                   <span class="material-icons-round">{{ cat.icon }}</span>
-                  {{ lang.t(cat.labelKey) }} — {{ lang.t('seeAll') }}
+                  {{ label(cat) }} — {{ lang.t('seeAll') }}
                   <span class="material-icons-round" style="margin-inline-start:auto;font-size:16px">arrow_forward</span>
                 </a>
                 <div class="cat-nav__divider"></div>
               }
-              @for (sub of cat.subcategories; track sub) {
-                <a class="cat-nav__sub" href="#">{{ sub }}</a>
+              @for (sub of cat.children ?? []; track sub.slug) {
+                <a class="cat-nav__sub" [href]="'/annonces/' + sub.slug">{{ subLabel(sub) }}</a>
               }
             </div>
           }

@@ -8,6 +8,7 @@ type Category struct {
     Slug      string    `gorm:"uniqueIndex;not null"  json:"slug"`
     NameFR    string    `gorm:"not null"              json:"name_fr"`
     NameAR    string    `gorm:"not null"              json:"name_ar"`
+    NameEN    string    `gorm:"not null;default:''"   json:"name_en"`
     Icon      string    `gorm:"column:icon"           json:"icon,omitempty"`
     ParentID  *uint     `gorm:"index"                 json:"parent_id,omitempty"`
     Parent    *Category `gorm:"foreignKey:ParentID"   json:"-"`
@@ -26,6 +27,7 @@ type AttributeDefinition struct {
     Key          string  `gorm:"not null;uniqueIndex:idx_cat_key"  json:"key"`
     LabelFR      string  `gorm:"not null"                          json:"label_fr"`
     LabelAR      string  `gorm:"not null"                          json:"label_ar"`
+    LabelEN      string  `gorm:"not null;default:''"               json:"label_en"`
     DataType     string  `gorm:"not null"                          json:"data_type"` // integer|float|string|boolean|enum
     Unit         *string `gorm:"column:unit"                       json:"unit,omitempty"`
     EnumValues   *string `gorm:"column:enum_values"                json:"enum_values,omitempty"` // JSON array
