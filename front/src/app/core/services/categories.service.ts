@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CategoriesApi } from '../../sdk';
 import type { Category } from '../../sdk';
 import { LangService, Lang } from './lang.service';
+import staticData from '../../../../public/categories.json';
 
 /** Flat lookup: slug → Category (root or child) */
 export type CategoryMap = Map<string, Category>;
@@ -13,8 +14,8 @@ export class CategoriesService {
   private readonly lang       = inject(LangService);
   private readonly platformId = inject(PLATFORM_ID);
 
-  /** Root categories with children, loaded from API */
-  readonly categories = signal<Category[]>([]);
+  /** Root categories — pre-populated from categories.json, updated from API when available */
+  readonly categories = signal<Category[]>(staticData.categories.map(staticToCategory));
   readonly loading    = signal(true);
   readonly error      = signal<string | null>(null);
 
@@ -42,11 +43,12 @@ export class CategoriesService {
   }
 
   constructor() {
+    // Defaults already in signal — attempt API refresh only in browser
     if (isPlatformBrowser(this.platformId)) {
       this.loadFromApi();
     } else {
-      // During SSG prerendering: load from static categories.json in public/
-      this.loadFromStaticJson();
+      // SSG: defaults are sufficient, mark loading done
+      this.loading.set(false);
     }
   }
 
@@ -57,53 +59,19 @@ export class CategoriesService {
         this.loading.set(false);
       },
       error: () => {
-        // API unavailable — fall back to static JSON
-        this.loadFromStaticJson();
+        // API unavailable — categories.json defaults remain
+        this.loading.set(false);
       },
     });
-  }
-
-  private loadFromStaticJson(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      this.loading.set(false);
-      return;
-    }
-    fetch('/categories.json')
-      .then(r => r.json())
-      .then((data: { categories: StaticCatEntry[] }) => {
-        this.categories.set(data.categories.map(staticToCategory));
-        this.loading.set(false);
-      })
-      .catch(() => {
-        this.loading.set(false);
-        this.error.set('categories_unavailable');
-      });
   }
 }
 
 // ── Static JSON → Category conversion ────────────────────────────────────────
 
-interface StaticCatEntry {
-  code: string;
-  icon?: string;
-  sort_order: number;
-  name_fr: string;
-  name_ar: string;
-  name_en: string;
-  featured?: boolean;
-  subcategories?: StaticSubEntry[];
-}
+type StaticEntry = (typeof staticData.categories)[number];
+type StaticSub   = NonNullable<StaticEntry['subcategories']>[number];
 
-interface StaticSubEntry {
-  code: string;
-  icon?: string;
-  sort_order: number;
-  name_fr: string;
-  name_ar: string;
-  name_en: string;
-}
-
-function staticToCategory(e: StaticCatEntry, idx: number): Category {
+function staticToCategory(e: StaticEntry, idx: number): Category {
   return {
     id:         idx + 1,
     slug:       e.code,
@@ -113,8 +81,8 @@ function staticToCategory(e: StaticCatEntry, idx: number): Category {
     icon:       e.icon,
     sort_order: e.sort_order,
     is_active:  true,
-    children:   (e.subcategories ?? []).map((s, i) => ({
-      id:         (idx + 1) * 100 + i,
+    children:   (e.subcategories ?? []).map((s: StaticSub, i: number) => ({
+      id:         (idx + 1) * 100 + i + 1,
       slug:       s.code,
       name_fr:    s.name_fr,
       name_ar:    s.name_ar,

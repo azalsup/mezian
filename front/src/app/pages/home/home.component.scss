@@ -215,12 +215,12 @@
   .cat-nav__btn--open & { transform: rotate(180deg); }
 }
 
-/* Dropdown */
-.cat-nav__dropdown {
+/* Panel — direct child of .cat-nav, outside the scroll container */
+.cat-nav__panel {
   position: absolute;
-  top: calc(100% + 2px);
-  inset-inline-start: 0;
-  min-width: 220px;
+  top: 100%;
+  inset-inline-start: 24px; /* aligns with nav content padding */
+  min-width: 240px;
   background: #fff;
   border-radius: 0 16px 16px 16px;
   box-shadow: 0 16px 48px rgba(0,0,0,.18);

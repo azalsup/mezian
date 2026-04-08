@@ -8,8 +8,8 @@
       {{ lang.t('heroBadge') }}
     </div>
     <h1 class="hero__title">
-      {{ lang.t('heroTitle1') }}<br>
-      <span class="hero__title-accent">{{ lang.t('heroTitle2') }}</span>
+      {{ lang.t('heroTitle1') }}
+      <!--<span class="hero__title-accent">{{ lang.t('heroTitle2') }}</span>-->
     </h1>
 
     <!-- Search bar -->
@@ -35,8 +35,6 @@
   <!-- ── Category nav bar — same dark bg, flush below search ── -->
   <div class="cat-nav">
     <div class="cat-nav__inner">
-
-      <!-- Featured 3 first, then the rest -->
       @for (cat of navCategories(); track cat.slug) {
         <div class="cat-nav__item" [class.cat-nav__item--featured]="cat.sort_order <= 3">
           <button
@@ -47,25 +45,26 @@
             <span>{{ label(cat) }}</span>
             <span class="material-icons-round cat-nav__chevron">expand_more</span>
           </button>
-
-          @if (openCat() === cat.slug) {
-            <div class="cat-nav__dropdown" (click)="$event.stopPropagation()">
-              @if (cat.sort_order <= 3) {
-                <a class="cat-nav__view-all" [href]="'/annonces/' + cat.slug">
-                  <span class="material-icons-round">{{ cat.icon }}</span>
-                  {{ label(cat) }} — {{ lang.t('seeAll') }}
-                  <span class="material-icons-round" style="margin-inline-start:auto;font-size:16px">arrow_forward</span>
-                </a>
-                <div class="cat-nav__divider"></div>
-              }
-              @for (sub of cat.children ?? []; track sub.slug) {
-                <a class="cat-nav__sub" [href]="'/annonces/' + sub.slug">{{ subLabel(sub) }}</a>
-              }
-            </div>
-          }
         </div>
       }
     </div>
+
+    <!-- Panel rendered outside the scroll container so it isn't clipped -->
+    @if (openCatData()) {
+      <div class="cat-nav__panel" (click)="$event.stopPropagation()">
+        @if (openCatData()!.sort_order <= 3) {
+          <a class="cat-nav__view-all" [href]="'/annonces/' + openCatData()!.slug">
+            <span class="material-icons-round">{{ openCatData()!.icon }}</span>
+            {{ label(openCatData()!) }} — {{ lang.t('seeAll') }}
+            <span class="material-icons-round" style="margin-inline-start:auto;font-size:16px">arrow_forward</span>
+          </a>
+          <div class="cat-nav__divider"></div>
+        }
+        @for (sub of openCatData()!.children ?? []; track sub.slug) {
+          <a class="cat-nav__sub" [href]="'/annonces/' + sub.slug">{{ subLabel(sub) }}</a>
+        }
+      </div>
+    }
   </div>
 </section>
 

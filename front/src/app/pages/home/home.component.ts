@@ -48,10 +48,12 @@ export class HomeComponent {
   /** Root categories from API/static JSON — used in the nav bar */
   readonly navCategories = this.catService.categories;
 
-  /** Featured = first 3 (immobilier, automobiles, emploi as seeded) */
-  readonly featuredCategories = computed(() =>
-    this.catService.categories().slice(0, 3)
-  );
+  /** The currently open category object (null when closed) */
+  readonly openCatData = computed(() => {
+    const slug = this.openCat();
+    if (!slug) return null;
+    return this.catService.categories().find(c => c.slug === slug) ?? null;
+  });
 
   /** Localised label for a category */
   label(cat: Category): string {
