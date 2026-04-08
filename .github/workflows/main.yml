@@ -31,5 +31,5 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT}}
         source: "front/dist/front/browser/"
-        target: "/home/${{ secrets.SSH_USER }}/domains/daba.incipyo.com/public_html"
+        target: "/home/${{ secrets.SSH_USER }}/domains/incipyo.com/public_html/daba"
         strip_components: 4
