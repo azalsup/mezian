@@ -1,0 +1,62 @@
+<section class="mx-auto max-w-7xl rounded-[32px] border border-slate-200 bg-white p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)]">
+  <div class="flex flex-col gap-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div class="flex flex-1 items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm">
+        <span class="text-slate-500 text-xl">🔎</span>
+        <input
+          type="text"
+          [placeholder]="lang.t('searchPlaceholder')"
+          class="w-full border-none bg-transparent text-slate-900 placeholder:text-slate-400 focus:outline-none"
+        />
+      </div>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <!-- Main categories dropdown -->
+      <div class="relative">
+        <button class="group inline-flex items-center justify-center text-slate-900 bg-slate-50 border border-slate-200 hover:bg-slate-100 focus:ring-4 focus:ring-slate-300 shadow-sm font-medium leading-5 rounded-full text-sm px-4 py-3 focus:outline-none">
+          <i class="material-icons text-base mr-2"></i> {{ lang.t('selectCategory') }}
+          <svg class="w-4 h-4 ms-1.5 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+          </svg>
+        </button>
+        <div class="absolute z-10 hidden group-hover:block bg-white border border-slate-200 rounded-lg shadow-lg w-64 mt-1">
+          <ul class="p-2 text-sm text-slate-900 font-medium">
+            <li *ngFor="let cat of categories">
+              <div *ngIf="cat.subcategories.length; else noSub">
+                <button class="inline-flex items-center w-full p-2 hover:bg-slate-100 rounded">
+                  <i class="material-icons text-base mr-2">{{ cat.icon }}</i> {{ cat.labelFr }}
+                </button>
+                <ul class="ml-6 mt-1">
+                  <li *ngFor="let sub of cat.subcategories">
+                    <a href="#" class="inline-flex items-center w-full p-2 hover:bg-slate-100 rounded text-slate-700">{{ sub }}</a>
+                  </li>
+                </ul>
+              </div>
+              <ng-template #noSub>
+                <a href="#" class="inline-flex items-center w-full p-2 hover:bg-slate-100 rounded">
+                  <i class="material-icons text-base mr-2">{{ cat.icon }}</i> {{ cat.labelFr }}
+                </a>
+              </ng-template>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- Suggested categories dropdowns -->
+      <div *ngFor="let cat of categories.slice(0, 2)" class="relative">
+        <button class="group inline-flex items-center justify-center text-slate-900 bg-slate-50 border border-slate-200 hover:bg-slate-100 focus:ring-4 focus:ring-slate-300 shadow-sm font-medium leading-5 rounded-full text-sm px-4 py-3 focus:outline-none">
+          <i class="material-icons text-base mr-2">{{ cat.icon }}</i> {{ cat.labelFr }}
+          <svg class="w-4 h-4 ms-1.5 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+          </svg>
+        </button>
+        <div class="absolute z-10 hidden group-hover:block bg-white border border-slate-200 rounded-lg shadow-lg w-48 mt-1">
+          <ul class="p-2 text-sm text-slate-900 font-medium">
+            <li *ngFor="let sub of cat.subcategories">
+              <a href="#" class="inline-flex items-center w-full p-2 hover:bg-slate-100 rounded">{{ sub }}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

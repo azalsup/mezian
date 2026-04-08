@@ -1,0 +1,19 @@
+<section class="ads-list">
+  <div class="ads-list__header">
+    <div>
+      <h3>{{ category }} ads</h3>
+      <p>Latest listings for the chosen category.</p>
+    </div>
+    <button class="btn btn--ghost">View all</button>
+  </div>
+  <div class="ads-list__grid">
+    <article *ngFor="let ad of ads" class="ad-card">
+      <div class="ad-card__meta">
+        <span class="ad-card__badge">{{ ad.badge }}</span>
+      </div>
+      <h4>{{ ad.title }}</h4>
+      <p>{{ ad.detail }}</p>
+      <button class="btn btn--ghost">See listing</button>
+    </article>
+  </div>
+</section>

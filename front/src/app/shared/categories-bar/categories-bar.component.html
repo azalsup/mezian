@@ -1,0 +1,17 @@
+<section class="mx-auto mt-10 max-w-7xl rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_18px_48px_rgba(0,0,0,0.06)]">
+  <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-700">{{ lang.t('allCategories') }}</p>
+      <p class="mt-2 text-sm text-slate-600">{{ lang.t('browseCategories') }}</p>
+    </div>
+    <select class="min-w-[220px] rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm">
+      <option value="">{{ lang.t('selectCategory') }}</option>
+      <option *ngFor="let category of categories" [value]="category.slug">{{ category.labelFr }}</option>
+    </select>
+  </div>
+  <div class="mt-6 flex flex-wrap gap-3">
+    <button class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#006233] hover:text-[#006233]">{{ lang.t('vehicles') }}</button>
+    <button class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#006233] hover:text-[#006233]">{{ lang.t('realEstate') }}</button>
+    <button class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#006233] hover:text-[#006233]">{{ lang.t('jobs') }}</button>
+  </div>
+</section>
