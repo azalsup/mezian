@@ -5,6 +5,7 @@ package config
 import (
     "fmt"
     "os"
+    "strings"
 
     "gopkg.in/yaml.v3"
 )
@@ -153,7 +154,7 @@ func Load() (*Config, error) {
         return nil, fmt.Errorf("parsing YAML: %w", err)
     }
 
-    // Surcharges via variables d'environnement
+    // Overrides via environment variables
     if v := os.Getenv("JWT_SECRET"); v != "" {
         cfg.JWT.Secret = v
     }
@@ -162,6 +163,19 @@ func Load() (*Config, error) {
     }
     if v := os.Getenv("PORT"); v != "" {
         fmt.Sscanf(v, "%d", &cfg.Server.Port)
+    }
+    // CORS_ORIGINS: comma-separated, e.g. "https://daba.incipyo.com"
+    // Takes priority over anything in the YAML file.
+    if v := os.Getenv("CORS_ORIGINS"); v != "" {
+        var origins []string
+        for _, o := range strings.Split(v, ",") {
+            if o = strings.TrimSpace(o); o != "" {
+                origins = append(origins, o)
+            }
+        }
+        if len(origins) > 0 {
+            cfg.Server.CORSOrigins = origins
+        }
     }
     return &cfg, nil
 }

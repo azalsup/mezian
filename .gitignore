@@ -40,6 +40,7 @@ backend/uploads/
 # Go build cache (if present locally)
 backend/vendor/
 bin/*
+backend/server
 
 # ──────────────────────────────────────────────
 # Frontend (Angular)

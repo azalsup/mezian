@@ -34,27 +34,24 @@ func New(deps *Deps) *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
-	origins := deps.Config.Server.CORSOrigins
-	if len(origins) == 0 {
-		origins = []string{"*"}
-	}
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     origins,
+		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
 		MaxAge:           86400 * time.Second,
 	}))
 
 	// Servir les fichiers statiques (uploads)
 	r.Static("/uploads", deps.Config.Media.UploadDir)
 
-	// Health check
+	// Health check — also reports CORS origins so you can verify the loaded config remotely
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-			"time":   time.Now().UTC(),
+			"status":       "ok",
+			"time":         time.Now().UTC(),
+			"cors_origins": deps.Config.Server.CORSOrigins,
+			"mode":         deps.Config.Server.Mode,
 		})
 	})
 
