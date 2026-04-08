@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	cors "github.com/gin-contrib/cors"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"classifieds/internal/config"
@@ -26,28 +26,6 @@ type Deps struct {
 	Config          *config.Config
 }
 
-// corsMiddleware handles CORS for the API.
-func corsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		origin := c.GetHeader("Origin")
-		if origin != "" {
-			c.Header("Access-Control-Allow-Origin", origin)
-		} else {
-			c.Header("Access-Control-Allow-Origin", "*")
-		}
-		c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		// Handle preflight
-		if c.Request.Method == http.MethodOptions {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-
-		c.Next()
-	}
-}
-
 // New creates et configure le moteur Gin avec toutes les routes.
 func New(deps *Deps) *gin.Engine {
 	r := gin.New()
@@ -55,7 +33,6 @@ func New(deps *Deps) *gin.Engine {
 	// Middlewares globaux
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.Use(corsMiddleware())
 
 	origins := deps.Config.Server.CORSOrigins
 	if len(origins) == 0 {
