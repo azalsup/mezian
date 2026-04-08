@@ -1,0 +1,16 @@
+[Unit]
+Description=Daba Go Backend
+After=network.target
+
+[Service]
+Type=simple
+User=dabauser
+Group=dabauser
+WorkingDirectory=/opt/daba/
+ExecStart=/opt/daba/bin/server
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target
