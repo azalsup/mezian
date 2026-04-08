@@ -3,18 +3,15 @@
   <div class="hero__container">
     <div class="hero__badge">
       <span class="material-icons-round">flag</span>
-      Petites annonces au Maroc
+      {{ lang.t('heroBadge') }}
     </div>
 
     <h1 class="hero__title">
-      Trouvez, vendez,<br>
-      <span class="hero__title-accent">Connectez-vous.</span>
+      {{ lang.t('heroTitle1') }}<br>
+      <span class="hero__title-accent">{{ lang.t('heroTitle2') }}</span>
     </h1>
 
-    <p class="hero__subtitle">
-      Des milliers d'annonces immobilier, voitures, emploi et plus.
-      Publiez gratuitement en quelques secondes.
-    </p>
+    <p class="hero__subtitle">{{ lang.t('heroSubtitle') }}</p>
 
     <!-- Search bar -->
     <div class="search-bar">
@@ -24,36 +21,36 @@
       <input
         class="search-bar__input"
         type="text"
-        placeholder="Appartement, Clio, iPhone…"
+        [placeholder]="lang.t('heroSearch')"
       >
       <div class="search-bar__divider"></div>
       <div class="search-bar__location">
         <span class="material-icons-round">location_on</span>
         <select class="search-bar__select">
-          <option value="">Toutes les villes</option>
+          <option value="">{{ lang.t('allCities') }}</option>
           @for (city of cities; track city) {
             <option [value]="city">{{ city }}</option>
           }
         </select>
       </div>
-      <button class="search-bar__btn">Rechercher</button>
+      <button class="search-bar__btn">{{ lang.t('searchButton') }}</button>
     </div>
 
     <!-- Stats -->
     <div class="hero__stats">
       <div class="hero__stat">
-        <strong>+40 000</strong>
-        <span>annonces actives</span>
+        <strong>{{ lang.t('statAds') }}</strong>
+        <span>{{ lang.t('statsActiveAds') }}</span>
       </div>
       <div class="hero__stat-sep"></div>
       <div class="hero__stat">
-        <strong>+800</strong>
-        <span>boutiques pro</span>
+        <strong>{{ lang.t('statShops') }}</strong>
+        <span>{{ lang.t('statsProShops') }}</span>
       </div>
       <div class="hero__stat-sep"></div>
       <div class="hero__stat">
-        <strong>Gratuit</strong>
-        <span>pour tous</span>
+        <strong>{{ lang.t('statFree') }}</strong>
+        <span>{{ lang.t('statsFree') }}</span>
       </div>
     </div>
   </div>
@@ -63,20 +60,19 @@
 <section class="section categories">
   <div class="container">
     <div class="section-header">
-      <h2 class="section-title">Explorer par catégorie</h2>
+      <h2 class="section-title">{{ lang.t('exploreByCategory') }}</h2>
       <a href="#" class="section-link">
-        Voir tout <span class="material-icons-round">arrow_forward</span>
+        {{ lang.t('seeAll') }} <span class="material-icons-round">arrow_forward</span>
       </a>
     </div>
     <div class="categories-grid">
-      @for (cat of categories; track cat.slug) {
+      @for (cat of categories(); track cat.slug) {
         <a class="cat-card" [href]="'/annonces/' + cat.slug">
           <div class="cat-card__icon-wrap">
             <span class="material-icons-round">{{ cat.icon }}</span>
           </div>
           <div class="cat-card__body">
-            <span class="cat-card__label">{{ cat.labelFr }}</span>
-            <span class="cat-card__sub">{{ cat.labelAr }}</span>
+            <span class="cat-card__label">{{ cat.label }}</span>
           </div>
           <span class="cat-card__count">{{ cat.count }}</span>
         </a>
@@ -89,11 +85,11 @@
 <section class="section why">
   <div class="container">
     <div class="section-header centered">
-      <h2 class="section-title">Pourquoi Daba ?</h2>
-      <p class="section-sub">Simple, rapide et fait pour le Maroc.</p>
+      <h2 class="section-title">{{ lang.t('whyTitle') }}</h2>
+      <p class="section-sub">{{ lang.t('whySubtitle') }}</p>
     </div>
     <div class="features-grid">
-      @for (f of features; track f.title) {
+      @for (f of features(); track f.title) {
         <div class="feature-card">
           <div class="feature-card__icon">
             <span class="material-icons-round">{{ f.icon }}</span>
@@ -113,21 +109,18 @@
       <div class="cta__content">
         <div class="cta__badge">
           <span class="material-icons-round">rocket_launch</span>
-          Démarrez maintenant
+          {{ lang.t('ctaBadge') }}
         </div>
-        <h2 class="cta__title">Vendez en quelques minutes</h2>
-        <p class="cta__desc">
-          Publiez votre annonce gratuitement avec photos, ou créez une boutique pro
-          pour gérer votre stock. Connexion par numéro de téléphone — pas de mot de passe.
-        </p>
+        <h2 class="cta__title">{{ lang.t('ctaTitle') }}</h2>
+        <p class="cta__desc">{{ lang.t('ctaDesc') }}</p>
         <div class="cta__actions">
           <button class="cta__btn-primary">
             <span class="material-icons-round">add_circle</span>
-            Déposer une annonce gratuite
+            {{ lang.t('ctaPostAd') }}
           </button>
           <button class="cta__btn-outline">
             <span class="material-icons-round">storefront</span>
-            Créer une boutique pro
+            {{ lang.t('ctaOpenShop') }}
           </button>
         </div>
       </div>
@@ -136,22 +129,22 @@
         <div class="cta__stat-card">
           <span class="material-icons-round">trending_up</span>
           <div>
-            <strong>+40 000</strong>
-            <span>annonces publiées</span>
+            <strong>{{ lang.t('statAds') }}</strong>
+            <span>{{ lang.t('adsPublished') }}</span>
           </div>
         </div>
         <div class="cta__stat-card">
           <span class="material-icons-round">store</span>
           <div>
-            <strong>+800</strong>
-            <span>boutiques actives</span>
+            <strong>{{ lang.t('statShops') }}</strong>
+            <span>{{ lang.t('shopsActive') }}</span>
           </div>
         </div>
         <div class="cta__stat-card">
           <span class="material-icons-round">verified</span>
           <div>
             <strong>100%</strong>
-            <span>gratuit pour déposer</span>
+            <span>{{ lang.t('freeForPosting') }}</span>
           </div>
         </div>
       </div>
@@ -171,7 +164,7 @@
           </div>
           <span class="logo-font">daba</span>
         </div>
-        <p>Le site de petites annonces pour le Maroc. Simple, rapide, gratuit.</p>
+        <p>{{ lang.t('footerDesc') }}</p>
         <div class="footer__socials">
           <a href="#" class="footer__social">
             <span class="material-icons-round">facebook</span>
@@ -183,26 +176,26 @@
       </div>
 
       <div class="footer__col">
-        <strong>Catégories</strong>
-        <a href="#">Immobilier</a>
-        <a href="#">Automobile</a>
-        <a href="#">Emploi</a>
-        <a href="#">Électronique</a>
+        <strong>{{ lang.t('footerCategories') }}</strong>
+        <a href="#">{{ lang.t('catImmobilier') }}</a>
+        <a href="#">{{ lang.t('catAutomobile') }}</a>
+        <a href="#">{{ lang.t('catEmploi') }}</a>
+        <a href="#">{{ lang.t('catElectronique') }}</a>
       </div>
 
       <div class="footer__col">
-        <strong>Compte</strong>
-        <a href="#">Se connecter</a>
-        <a href="#">Publier une annonce</a>
-        <a href="#">Boutiques pro</a>
+        <strong>{{ lang.t('footerAccount') }}</strong>
+        <a href="#">{{ lang.t('footerLogin') }}</a>
+        <a href="#">{{ lang.t('footerPostAd') }}</a>
+        <a href="#">{{ lang.t('footerProShops') }}</a>
       </div>
 
       <div class="footer__col">
-        <strong>Aide</strong>
-        <a href="#">Comment ça marche ?</a>
-        <a href="#">Conditions d'utilisation</a>
-        <a href="#">Confidentialité</a>
-        <a href="#">Contact</a>
+        <strong>{{ lang.t('help') }}</strong>
+        <a href="#">{{ lang.t('helpCenter') }}</a>
+        <a href="#">{{ lang.t('terms') }}</a>
+        <a href="#">{{ lang.t('privacy') }}</a>
+        <a href="#">{{ lang.t('cookies') }}</a>
       </div>
 
     </div>
@@ -210,8 +203,8 @@
 
   <div class="footer__bottom">
     <div class="container footer__bottom-inner">
-      <span>© 2026 Daba. Tous droits réservés.</span>
-      <span>🇲🇦 Fait avec ❤️ au Maroc</span>
+      <span>{{ lang.t('copyright') }}</span>
+      <span>{{ lang.t('madeIn') }}</span>
     </div>
   </div>
 </footer>

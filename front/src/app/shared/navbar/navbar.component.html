@@ -22,19 +22,18 @@
         </button>
 
         <!-- Profile / Register -->
-        <div class="relative" (click)="toggleProfileMenu()">
-          <button class="flex items-center gap-x-3 px-6 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors">
+        <div class="relative">
+          <button
+            (click)="toggleProfileMenu($event)"
+            class="flex items-center gap-x-3 px-6 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors">
             <span class="material-icons-round text-[#006233]" style="font-size:28px">account_circle</span>
             <span class="font-medium">{{ auth.isLoggedIn() ? lang.t('profile') : lang.t('register') }}</span>
             <span class="material-icons-round text-gray-400" style="font-size:18px">expand_more</span>
           </button>
 
-          <!-- Dropdown -->
           @if (showProfileMenu) {
             <div class="absolute end-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50">
-
               @if (!auth.isLoggedIn()) {
-                <!-- Guest -->
                 <div class="px-6 py-4 space-y-3">
                   <button (click)="openRegister()"
                           class="w-full bg-[#006233] text-white h-12 rounded-3xl font-medium">
@@ -46,7 +45,6 @@
                   </button>
                 </div>
               } @else {
-                <!-- Logged in -->
                 <div class="px-4">
                   <div class="flex items-center gap-3 p-4 border-b">
                     <span class="material-icons-round text-[#006233]" style="font-size:52px">account_circle</span>
@@ -68,10 +66,32 @@
         </div>
 
         <!-- Language switcher -->
-        <div (click)="lang.toggle()"
-             class="flex bg-gray-100 rounded-3xl text-xs font-medium cursor-pointer overflow-hidden select-none">
-          <div class="lang-pill" [class.lang-pill--active]="lang.current() === 'fr'">FR</div>
-          <div class="lang-pill" [class.lang-pill--active]="lang.current() === 'ar'">عربي</div>
+        <div class="relative">
+          <button
+            (click)="toggleLangMenu($event)"
+            class="flex items-center gap-x-1.5 px-3 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors text-sm font-medium">
+            <span>{{ lang.currentLang().flag }}</span>
+            <span>{{ lang.currentLang().code.toUpperCase() }}</span>
+            <span class="material-icons-round text-gray-400" style="font-size:16px">expand_more</span>
+          </button>
+
+          @if (showLangMenu) {
+            <div class="absolute end-0 mt-3 w-44 bg-white rounded-2xl shadow-2xl border py-2 z-50">
+              @for (l of lang.languages; track l.code) {
+                <button
+                  (click)="selectLang(l.code, $event)"
+                  class="w-full flex items-center gap-x-3 px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                  [class.text-[#006233]]="lang.current() === l.code"
+                  [class.font-semibold]="lang.current() === l.code">
+                  <span>{{ l.flag }}</span>
+                  <span>{{ l.label }}</span>
+                  @if (lang.current() === l.code) {
+                    <span class="material-icons-round ms-auto text-[#006233]" style="font-size:16px">check</span>
+                  }
+                </button>
+              }
+            </div>
+          }
         </div>
 
       </div>

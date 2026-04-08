@@ -1,6 +1,6 @@
 import { Component, HostListener, inject, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { LangService } from '../../core/services/lang.service';
+import { LangService, Lang } from '../../core/services/lang.service';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -15,16 +15,30 @@ export class NavbarComponent {
   private  readonly el      = inject(ElementRef);
 
   showProfileMenu = false;
+  showLangMenu    = false;
 
   onSellClick(): void {
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/register']);
     }
-    // TODO: navigate to ad creation when logged in
   }
 
-  toggleProfileMenu(): void {
+  toggleProfileMenu(event: MouseEvent): void {
+    event.stopPropagation();
     this.showProfileMenu = !this.showProfileMenu;
+    this.showLangMenu = false;
+  }
+
+  toggleLangMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.showLangMenu = !this.showLangMenu;
+    this.showProfileMenu = false;
+  }
+
+  selectLang(code: Lang, event: MouseEvent): void {
+    event.stopPropagation();
+    this.lang.setLang(code);
+    this.showLangMenu = false;
   }
 
   openRegister(): void {
@@ -43,10 +57,9 @@ export class NavbarComponent {
     this.router.navigate(['/']);
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (!this.el.nativeElement.contains(event.target)) {
-      this.showProfileMenu = false;
-    }
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showProfileMenu = false;
+    this.showLangMenu    = false;
   }
 }

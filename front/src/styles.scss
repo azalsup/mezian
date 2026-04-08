@@ -25,7 +25,16 @@
 }
 
 /* ===== Base ===== */
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Smooth RTL/LTR flip */
+  transition: direction 0s; /* direction is not animatable, but this ensures repaint */
+}
+
+app-root {
+  display: block;
+  transition: none;
+}
 
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;

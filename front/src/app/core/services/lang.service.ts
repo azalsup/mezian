@@ -1,6 +1,13 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
-export type Lang = 'fr' | 'ar';
+export type Lang = 'fr' | 'ar' | 'en';
+
+export const LANGUAGES: { code: Lang; label: string; flag: string; dir: 'ltr' | 'rtl' }[] = [
+  { code: 'fr', label: 'Français', flag: '🇫🇷', dir: 'ltr' },
+  { code: 'en', label: 'English',  flag: '🇬🇧', dir: 'ltr' },
+  { code: 'ar', label: 'العربية',  flag: '🇲🇦', dir: 'rtl' },
+];
 
 const TRANSLATIONS: Record<Lang, Record<string, string>> = {
   fr: {
@@ -33,8 +40,42 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     noAccount:      'Pas encore de compte ?',
     createAccount:  'Créer un compte',
     loginWithOtp:   'Se connecter par SMS',
+
+    // Home — hero
+    heroBadge:      'Petites annonces',
+    heroTitle1:     'Trouvez, vendez,',
+    heroTitle2:     'Connectez-vous.',
+    heroSubtitle:   'Des milliers d\'annonces immobilier, voitures, emploi et plus. Publiez gratuitement en quelques secondes.',
+    heroSearch:     'Appartement, Clio, iPhone…',
+    statAds:        '+40 000',
+    statShops:      '+800',
+    statFree:       'Gratuit',
+    seeAll:         'Voir tout',
+    copyright:      '© 2026 Daba. Tous droits réservés.',
+    madeIn:         'Fait avec ❤️',
+
+    // Home — features
+    feat1Title: 'Photos & Vidéos',
+    feat1Desc:  'Jusqu\'à 10 photos et vidéos YouTube pour vos annonces.',
+    feat2Title: 'Connexion par téléphone',
+    feat2Desc:  'Pas de mot de passe — recevez un code par SMS ou WhatsApp.',
+    feat3Title: 'Boutiques Pro',
+    feat3Desc:  'Créez votre boutique pro et gérez toutes vos annonces.',
+    feat4Title: 'Recherche avancée',
+    feat4Desc:  'Filtrez par ville, prix, catégorie et attributs spécifiques.',
+
+    // Home — categories
+    catImmobilier:   'Immobilier',
+    catAutomobile:   'Véhicules',
+    catEmploi:       'Emploi',
+    catElectronique: 'Électronique',
+    catMaison:       'Maison',
+    catMode:         'Mode',
+    catLoisirs:      'Loisirs',
+    catServices:     'Services',
+
     searchTitle:    'Recherchez un article, une ville ou une boutique',
-    searchSubtitle: 'Commencez votre recherche parmi des milliers d’annonces locales.',
+    searchSubtitle: "Commencez votre recherche parmi des milliers d'annonces locales.",
     searchPlaceholder: 'Recherchez un article, une ville ou une boutique',
     searchButton: 'Chercher',
     allCities: 'Toutes les villes',
@@ -77,7 +118,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     sustainability: 'Durabilité',
     support: 'Support',
     help: 'Aide',
-    helpCenter: 'Centre d’aide',
+    helpCenter: "Centre d'aide",
     communityGuidelines: 'Règles de la communauté',
     securityTips: 'Conseils de sécurité',
     legal: 'Légal',
@@ -93,9 +134,9 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     registerTitle:     'Créer un compte',
     registerSubtitle:  'Renseignez vos informations de connexion',
     phoneLabel:        'Numéro de téléphone',
-    phonePlaceholder:  '+212 6XX XXX XXX',
+    phonePlaceholder:  '+1 234 567 890',
     emailLabel:        'Adresse e-mail',
-    emailPlaceholder:  'email@exemple.ma',
+    emailPlaceholder:  'email@example.com',
     optional:          '(optionnel)',
     confirmPasswordLabel: 'Confirmer le mot de passe',
     confirmPasswordPlaceholder: '••••••••',
@@ -118,7 +159,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     postalCodeLabel:   'Code postal',
     postalCodePlaceholder: '20000',
     countryLabel:      'Pays',
-    finishBtn:         "Créer mon compte",
+    finishBtn:         'Créer mon compte',
 
     // OTP step
     sendCode:         'Recevoir le code',
@@ -140,6 +181,179 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     errPhoneOrEmail:    'Téléphone ou e-mail requis',
     errCredentials:     'Identifiants incorrects',
   },
+
+  en: {
+    // Navbar
+    sell:           'Sell',
+    profile:        'Profile',
+    register:       'Sign up',
+    createProfile:  'Create my profile',
+    alreadyAccount: 'I already have an account',
+    myProfile:      'My profile',
+    myShop:         'My shop',
+    logout:         'Log out',
+    location:       'Casablanca • Individual',
+
+    // Auth modal — shared
+    back:           'Back',
+    next:           'Next',
+    validate:       'Confirm',
+    loading:        'Loading…',
+    orSeparator:    'or',
+
+    // Auth modal — login
+    loginTitle:     'Log in',
+    loginSubtitle:  'Sign in with your phone number or email',
+    identifierLabel: 'Phone or email',
+    identifierPlaceholder: '+1 234 567 890 or email@example.com',
+    passwordLabel:  'Password',
+    passwordPlaceholder: '••••••••',
+    loginBtn:       'Log in',
+    noAccount:      'No account yet?',
+    createAccount:  'Create an account',
+    loginWithOtp:   'Log in by SMS',
+
+    // Home — hero
+    heroBadge:      'Classifieds',
+    heroTitle1:     'Find, sell,',
+    heroTitle2:     'Connect.',
+    heroSubtitle:   'Thousands of listings in real estate, cars, jobs and more. Post for free in seconds.',
+    heroSearch:     'Apartment, Car, iPhone…',
+    statAds:        '+40,000',
+    statShops:      '+800',
+    statFree:       'Free',
+    seeAll:         'See all',
+    copyright:      '© 2026 Daba. All rights reserved.',
+    madeIn:         'Made with ❤️',
+
+    // Home — features
+    feat1Title: 'Photos & Videos',
+    feat1Desc:  'Up to 10 photos and YouTube videos for your listings.',
+    feat2Title: 'Phone login',
+    feat2Desc:  'No password — receive a code by SMS or WhatsApp.',
+    feat3Title: 'Pro Shops',
+    feat3Desc:  'Create your pro shop and manage all your listings.',
+    feat4Title: 'Advanced search',
+    feat4Desc:  'Filter by city, price, category and specific attributes.',
+
+    // Home — categories
+    catImmobilier:   'Real estate',
+    catAutomobile:   'Vehicles',
+    catEmploi:       'Jobs',
+    catElectronique: 'Electronics',
+    catMaison:       'Home',
+    catMode:         'Fashion',
+    catLoisirs:      'Leisure',
+    catServices:     'Services',
+
+    searchTitle:    'Search for an item, city or shop',
+    searchSubtitle: 'Start searching among thousands of local listings.',
+    searchPlaceholder: 'Search for an item, city or shop',
+    searchButton: 'Search',
+    allCities: 'All cities',
+    statsActiveAds: 'active listings',
+    statsProShops: 'pro shops',
+    statsFree: 'for everyone',
+    exploreByCategory: 'Browse by category',
+    whyTitle: 'Why Daba?',
+    whySubtitle: 'Simple, fast and built for Morocco.',
+    ctaBadge: 'Get started',
+    ctaTitle: 'Sell in minutes',
+    ctaDesc: 'Post your listing for free with photos, or create a pro shop to manage your inventory. Sign in with your phone number — no password.',
+    ctaPostAd: 'Post a free listing',
+    ctaOpenShop: 'Create a pro shop',
+    adsPublished: 'listings posted',
+    shopsActive: 'active shops',
+    freeForPosting: 'free to post',
+    footerDesc: 'The classifieds site for Morocco. Simple, fast, free.',
+    footerCategories: 'Categories',
+    footerAccount: 'Account',
+    footerLogin: 'Log in',
+    footerPostAd: 'Post a listing',
+    footerProShops: 'Pro shops',
+    vehicles: 'Vehicles',
+    realEstate: 'Real estate',
+    jobsCategory: 'Jobs',
+    promoEyebrow: 'Give your deals a boost',
+    promoTitle: 'Sell something. Buy what you need.',
+    promoText: 'Post in minutes and reach local buyers for your items, services and offers.',
+    sellNow: 'Sell',
+    browseAds: 'Browse',
+    topAdsTitle: 'Browse the best listings',
+    topAdsSubtitle: 'Discover vehicle, real estate and job offers.',
+    viewAllCategories: 'View all categories',
+    footerBrandText: 'Turn your unused belongings into great deals, simply.',
+    footerBrand: 'Daba',
+    aboutUs: 'About us',
+    press: 'Press',
+    careers: 'Careers',
+    sustainability: 'Sustainability',
+    support: 'Support',
+    help: 'Help',
+    helpCenter: 'Help center',
+    communityGuidelines: 'Community guidelines',
+    securityTips: 'Safety tips',
+    legal: 'Legal',
+    legalSection: 'Legal information',
+    legalNotice: 'Legal notice',
+    terms: 'Terms',
+    privacy: 'Privacy',
+    cookies: 'Cookies',
+    pro: 'Daba Pro',
+    followUs: 'Follow us',
+
+    // Auth modal — register step 1 (credentials)
+    registerTitle:     'Create an account',
+    registerSubtitle:  'Enter your login information',
+    phoneLabel:        'Phone number',
+    phonePlaceholder:  '+1 234 567 890',
+    emailLabel:        'Email address',
+    emailPlaceholder:  'email@example.com',
+    optional:          '(optional)',
+    confirmPasswordLabel: 'Confirm password',
+    confirmPasswordPlaceholder: '••••••••',
+    hasAccount:        'Already have an account?',
+    login:             'Log in',
+
+    // Auth modal — register step 2 (identity)
+    identityTitle:    'Your identity',
+    identitySubtitle: 'How would you like to be displayed?',
+    displayNameLabel: 'Display name',
+    displayNamePlaceholder: 'E.g.: Ahmed Benali',
+
+    // Auth modal — register step 3 (address)
+    addressTitle:      'Your address',
+    addressSubtitle:   'Optional — used to locate your listings',
+    addressLabel:      'Address',
+    addressPlaceholder: '12 Mohammed V Street',
+    cityLabel:         'City',
+    cityPlaceholder:   'Casablanca',
+    postalCodeLabel:   'Postal code',
+    postalCodePlaceholder: '20000',
+    countryLabel:      'Country',
+    finishBtn:         'Create my account',
+
+    // OTP step
+    sendCode:         'Send code',
+    otpTitle:         'Verification',
+    otpSentTo:        'Code sent to',
+    otpLabel:         '6-digit code',
+    otpPlaceholder:   '• • • • • •',
+    resendCode:       'Resend code',
+
+    // Errors
+    errInvalidPhone:    'Invalid phone number',
+    errInvalidEmail:    'Invalid email address',
+    errPasswordMin:     'Password must be at least 8 characters',
+    errPasswordMatch:   'Passwords do not match',
+    errDisplayName:     'Please enter a name',
+    errIdentifier:      'Phone or email required',
+    errInvalidOtp:      'Incorrect or expired code',
+    errNetwork:         'Network error, please try again',
+    errPhoneOrEmail:    'Phone or email required',
+    errCredentials:     'Incorrect credentials',
+  },
+
   ar: {
     // Navbar
     sell:           'بيع',
@@ -163,13 +377,47 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     loginTitle:     'تسجيل الدخول',
     loginSubtitle:  'سجّل الدخول برقم هاتفك أو بريدك',
     identifierLabel: 'الهاتف أو البريد الإلكتروني',
-    identifierPlaceholder: '+212 6XX XXX XXX أو email@exemple.ma',
+    identifierPlaceholder: '+1 234 567 890 أو email@example.com',
     passwordLabel:  'كلمة المرور',
     passwordPlaceholder: '••••••••',
     loginBtn:       'تسجيل الدخول',
     noAccount:      'ليس لديك حساب؟',
     createAccount:  'إنشاء حساب',
     loginWithOtp:   'الدخول عبر SMS',
+
+    // Home — hero
+    heroBadge:      'إعلانات مبوبة',
+    heroTitle1:     'ابحث، بع،',
+    heroTitle2:     'تواصل.',
+    heroSubtitle:   'آلاف الإعلانات في العقارات والسيارات والوظائف وأكثر. انشر مجاناً في ثوانٍ.',
+    heroSearch:     'شقة، سيارة، هاتف…',
+    statAds:        '+40 000',
+    statShops:      '+800',
+    statFree:       'مجاني',
+    seeAll:         'عرض الكل',
+    copyright:      '© 2026 Daba. جميع الحقوق محفوظة.',
+    madeIn:         'صُنع بـ ❤️',
+
+    // Home — features
+    feat1Title: 'صور وفيديوهات',
+    feat1Desc:  'حتى 10 صور وفيديوهات يوتيوب لإعلاناتك.',
+    feat2Title: 'الدخول بالهاتف',
+    feat2Desc:  'لا كلمة مرور — استقبل رمزاً عبر SMS أو واتساب.',
+    feat3Title: 'متاجر محترفة',
+    feat3Desc:  'أنشئ متجرك الاحترافي وأدر جميع إعلاناتك.',
+    feat4Title: 'بحث متقدم',
+    feat4Desc:  'فلترة حسب المدينة والسعر والفئة والمواصفات.',
+
+    // Home — categories
+    catImmobilier:   'العقارات',
+    catAutomobile:   'المركبات',
+    catEmploi:       'الوظائف',
+    catElectronique: 'الإلكترونيات',
+    catMaison:       'المنزل',
+    catMode:         'الموضة',
+    catLoisirs:      'الترفيه',
+    catServices:     'الخدمات',
+
     searchTitle:    'ابحث عن سلعة، مدينة أو متجر',
     searchSubtitle: 'ابدأ البحث بين آلاف الإعلانات المحلية.',
     searchPlaceholder: 'ابحث عن سلعة، مدينة أو متجر',
@@ -230,7 +478,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     registerTitle:    'إنشاء حساب',
     registerSubtitle: 'أدخل معلومات تسجيل الدخول',
     phoneLabel:       'رقم الهاتف',
-    phonePlaceholder: '+212 6XX XXX XXX',
+    phonePlaceholder:  '+1 234 567 890',
     emailLabel:       'البريد الإلكتروني',
     emailPlaceholder: 'email@exemple.ma',
     optional:         '(اختياري)',
@@ -281,18 +529,26 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
 @Injectable({ providedIn: 'root' })
 export class LangService {
-  readonly current = signal<Lang>('fr');
-  readonly isRtl   = computed(() => this.current() === 'ar');
+  private readonly platformId = inject(PLATFORM_ID);
+
+  readonly current  = signal<Lang>('fr');
+  readonly isRtl    = computed(() => this.current() === 'ar');
+  readonly languages = LANGUAGES;
 
   t(key: string): string {
-    const lang: Lang = this.current();
-    return TRANSLATIONS[lang][key] ?? key;
+    return TRANSLATIONS[this.current()][key] ?? key;
   }
 
-  toggle(): void {
-    const next: Lang = this.current() === 'fr' ? 'ar' : 'fr';
-    this.current.set(next);
-    document.documentElement.lang = next;
-    document.documentElement.dir  = next === 'ar' ? 'rtl' : 'ltr';
+  currentLang() {
+    return LANGUAGES.find(l => l.code === this.current())!;
+  }
+
+  setLang(lang: Lang): void {
+    this.current.set(lang);
+    if (isPlatformBrowser(this.platformId)) {
+      const def = LANGUAGES.find(l => l.code === lang)!;
+      document.documentElement.lang = lang;
+      document.documentElement.dir  = def.dir;
+    }
   }
 }
