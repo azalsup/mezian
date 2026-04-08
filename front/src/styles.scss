@@ -4,9 +4,11 @@
 
 /* ===== Global variables ===== */
 :root {
-  --green:      #006233;
-  --green-dark: #005229;
-  --navy:       #1a1a2e;
+  --green:       #006233;
+  --green-dark:  #005229;
+  --green-mid:   #00a854;
+  --green-light: #e8f5ee;
+  --navy:        #1a1a2e;
   --grey-50:    #f8f9fa;
   --grey-100:   #f1f3f5;
   --grey-200:   #e9ecef;
@@ -40,3 +42,10 @@ body {
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 img, svg { display: block; max-width: 100%; }
+
+/* Material Icons baseline alignment */
+.material-icons-round { vertical-align: middle; line-height: 1; }
+
+/* Spin utility for loading states */
+@keyframes mi-spin { to { transform: rotate(360deg); } }
+.spin-icon { animation: mi-spin .8s linear infinite; display: inline-block; }

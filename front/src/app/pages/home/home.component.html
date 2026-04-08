@@ -1,80 +1,82 @@
-<!-- ===== NAVBAR ===== -->
-<header class="navbar">
-  <div class="container navbar__inner">
-    <a class="navbar__logo" href="/">
-      <img src="assets/images/logo.svg" alt="Daba" height="44">
-    </a>
-    <nav class="navbar__links">
-      <a href="#">Annonces</a>
-      <a href="#">Boutiques</a>
-    </nav>
-    <div class="navbar__actions">
-      <button class="btn btn--ghost">Se connecter</button>
-      <button class="btn btn--primary">Déposer une annonce</button>
-    </div>
-    <!-- Burger mobile -->
-    <button class="navbar__burger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</header>
-
 <!-- ===== HERO ===== -->
 <section class="hero">
-  <div class="container hero__content">
-    <p class="hero__eyebrow">Le bon coin marocain</p>
+  <div class="hero__container">
+    <div class="hero__badge">
+      <span class="material-icons-round">flag</span>
+      Petites annonces au Maroc
+    </div>
+
     <h1 class="hero__title">
-      Trouvez tout ce que vous cherchez<br>
-      <span class="hero__title--accent">au Maroc</span>
+      Trouvez, vendez,<br>
+      <span class="hero__title-accent">Connectez-vous.</span>
     </h1>
+
     <p class="hero__subtitle">
-      Immobilier, voitures, emploi… Des milliers d'annonces
-      avec photos. Publiez gratuitement en quelques secondes.
+      Des milliers d'annonces immobilier, voitures, emploi et plus.
+      Publiez gratuitement en quelques secondes.
     </p>
 
-    <!-- Barre de recherche -->
+    <!-- Search bar -->
     <div class="search-bar">
-      <div class="search-bar__icon">🔍</div>
+      <div class="search-bar__icon">
+        <span class="material-icons-round">search</span>
+      </div>
       <input
         class="search-bar__input"
         type="text"
-        placeholder="Que cherchez-vous ? (appartement, Clio, iPhone…)"
+        placeholder="Appartement, Clio, iPhone…"
       >
-      <select class="search-bar__city">
-        <option value="">Toutes les villes</option>
-        @for (city of cities; track city) {
-          <option [value]="city">{{ city }}</option>
-        }
-      </select>
-      <button class="btn btn--primary search-bar__btn">Rechercher</button>
+      <div class="search-bar__divider"></div>
+      <div class="search-bar__location">
+        <span class="material-icons-round">location_on</span>
+        <select class="search-bar__select">
+          <option value="">Toutes les villes</option>
+          @for (city of cities; track city) {
+            <option [value]="city">{{ city }}</option>
+          }
+        </select>
+      </div>
+      <button class="search-bar__btn">Rechercher</button>
     </div>
 
-    <!-- Stats rapides -->
+    <!-- Stats -->
     <div class="hero__stats">
-      <div class="hero__stat"><strong>+40 000</strong><span>annonces</span></div>
+      <div class="hero__stat">
+        <strong>+40 000</strong>
+        <span>annonces actives</span>
+      </div>
       <div class="hero__stat-sep"></div>
-      <div class="hero__stat"><strong>+800</strong><span>boutiques pro</span></div>
+      <div class="hero__stat">
+        <strong>+800</strong>
+        <span>boutiques pro</span>
+      </div>
       <div class="hero__stat-sep"></div>
-      <div class="hero__stat"><strong>Gratuit</strong><span>pour tous</span></div>
+      <div class="hero__stat">
+        <strong>Gratuit</strong>
+        <span>pour tous</span>
+      </div>
     </div>
   </div>
-
-  <!-- Décoration géométrique -->
-  <div class="hero__deco hero__deco--1"></div>
-  <div class="hero__deco hero__deco--2"></div>
 </section>
 
-<!-- ===== CATÉGORIES ===== -->
+<!-- ===== CATEGORIES ===== -->
 <section class="section categories">
   <div class="container">
-    <h2 class="section__title">Parcourir par catégorie</h2>
-    <div class="categories__grid">
+    <div class="section-header">
+      <h2 class="section-title">Explorer par catégorie</h2>
+      <a href="#" class="section-link">
+        Voir tout <span class="material-icons-round">arrow_forward</span>
+      </a>
+    </div>
+    <div class="categories-grid">
       @for (cat of categories; track cat.slug) {
         <a class="cat-card" [href]="'/annonces/' + cat.slug">
-          <span class="cat-card__icon">{{ cat.icon }}</span>
-          <div class="cat-card__labels">
-            <span class="cat-card__fr">{{ cat.labelFr }}</span>
-            <span class="cat-card__ar">{{ cat.labelAr }}</span>
+          <div class="cat-card__icon-wrap">
+            <span class="material-icons-round">{{ cat.icon }}</span>
+          </div>
+          <div class="cat-card__body">
+            <span class="cat-card__label">{{ cat.labelFr }}</span>
+            <span class="cat-card__sub">{{ cat.labelAr }}</span>
           </div>
           <span class="cat-card__count">{{ cat.count }}</span>
         </a>
@@ -83,15 +85,19 @@
   </div>
 </section>
 
-<!-- ===== POURQUOI DABA ===== -->
-<section class="section features">
+<!-- ===== WHY DABA ===== -->
+<section class="section why">
   <div class="container">
-    <h2 class="section__title">Pourquoi Daba ?</h2>
-    <p class="section__subtitle">Simple, rapide et fait pour le Maroc.</p>
-    <div class="features__grid">
+    <div class="section-header centered">
+      <h2 class="section-title">Pourquoi Daba ?</h2>
+      <p class="section-sub">Simple, rapide et fait pour le Maroc.</p>
+    </div>
+    <div class="features-grid">
       @for (f of features; track f.title) {
         <div class="feature-card">
-          <div class="feature-card__icon">{{ f.icon }}</div>
+          <div class="feature-card__icon">
+            <span class="material-icons-round">{{ f.icon }}</span>
+          </div>
           <h3 class="feature-card__title">{{ f.title }}</h3>
           <p class="feature-card__desc">{{ f.desc }}</p>
         </div>
@@ -100,56 +106,112 @@
   </div>
 </section>
 
-<!-- ===== CTA VENDEUR ===== -->
-<section class="section cta">
-  <div class="container cta__inner">
-    <div class="cta__text">
-      <h2>Vendez ou trouvez un acheteur<br>en quelques minutes</h2>
-      <p>
-        Publiez votre annonce gratuitement avec photos,
-        ou créez une boutique pro pour gérer votre stock.
-        Connexion par numéro de téléphone — pas de mot de passe requis.
-      </p>
-    </div>
-    <div class="cta__actions">
-      <button class="btn btn--primary btn--lg">Déposer une annonce gratuite</button>
-      <button class="btn btn--outline btn--lg">Créer une boutique pro</button>
+<!-- ===== CTA ===== -->
+<section class="cta">
+  <div class="container">
+    <div class="cta__inner">
+      <div class="cta__content">
+        <div class="cta__badge">
+          <span class="material-icons-round">rocket_launch</span>
+          Démarrez maintenant
+        </div>
+        <h2 class="cta__title">Vendez en quelques minutes</h2>
+        <p class="cta__desc">
+          Publiez votre annonce gratuitement avec photos, ou créez une boutique pro
+          pour gérer votre stock. Connexion par numéro de téléphone — pas de mot de passe.
+        </p>
+        <div class="cta__actions">
+          <button class="cta__btn-primary">
+            <span class="material-icons-round">add_circle</span>
+            Déposer une annonce gratuite
+          </button>
+          <button class="cta__btn-outline">
+            <span class="material-icons-round">storefront</span>
+            Créer une boutique pro
+          </button>
+        </div>
+      </div>
+
+      <div class="cta__visual">
+        <div class="cta__stat-card">
+          <span class="material-icons-round">trending_up</span>
+          <div>
+            <strong>+40 000</strong>
+            <span>annonces publiées</span>
+          </div>
+        </div>
+        <div class="cta__stat-card">
+          <span class="material-icons-round">store</span>
+          <div>
+            <strong>+800</strong>
+            <span>boutiques actives</span>
+          </div>
+        </div>
+        <div class="cta__stat-card">
+          <span class="material-icons-round">verified</span>
+          <div>
+            <strong>100%</strong>
+            <span>gratuit pour déposer</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
-  <div class="container footer__inner">
-    <div class="footer__brand">
-      <img src="assets/images/logo.svg" alt="Daba" height="38">
-      <p>Le site de petites annonces pour le Maroc.</p>
-    </div>
-    <div class="footer__links">
-      <div>
+  <div class="container">
+    <div class="footer__grid">
+
+      <div class="footer__brand">
+        <div class="footer__logo">
+          <div class="footer__logo-icon">
+            <span class="material-icons-round">flag</span>
+          </div>
+          <span class="logo-font">daba</span>
+        </div>
+        <p>Le site de petites annonces pour le Maroc. Simple, rapide, gratuit.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">
+            <span class="material-icons-round">facebook</span>
+          </a>
+          <a href="#" class="footer__social">
+            <span class="material-icons-round">tag</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer__col">
         <strong>Catégories</strong>
         <a href="#">Immobilier</a>
         <a href="#">Automobile</a>
         <a href="#">Emploi</a>
         <a href="#">Électronique</a>
       </div>
-      <div>
+
+      <div class="footer__col">
         <strong>Compte</strong>
         <a href="#">Se connecter</a>
         <a href="#">Publier une annonce</a>
         <a href="#">Boutiques pro</a>
       </div>
-      <div>
+
+      <div class="footer__col">
         <strong>Aide</strong>
         <a href="#">Comment ça marche ?</a>
         <a href="#">Conditions d'utilisation</a>
         <a href="#">Confidentialité</a>
         <a href="#">Contact</a>
       </div>
+
     </div>
   </div>
+
   <div class="footer__bottom">
-    <span>© 2026 Daba. Tous droits réservés.</span>
-    <span>🇲🇦 Fait avec ❤️ au Maroc</span>
+    <div class="container footer__bottom-inner">
+      <span>© 2026 Daba. Tous droits réservés.</span>
+      <span>🇲🇦 Fait avec ❤️ au Maroc</span>
+    </div>
   </div>
 </footer>

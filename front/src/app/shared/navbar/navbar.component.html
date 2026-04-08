@@ -4,7 +4,9 @@
 
       <!-- Logo -->
       <div class="flex items-center gap-x-3 cursor-pointer">
-        <div class="w-9 h-9 bg-[#006233] text-white rounded-2xl flex items-center justify-center text-2xl">🇲🇦</div>
+        <div class="w-9 h-9 bg-[#006233] text-white rounded-2xl flex items-center justify-center">
+          <span class="material-icons-round" style="font-size:20px">flag</span>
+        </div>
         <h1 class="logo-font text-3xl tracking-tight text-[#006233]">daba</h1>
       </div>
 
@@ -15,16 +17,16 @@
         <button
           (click)="onSellClick()"
           class="bg-[#006233] hover:bg-[#005229] text-white text-base font-semibold px-8 h-11 rounded-3xl flex items-center gap-x-2 transition-all">
-          <i class="fa-solid fa-plus"></i>
+          <span class="material-icons-round" style="font-size:20px">add</span>
           <span>{{ lang.t('sell') }}</span>
         </button>
 
         <!-- Profile / Register -->
         <div class="relative" (click)="toggleProfileMenu()">
           <button class="flex items-center gap-x-3 px-6 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors">
-            <i class="fa-solid fa-circle-user text-2xl text-[#006233]"></i>
+            <span class="material-icons-round text-[#006233]" style="font-size:28px">account_circle</span>
             <span class="font-medium">{{ auth.isLoggedIn() ? lang.t('profile') : lang.t('register') }}</span>
-            <i class="fa-solid fa-chevron-down text-xs"></i>
+            <span class="material-icons-round text-gray-400" style="font-size:18px">expand_more</span>
           </button>
 
           <!-- Dropdown -->
@@ -47,7 +49,7 @@
                 <!-- Logged in -->
                 <div class="px-4">
                   <div class="flex items-center gap-3 p-4 border-b">
-                    <i class="fa-solid fa-circle-user text-5xl text-[#006233]"></i>
+                    <span class="material-icons-round text-[#006233]" style="font-size:52px">account_circle</span>
                     <div>
                       <p class="font-semibold">{{ auth.currentUser()?.display_name || auth.currentUser()?.phone }}</p>
                       <p class="text-xs text-gray-500">{{ auth.currentUser()?.city || lang.t('location') }}</p>
