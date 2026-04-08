@@ -19,7 +19,7 @@ otp:
   rate_limit_per_hour: 3
 
 admin:
-  email: "admin@daba.ma"
+  email: "admin@example.com"
   phone: "+212600000001"
   password: "Admin@Daba2024!"
   display_name: "Administrateur"
@@ -39,7 +39,7 @@ notification:
   twilio:
     account_sid: ""
     auth_token: ""
-    from_number: "+212XXXXXXXXX"
+    from_number: "+1234567890"
   whatsapp:
     api_url: ""
     api_token: ""

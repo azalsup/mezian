@@ -1,28 +1,23 @@
-<!-- ===== HERO ===== -->
+<!-- ═══════════════════════════════════════════════
+     HERO — compact: badge + title + search only
+════════════════════════════════════════════════ -->
 <section class="hero">
-  <div class="hero__container">
+  <div class="hero__inner">
     <div class="hero__badge">
       <span class="material-icons-round">flag</span>
       {{ lang.t('heroBadge') }}
     </div>
-
     <h1 class="hero__title">
       {{ lang.t('heroTitle1') }}<br>
       <span class="hero__title-accent">{{ lang.t('heroTitle2') }}</span>
     </h1>
-
-    <p class="hero__subtitle">{{ lang.t('heroSubtitle') }}</p>
 
     <!-- Search bar -->
     <div class="search-bar">
       <div class="search-bar__icon">
         <span class="material-icons-round">search</span>
       </div>
-      <input
-        class="search-bar__input"
-        type="text"
-        [placeholder]="lang.t('heroSearch')"
-      >
+      <input class="search-bar__input" type="text" [placeholder]="lang.t('heroSearch')">
       <div class="search-bar__divider"></div>
       <div class="search-bar__location">
         <span class="material-icons-round">location_on</span>
@@ -35,74 +30,99 @@
       </div>
       <button class="search-bar__btn">{{ lang.t('searchButton') }}</button>
     </div>
-
-    <!-- Stats -->
-    <div class="hero__stats">
-      <div class="hero__stat">
-        <strong>{{ lang.t('statAds') }}</strong>
-        <span>{{ lang.t('statsActiveAds') }}</span>
-      </div>
-      <div class="hero__stat-sep"></div>
-      <div class="hero__stat">
-        <strong>{{ lang.t('statShops') }}</strong>
-        <span>{{ lang.t('statsProShops') }}</span>
-      </div>
-      <div class="hero__stat-sep"></div>
-      <div class="hero__stat">
-        <strong>{{ lang.t('statFree') }}</strong>
-        <span>{{ lang.t('statsFree') }}</span>
-      </div>
-    </div>
   </div>
-</section>
 
-<!-- ===== CATEGORIES ===== -->
-<section class="section categories">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">{{ lang.t('exploreByCategory') }}</h2>
-      <a href="#" class="section-link">
-        {{ lang.t('seeAll') }} <span class="material-icons-round">arrow_forward</span>
-      </a>
-    </div>
-    <div class="categories-grid">
-      @for (cat of categories(); track cat.slug) {
-        <a class="cat-card" [href]="'/annonces/' + cat.slug">
-          <div class="cat-card__icon-wrap">
+  <!-- ── Category nav bar — same dark bg, flush below search ── -->
+  <div class="cat-nav">
+    <div class="cat-nav__inner">
+
+      <!-- Featured 3 first, then the rest -->
+      @for (cat of navCategories; track cat.slug) {
+        <div class="cat-nav__item" [class.cat-nav__item--featured]="cat.featured">
+          <button
+            class="cat-nav__btn"
+            [class.cat-nav__btn--open]="openCat() === cat.slug"
+            (click)="toggleCat(cat.slug); $event.stopPropagation()">
             <span class="material-icons-round">{{ cat.icon }}</span>
-          </div>
-          <div class="cat-card__body">
-            <span class="cat-card__label">{{ cat.label }}</span>
-          </div>
-          <span class="cat-card__count">{{ cat.count }}</span>
-        </a>
-      }
-    </div>
-  </div>
-</section>
+            <span>{{ lang.t(cat.labelKey) }}</span>
+            <span class="material-icons-round cat-nav__chevron">expand_more</span>
+          </button>
 
-<!-- ===== WHY DABA ===== -->
-<section class="section why">
-  <div class="container">
-    <div class="section-header centered">
-      <h2 class="section-title">{{ lang.t('whyTitle') }}</h2>
-      <p class="section-sub">{{ lang.t('whySubtitle') }}</p>
-    </div>
-    <div class="features-grid">
-      @for (f of features(); track f.title) {
-        <div class="feature-card">
-          <div class="feature-card__icon">
-            <span class="material-icons-round">{{ f.icon }}</span>
-          </div>
-          <h3 class="feature-card__title">{{ f.title }}</h3>
-          <p class="feature-card__desc">{{ f.desc }}</p>
+          @if (openCat() === cat.slug) {
+            <div class="cat-nav__dropdown" (click)="$event.stopPropagation()">
+              @if (cat.featured) {
+                <a class="cat-nav__view-all" [href]="'/annonces/' + cat.slug">
+                  <span class="material-icons-round">{{ cat.icon }}</span>
+                  {{ lang.t(cat.labelKey) }} — {{ lang.t('seeAll') }}
+                  <span class="material-icons-round" style="margin-inline-start:auto;font-size:16px">arrow_forward</span>
+                </a>
+                <div class="cat-nav__divider"></div>
+              }
+              @for (sub of cat.subcategories; track sub) {
+                <a class="cat-nav__sub" href="#">{{ sub }}</a>
+              }
+            </div>
+          }
         </div>
       }
     </div>
   </div>
 </section>
 
-<!-- ===== CTA ===== -->
+
+<!-- ═══════════════════════════════════════════════
+     AD TILE SECTIONS — trending / cars / real estate
+════════════════════════════════════════════════ -->
+@for (section of adSections; track section.slug) {
+  <section class="ads-section">
+    <div class="container">
+      <div class="ads-section__header">
+        <div class="ads-section__title-group">
+          <span class="material-icons-round ads-section__icon">{{ section.icon }}</span>
+          <h2 class="ads-section__title">{{ lang.t(section.titleKey) }}</h2>
+        </div>
+        <a [href]="'/annonces/' + section.slug" class="ads-section__link">
+          {{ lang.t('seeAllAds') }}
+          <span class="material-icons-round">arrow_forward</span>
+        </a>
+      </div>
+
+      <div class="tiles-grid">
+        @for (ad of section.ads; track ad.id) {
+          <a href="#" class="tile">
+            <div class="tile__img">
+              @if (ad.img) {
+                <img [src]="ad.img" [alt]="ad.title">
+              } @else {
+                <div class="tile__img-placeholder">
+                  <span class="material-icons-round">{{ section.icon }}</span>
+                </div>
+              }
+              @if (ad.badge) {
+                <span class="tile__badge" [class]="'tile__badge--' + ad.badge.toLowerCase()">
+                  {{ ad.badge }}
+                </span>
+              }
+            </div>
+            <div class="tile__body">
+              <p class="tile__title">{{ ad.title }}</p>
+              <p class="tile__price">{{ ad.price }}</p>
+              <p class="tile__location">
+                <span class="material-icons-round">location_on</span>
+                {{ ad.location }}
+              </p>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+
+<!-- ═══════════════════════════════════════════════
+     CTA — Vendez en quelques minutes
+════════════════════════════════════════════════ -->
 <section class="cta">
   <div class="container">
     <div class="cta__inner">
@@ -124,39 +144,55 @@
           </button>
         </div>
       </div>
-
       <div class="cta__visual">
         <div class="cta__stat-card">
           <span class="material-icons-round">trending_up</span>
-          <div>
-            <strong>{{ lang.t('statAds') }}</strong>
-            <span>{{ lang.t('adsPublished') }}</span>
-          </div>
+          <div><strong>{{ lang.t('statAds') }}</strong><span>{{ lang.t('adsPublished') }}</span></div>
         </div>
         <div class="cta__stat-card">
           <span class="material-icons-round">store</span>
-          <div>
-            <strong>{{ lang.t('statShops') }}</strong>
-            <span>{{ lang.t('shopsActive') }}</span>
-          </div>
+          <div><strong>{{ lang.t('statShops') }}</strong><span>{{ lang.t('shopsActive') }}</span></div>
         </div>
         <div class="cta__stat-card">
           <span class="material-icons-round">verified</span>
-          <div>
-            <strong>100%</strong>
-            <span>{{ lang.t('freeForPosting') }}</span>
-          </div>
+          <div><strong>100%</strong><span>{{ lang.t('freeForPosting') }}</span></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
+
+<!-- ═══════════════════════════════════════════════
+     WHY DABA
+════════════════════════════════════════════════ -->
+<section class="section why">
+  <div class="container">
+    <div class="section-header centered">
+      <h2 class="section-title">{{ lang.t('whyTitle') }}</h2>
+      <p class="section-sub">{{ lang.t('whySubtitle') }}</p>
+    </div>
+    <div class="features-grid">
+      @for (f of features(); track f.title) {
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <span class="material-icons-round">{{ f.icon }}</span>
+          </div>
+          <h3 class="feature-card__title">{{ f.title }}</h3>
+          <p class="feature-card__desc">{{ f.desc }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="container">
     <div class="footer__grid">
-
       <div class="footer__brand">
         <div class="footer__logo">
           <div class="footer__logo-icon">
@@ -166,15 +202,10 @@
         </div>
         <p>{{ lang.t('footerDesc') }}</p>
         <div class="footer__socials">
-          <a href="#" class="footer__social">
-            <span class="material-icons-round">facebook</span>
-          </a>
-          <a href="#" class="footer__social">
-            <span class="material-icons-round">tag</span>
-          </a>
+          <a href="#" class="footer__social"><span class="material-icons-round">facebook</span></a>
+          <a href="#" class="footer__social"><span class="material-icons-round">tag</span></a>
         </div>
       </div>
-
       <div class="footer__col">
         <strong>{{ lang.t('footerCategories') }}</strong>
         <a href="#">{{ lang.t('catImmobilier') }}</a>
@@ -182,25 +213,20 @@
         <a href="#">{{ lang.t('catEmploi') }}</a>
         <a href="#">{{ lang.t('catElectronique') }}</a>
       </div>
-
       <div class="footer__col">
         <strong>{{ lang.t('footerAccount') }}</strong>
         <a href="#">{{ lang.t('footerLogin') }}</a>
         <a href="#">{{ lang.t('footerPostAd') }}</a>
         <a href="#">{{ lang.t('footerProShops') }}</a>
       </div>
-
       <div class="footer__col">
         <strong>{{ lang.t('help') }}</strong>
         <a href="#">{{ lang.t('helpCenter') }}</a>
         <a href="#">{{ lang.t('terms') }}</a>
         <a href="#">{{ lang.t('privacy') }}</a>
-        <a href="#">{{ lang.t('cookies') }}</a>
       </div>
-
     </div>
   </div>
-
   <div class="footer__bottom">
     <div class="container footer__bottom-inner">
       <span>{{ lang.t('copyright') }}</span>

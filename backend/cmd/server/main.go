@@ -136,7 +136,7 @@ func seedAdminUser(userRepo *repository.UserRepo, roleRepo *repository.RoleRepo,
 
 	phone := ac.Phone
 	if phone == "" {
-		phone = "+212000000000" // placeholder if only email provided
+		phone = "+1234567890" // placeholder if only email provided
 	}
 	hashStr := string(hash)
 	emailPtr := (*string)(nil)
