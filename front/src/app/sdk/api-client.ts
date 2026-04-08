@@ -18,7 +18,14 @@ import { ApiLogger } from './api-logger';
 export class ApiClient {
   private readonly http  = inject(HttpClient);
   private readonly log   = inject(ApiLogger);
-  private readonly base  = environment.apiBaseUrl;
+
+  private get base(): string {
+    if (environment.production) {
+      return `https://api.${window.location.hostname}/api/v1`;
+    } else {
+      return environment.apiBaseUrl;
+    }
+  }
 
   /** Current Bearer token — set by AuthService after login / session restore. */
   private readonly _token = signal<string | null>(null);

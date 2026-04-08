@@ -12,7 +12,7 @@ printf '{\n  "apiBaseUrl": "%s"\n}\n' "$PROD_API_URL" > "$APP_CONFIG"
 
 echo "Building frontend (SSG)..."
 cd front
-npx ng build --base-href=/ --output-mode static
+npx ng build --configuration=production --base-href=/ --output-mode static
 cd ..
 
 echo "Restoring dev app-config.json..."

@@ -22,7 +22,7 @@ jobs:
     - name: Build Angular project
       run: |
         cd front
-        npx ng build --base-href=/ --output-mode static
+        npx ng build --configuration=production--base-href=/ --output-mode static
     - name: Deploy via SCP to Hostinger
       uses: appleboy/scp-action@v0.1.7
       with:
