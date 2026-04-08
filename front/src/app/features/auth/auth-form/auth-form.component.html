@@ -23,14 +23,14 @@
     @if (error()) { <p class="field-error">{{ error() }}</p> }
 
     <button (click)="submitLogin()" [disabled]="loading()" class="btn-primary mt-6">
-      @if (loading()) { <i class="fa-solid fa-circle-notch fa-spin"></i> }
+      @if (loading()) { <span class="material-icons-round spin-icon">sync</span> }
       @else { {{ lang.t('loginBtn') }} }
     </button>
 
     @if (cfg.otpEnabled) {
       <div class="or-separator"><span>{{ lang.t('orSeparator') }}</span></div>
       <button (click)="goOtp()" class="btn-outline">
-        <i class="fa-solid fa-comment-sms"></i>
+        <span class="material-icons-round">sms</span>
         {{ lang.t('loginWithOtp') }}
       </button>
     }
@@ -48,7 +48,8 @@
 @if (screen() === 'otp-phone') {
   <div class="form-body">
     <button class="back-btn" (click)="goBack()">
-      <i class="fa-solid fa-arrow-left text-xs me-1"></i>{{ lang.t('back') }}
+      <span class="material-icons-round" style="font-size:16px">arrow_back</span>
+      {{ lang.t('back') }}
     </button>
     <h2 class="form-title mt-3">{{ lang.t('loginWithOtp') }}</h2>
 
@@ -62,7 +63,7 @@
     @if (error()) { <p class="field-error">{{ error() }}</p> }
 
     <button (click)="submitOtpPhone()" [disabled]="loading()" class="btn-primary mt-6">
-      @if (loading()) { <i class="fa-solid fa-circle-notch fa-spin"></i> }
+      @if (loading()) { <span class="material-icons-round spin-icon">sync</span> }
       @else { {{ lang.t('sendCode') }} }
     </button>
   </div>
@@ -74,7 +75,8 @@
 @if (screen() === 'otp-code') {
   <div class="form-body">
     <button class="back-btn" (click)="goBack()">
-      <i class="fa-solid fa-arrow-left text-xs me-1"></i>{{ lang.t('back') }}
+      <span class="material-icons-round" style="font-size:16px">arrow_back</span>
+      {{ lang.t('back') }}
     </button>
     <h2 class="form-title mt-3">{{ lang.t('otpTitle') }}</h2>
     <p class="form-subtitle">{{ lang.t('otpSentTo') }} <strong>{{ otpPhone }}</strong></p>
@@ -89,7 +91,7 @@
     @if (error()) { <p class="field-error">{{ error() }}</p> }
 
     <button (click)="submitOtpCode()" [disabled]="loading()" class="btn-primary mt-6">
-      @if (loading()) { <i class="fa-solid fa-circle-notch fa-spin"></i> }
+      @if (loading()) { <span class="material-icons-round spin-icon">sync</span> }
       @else { {{ lang.t('validate') }} }
     </button>
     <p class="switch-text">
@@ -137,7 +139,8 @@
     @if (error()) { <p class="field-error">{{ error() }}</p> }
 
     <button (click)="submitRegCredentials()" class="btn-primary mt-6">
-      {{ lang.t('next') }} <i class="fa-solid fa-arrow-right text-sm ms-1"></i>
+      {{ lang.t('next') }}
+      <span class="material-icons-round" style="font-size:18px">arrow_forward</span>
     </button>
     <p class="switch-text">
       {{ lang.t('hasAccount') }}
@@ -152,10 +155,14 @@
 @if (screen() === 'reg-identity') {
   <div class="form-body">
     <button class="back-btn" (click)="goBack()">
-      <i class="fa-solid fa-arrow-left text-xs me-1"></i>{{ lang.t('back') }}
+      <span class="material-icons-round" style="font-size:16px">arrow_back</span>
+      {{ lang.t('back') }}
     </button>
     <div class="step-indicator mt-3">
-      <span class="step done">✓</span><span class="step-line done"></span>
+      <span class="step done">
+        <span class="material-icons-round" style="font-size:14px">check</span>
+      </span>
+      <span class="step-line done"></span>
       <span class="step active">2</span><span class="step-line"></span>
       <span class="step">3</span>
     </div>
@@ -170,7 +177,8 @@
     @if (error()) { <p class="field-error">{{ error() }}</p> }
 
     <button (click)="submitRegIdentity()" class="btn-primary mt-6">
-      {{ lang.t('next') }} <i class="fa-solid fa-arrow-right text-sm ms-1"></i>
+      {{ lang.t('next') }}
+      <span class="material-icons-round" style="font-size:18px">arrow_forward</span>
     </button>
   </div>
 }
@@ -181,11 +189,18 @@
 @if (screen() === 'reg-address') {
   <div class="form-body">
     <button class="back-btn" (click)="goBack()">
-      <i class="fa-solid fa-arrow-left text-xs me-1"></i>{{ lang.t('back') }}
+      <span class="material-icons-round" style="font-size:16px">arrow_back</span>
+      {{ lang.t('back') }}
     </button>
     <div class="step-indicator mt-3">
-      <span class="step done">✓</span><span class="step-line done"></span>
-      <span class="step done">✓</span><span class="step-line done"></span>
+      <span class="step done">
+        <span class="material-icons-round" style="font-size:14px">check</span>
+      </span>
+      <span class="step-line done"></span>
+      <span class="step done">
+        <span class="material-icons-round" style="font-size:14px">check</span>
+      </span>
+      <span class="step-line done"></span>
       <span class="step active">3</span>
     </div>
     <h2 class="form-title mt-3">{{ lang.t('addressTitle') }}</h2>
@@ -220,7 +235,7 @@
     @if (error()) { <p class="field-error">{{ error() }}</p> }
 
     <button (click)="submitRegAddress()" [disabled]="loading()" class="btn-primary mt-6">
-      @if (loading()) { <i class="fa-solid fa-circle-notch fa-spin"></i> }
+      @if (loading()) { <span class="material-icons-round spin-icon">sync</span> }
       @else { {{ lang.t('finishBtn') }} }
     </button>
   </div>

@@ -51,6 +51,16 @@
 
 .logo-font { font-family: 'Pacifico', cursive; }
 
+.modal-logo-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: #006233;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .material-icons-round { color: #fff; }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
