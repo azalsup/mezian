@@ -86,7 +86,7 @@
               "prerender": {
                 "discoverRoutes": false,
                 "routesFile": "prerender-routes.txt"
-              }
+              },
               "outputHashing": "all"
             },
             "development": {
