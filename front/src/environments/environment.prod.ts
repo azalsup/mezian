@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/api/v1',
+  apiBaseUrl: 'https://api.daba.incipyo.com/api/v1',
 
   /**
    * SDK log level. Controls what the ApiClient logs to the browser console.

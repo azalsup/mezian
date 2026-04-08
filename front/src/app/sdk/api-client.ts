@@ -20,11 +20,7 @@ export class ApiClient {
   private readonly log   = inject(ApiLogger);
 
   private get base(): string {
-    if (environment.production) {
-      return `https://api.${window.location.hostname}/api/v1`;
-    } else {
-      return environment.apiBaseUrl;
-    }
+    return environment.apiBaseUrl
   }
 
   /** Current Bearer token — set by AuthService after login / session restore. */
