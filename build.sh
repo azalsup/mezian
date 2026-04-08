@@ -2,7 +2,7 @@
 set -e
 
 PROD_API_URL="https://api.daba.incipyo.com/api/v1"
-DEV_API_URL="http://localhost:3000/api/v1"
+DEV_API_URL="/api/v1"
 APP_CONFIG="front/public/app-config.json"
 
 # ── Frontend ────────────────────────────────────────────────────────────────
