@@ -1,5 +1,5 @@
 import { Component, inject, computed, signal, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { LangService } from '../../core/services/lang.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import type { Category } from '../../sdk';
@@ -23,7 +23,7 @@ interface AdSection {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgClass],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
@@ -54,6 +54,19 @@ export class HomeComponent {
     if (!slug) return null;
     return this.catService.categories().find(c => c.slug === slug) ?? null;
   });
+
+  /** CSS classes for a category nav button */
+  catBtnCls(cat: Category): Record<string, boolean> {
+    const isOpen     = this.openCat() === cat.slug;
+    const isFeatured = cat.sort_order <= 3;
+    return {
+      'text-white/75':    !isFeatured && !isOpen,
+      'text-[#6ee7a8]':  isFeatured && !isOpen,
+      'font-semibold':    isFeatured,
+      'text-white':       isOpen,
+      'bg-white/[.06]':   isOpen,
+    };
+  }
 
   /** Localised label for a category */
   label(cat: Category): string {

@@ -1,67 +1,82 @@
 <!-- ═══════════════════════════════════════════════
-     HERO — compact: badge + title + search only
+     HERO + SEARCH + CATEGORY NAV
 ════════════════════════════════════════════════ -->
-<section class="hero">
-  <div class="hero__inner">
-    <div class="hero__badge">
-      <span class="material-icons-round">flag</span>
+<section class="bg-[linear-gradient(160deg,#1a1a2e_0%,#1a1a2e_55%,#0c2b1a_100%)] text-white relative overflow-visible">
+  <div class="max-w-[1200px] mx-auto px-6 pt-14 relative z-[1]">
+
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-1.5 bg-[#006233]/25 border border-[#00a854]/35 text-[#6ee7a8] text-[.75rem] font-semibold tracking-[1.5px] uppercase px-3 py-[5px] rounded-full mb-5">
+      <span class="material-icons-round text-[14px]">flag</span>
       {{ lang.t('heroBadge') }}
     </div>
-    <h1 class="hero__title">
-      {{ lang.t('heroTitle1') }}
-      <!--<span class="hero__title-accent">{{ lang.t('heroTitle2') }}</span>-->
+
+    <!-- Title -->
+    <h1 class="text-[clamp(2rem,4.5vw,3.2rem)] font-extrabold leading-[1.15] mb-8">
+      {{ lang.t('heroTitle1') }}<br>
+      <span class="bg-gradient-to-br from-[#00c96e] to-[#00a854] bg-clip-text text-transparent">
+        {{ lang.t('heroTitle2') }}
+      </span>
     </h1>
 
     <!-- Search bar -->
-    <div class="search-bar">
-      <div class="search-bar__icon">
-        <span class="material-icons-round">search</span>
+    <div class="flex items-center bg-white rounded-t-2xl shadow-[0_20px_60px_rgba(0,0,0,.35)] max-w-[860px] h-[60px] overflow-hidden">
+      <div class="px-[14px] text-gray-400 flex items-center shrink-0">
+        <span class="material-icons-round text-[22px]">search</span>
       </div>
-      <input class="search-bar__input" type="text" [placeholder]="lang.t('heroSearch')">
-      <div class="search-bar__divider"></div>
-      <div class="search-bar__location">
-        <span class="material-icons-round">location_on</span>
-        <select class="search-bar__select">
+      <input
+        class="flex-1 border-none outline-none text-[.96rem] text-[#1a1a2e] min-w-0 bg-transparent placeholder:text-gray-400"
+        type="text"
+        [placeholder]="lang.t('heroSearch')">
+      <div class="w-px h-7 bg-gray-200 shrink-0"></div>
+      <div class="flex items-center gap-1.5 px-3 shrink-0">
+        <span class="material-icons-round text-[18px] text-gray-400">location_on</span>
+        <select class="border-none outline-none text-[.88rem] text-gray-600 bg-transparent cursor-pointer max-w-[150px]">
           <option value="">{{ lang.t('allCities') }}</option>
           @for (city of cities; track city) {
             <option [value]="city">{{ city }}</option>
           }
         </select>
       </div>
-      <button class="search-bar__btn">{{ lang.t('searchButton') }}</button>
+      <button class="bg-[#006233] hover:bg-[#005229] text-white h-full px-7 text-[.96rem] font-semibold border-none cursor-pointer transition-colors duration-150 whitespace-nowrap shrink-0">
+        {{ lang.t('searchButton') }}
+      </button>
     </div>
   </div>
 
-  <!-- ── Category nav bar — same dark bg, flush below search ── -->
-  <div class="cat-nav">
-    <div class="cat-nav__inner">
+  <!-- Category nav bar -->
+  <div class="bg-[rgba(10,20,15,.75)] backdrop-blur-sm border-t border-white/[.07] relative z-[100]">
+    <div class="max-w-[1200px] mx-auto px-6 flex items-stretch overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       @for (cat of navCategories(); track cat.slug) {
-        <div class="cat-nav__item" [class.cat-nav__item--featured]="cat.sort_order <= 3">
+        <div class="relative shrink-0">
           <button
-            class="cat-nav__btn"
-            [class.cat-nav__btn--open]="openCat() === cat.slug"
+            class="flex items-center gap-1.5 px-[18px] h-12 text-[.85rem] bg-transparent border-none cursor-pointer transition-colors duration-150 whitespace-nowrap hover:text-white hover:bg-white/[.06]"
+            [ngClass]="catBtnCls(cat)"
             (click)="toggleCat(cat.slug, $event)">
-            <span class="material-icons-round">{{ cat.icon }}</span>
+            <span class="material-icons-round text-[18px]">{{ cat.icon }}</span>
             <span>{{ label(cat) }}</span>
-            <span class="material-icons-round cat-nav__chevron">expand_more</span>
+            <span class="material-icons-round text-[16px] opacity-60 transition-transform duration-200"
+              [class.rotate-180]="openCat() === cat.slug">expand_more</span>
           </button>
         </div>
       }
     </div>
 
-    <!-- Panel rendered outside the scroll container so it isn't clipped -->
+    <!-- Panel outside the scroll container — not clipped by overflow-x -->
     @if (openCatData()) {
-      <div class="cat-nav__panel" (click)="$event.stopPropagation()">
+      <div class="absolute top-full start-6 min-w-[240px] bg-white rounded-[0_16px_16px_16px] shadow-[0_16px_48px_rgba(0,0,0,.18)] py-2 z-[200] [animation:dropdown-in_.15s_ease]"
+        (click)="$event.stopPropagation()">
         @if (openCatData()!.sort_order <= 3) {
-          <a class="cat-nav__view-all" [href]="'/annonces/' + openCatData()!.slug">
-            <span class="material-icons-round">{{ openCatData()!.icon }}</span>
+          <a class="flex items-center gap-2.5 px-4 py-3 text-[.88rem] font-bold text-[#006233] bg-[#e8f5ee] rounded-[10px] mx-2 my-1 transition-colors hover:bg-[#d4eddf]"
+            [href]="'/annonces/' + openCatData()!.slug">
+            <span class="material-icons-round text-[18px]">{{ openCatData()!.icon }}</span>
             {{ label(openCatData()!) }} — {{ lang.t('seeAll') }}
-            <span class="material-icons-round" style="margin-inline-start:auto;font-size:16px">arrow_forward</span>
+            <span class="material-icons-round text-[16px] ms-auto">arrow_forward</span>
           </a>
-          <div class="cat-nav__divider"></div>
+          <div class="h-px bg-gray-200 mx-2 my-1.5"></div>
         }
         @for (sub of openCatData()!.children ?? []; track sub.slug) {
-          <a class="cat-nav__sub" [href]="'/annonces/' + sub.slug">{{ subLabel(sub) }}</a>
+          <a class="block px-4 py-[9px] text-[.85rem] text-gray-600 transition-colors hover:bg-gray-50 hover:text-[#1a1a2e]"
+            [href]="'/annonces/' + sub.slug">{{ subLabel(sub) }}</a>
         }
       </div>
     }
@@ -70,44 +85,50 @@
 
 
 <!-- ═══════════════════════════════════════════════
-     AD TILE SECTIONS — trending / cars / real estate
+     AD TILE SECTIONS
 ════════════════════════════════════════════════ -->
-@for (section of adSections; track section.slug) {
-  <section class="ads-section">
-    <div class="container">
-      <div class="ads-section__header">
-        <div class="ads-section__title-group">
-          <span class="material-icons-round ads-section__icon">{{ section.icon }}</span>
-          <h2 class="ads-section__title">{{ lang.t(section.titleKey) }}</h2>
+@for (section of adSections; track section.slug; let i = $index) {
+  <section [class]="i % 2 === 0 ? 'py-12 bg-white' : 'py-12 bg-[#f8f9fa]'">
+    <div class="max-w-[1200px] mx-auto px-6">
+
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2.5">
+          <span class="material-icons-round text-[26px] text-[#006233]">{{ section.icon }}</span>
+          <h2 class="text-[clamp(1.2rem,2.5vw,1.6rem)] font-extrabold text-[#1a1a2e]">{{ lang.t(section.titleKey) }}</h2>
         </div>
-        <a [href]="'/annonces/' + section.slug" class="ads-section__link">
+        <a [href]="'/annonces/' + section.slug"
+          class="inline-flex items-center gap-1 text-[.85rem] font-semibold text-[#006233] transition-all hover:gap-2.5">
           {{ lang.t('seeAllAds') }}
-          <span class="material-icons-round">arrow_forward</span>
+          <span class="material-icons-round text-[18px]">arrow_forward</span>
         </a>
       </div>
 
-      <div class="tiles-grid">
+      <div class="grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-[480px]:grid-cols-1">
         @for (ad of section.ads; track ad.id) {
-          <a href="#" class="tile">
-            <div class="tile__img">
+          <a href="#" class="bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-200 block hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(0,0,0,.10)] hover:border-[#006233]">
+            <div class="relative h-[160px] bg-gray-100">
               @if (ad.img) {
-                <img [src]="ad.img" [alt]="ad.title">
+                <img [src]="ad.img" [alt]="ad.title" class="w-full h-full object-cover">
               } @else {
-                <div class="tile__img-placeholder">
-                  <span class="material-icons-round">{{ section.icon }}</span>
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                  <span class="material-icons-round text-[40px] text-gray-400 opacity-50">{{ section.icon }}</span>
                 </div>
               }
               @if (ad.badge) {
-                <span class="tile__badge" [class]="'tile__badge--' + ad.badge.toLowerCase()">
-                  {{ ad.badge }}
-                </span>
+                <span class="absolute top-2.5 start-2.5 text-[.68rem] font-bold tracking-[.8px] px-2 py-[3px] rounded-full uppercase"
+                  [ngClass]="{
+                    'bg-[#006233] text-white': ad.badge.toLowerCase() === 'top',
+                    'bg-blue-600 text-white':  ad.badge.toLowerCase() === 'nouveau',
+                    'bg-red-600 text-white':   ad.badge.toLowerCase() === 'urgent',
+                    'bg-amber-600 text-white':  ad.badge.toLowerCase() === 'premium'
+                  }">{{ ad.badge }}</span>
               }
             </div>
-            <div class="tile__body">
-              <p class="tile__title">{{ ad.title }}</p>
-              <p class="tile__price">{{ ad.price }}</p>
-              <p class="tile__location">
-                <span class="material-icons-round">location_on</span>
+            <div class="px-3.5 pt-3 pb-3.5">
+              <p class="text-[.88rem] font-semibold text-[#1a1a2e] leading-[1.4] mb-1.5 truncate">{{ ad.title }}</p>
+              <p class="text-base font-extrabold text-[#006233] mb-1.5">{{ ad.price }}</p>
+              <p class="flex items-center gap-[3px] text-[.75rem] text-gray-400">
+                <span class="material-icons-round text-[14px]">location_on</span>
                 {{ ad.location }}
               </p>
             </div>
@@ -120,41 +141,54 @@
 
 
 <!-- ═══════════════════════════════════════════════
-     CTA — Vendez en quelques minutes
+     CTA
 ════════════════════════════════════════════════ -->
-<section class="cta">
-  <div class="container">
-    <div class="cta__inner">
-      <div class="cta__content">
-        <div class="cta__badge">
-          <span class="material-icons-round">rocket_launch</span>
+<section class="bg-[linear-gradient(160deg,#1a1a2e_0%,#0c2b1a_100%)] text-white py-20 relative overflow-hidden">
+  <div class="absolute w-[560px] h-[560px] rounded-full bg-[radial-gradient(circle,rgba(0,168,84,.18)_0%,transparent_70%)] -top-[120px] -end-20 pointer-events-none"></div>
+
+  <div class="max-w-[1200px] mx-auto px-6 relative z-[1]">
+    <div class="flex items-center gap-16 max-[900px]:flex-col">
+
+      <div class="flex-1">
+        <div class="inline-flex items-center gap-1.5 bg-[#006233]/30 border border-[#00a854]/40 text-[#6ee7a8] text-[.75rem] font-semibold tracking-[1.5px] uppercase px-3 py-[5px] rounded-full mb-[18px]">
+          <span class="material-icons-round text-[14px]">rocket_launch</span>
           {{ lang.t('ctaBadge') }}
         </div>
-        <h2 class="cta__title">{{ lang.t('ctaTitle') }}</h2>
-        <p class="cta__desc">{{ lang.t('ctaDesc') }}</p>
-        <div class="cta__actions">
-          <button class="cta__btn-primary">
-            <span class="material-icons-round">add_circle</span>
+        <h2 class="text-[clamp(1.6rem,3.5vw,2.4rem)] font-extrabold mb-3.5 leading-[1.2]">{{ lang.t('ctaTitle') }}</h2>
+        <p class="text-white/65 leading-[1.7] max-w-[480px] mb-8 text-[.96rem]">{{ lang.t('ctaDesc') }}</p>
+        <div class="flex gap-3 flex-wrap">
+          <button class="inline-flex items-center gap-2 bg-[#006233] hover:bg-[#00a854] text-white px-[26px] py-[13px] rounded-xl text-[.96rem] font-semibold border-none cursor-pointer transition-all hover:-translate-y-px">
+            <span class="material-icons-round text-[20px]">add_circle</span>
             {{ lang.t('ctaPostAd') }}
           </button>
-          <button class="cta__btn-outline">
-            <span class="material-icons-round">storefront</span>
+          <button class="inline-flex items-center gap-2 border border-white/25 hover:border-white/50 hover:bg-white/[.07] text-white px-[26px] py-[13px] rounded-xl text-[.96rem] font-semibold bg-transparent cursor-pointer transition-all">
+            <span class="material-icons-round text-[20px]">storefront</span>
             {{ lang.t('ctaOpenShop') }}
           </button>
         </div>
       </div>
-      <div class="cta__visual">
-        <div class="cta__stat-card">
-          <span class="material-icons-round">trending_up</span>
-          <div><strong>{{ lang.t('statAds') }}</strong><span>{{ lang.t('adsPublished') }}</span></div>
+
+      <div class="flex flex-col gap-3 shrink-0 max-[900px]:w-full max-[900px]:flex-row max-[900px]:flex-wrap">
+        <div class="flex items-center gap-3.5 bg-white/[.06] border border-white/10 rounded-2xl px-[22px] py-4 min-w-[210px] max-[900px]:flex-1 max-[900px]:min-w-[150px]">
+          <span class="material-icons-round text-[26px] text-[#6ee7a8]">trending_up</span>
+          <div class="flex flex-col">
+            <strong class="text-[1.2rem] font-extrabold text-white">{{ lang.t('statAds') }}</strong>
+            <span class="text-[.75rem] text-white/50 mt-0.5">{{ lang.t('adsPublished') }}</span>
+          </div>
         </div>
-        <div class="cta__stat-card">
-          <span class="material-icons-round">store</span>
-          <div><strong>{{ lang.t('statShops') }}</strong><span>{{ lang.t('shopsActive') }}</span></div>
+        <div class="flex items-center gap-3.5 bg-white/[.06] border border-white/10 rounded-2xl px-[22px] py-4 min-w-[210px] max-[900px]:flex-1 max-[900px]:min-w-[150px]">
+          <span class="material-icons-round text-[26px] text-[#6ee7a8]">store</span>
+          <div class="flex flex-col">
+            <strong class="text-[1.2rem] font-extrabold text-white">{{ lang.t('statShops') }}</strong>
+            <span class="text-[.75rem] text-white/50 mt-0.5">{{ lang.t('shopsActive') }}</span>
+          </div>
         </div>
-        <div class="cta__stat-card">
-          <span class="material-icons-round">verified</span>
-          <div><strong>100%</strong><span>{{ lang.t('freeForPosting') }}</span></div>
+        <div class="flex items-center gap-3.5 bg-white/[.06] border border-white/10 rounded-2xl px-[22px] py-4 min-w-[210px] max-[900px]:flex-1 max-[900px]:min-w-[150px]">
+          <span class="material-icons-round text-[26px] text-[#6ee7a8]">verified</span>
+          <div class="flex flex-col">
+            <strong class="text-[1.2rem] font-extrabold text-white">100%</strong>
+            <span class="text-[.75rem] text-white/50 mt-0.5">{{ lang.t('freeForPosting') }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -165,20 +199,20 @@
 <!-- ═══════════════════════════════════════════════
      WHY DABA
 ════════════════════════════════════════════════ -->
-<section class="section why">
-  <div class="container">
-    <div class="section-header centered">
-      <h2 class="section-title">{{ lang.t('whyTitle') }}</h2>
-      <p class="section-sub">{{ lang.t('whySubtitle') }}</p>
+<section class="py-[72px] bg-[#f8f9fa]">
+  <div class="max-w-[1200px] mx-auto px-6">
+    <div class="flex flex-col items-center text-center gap-2 mb-10">
+      <h2 class="text-[clamp(1.4rem,3vw,1.9rem)] font-extrabold text-[#1a1a2e]">{{ lang.t('whyTitle') }}</h2>
+      <p class="text-gray-600 text-base">{{ lang.t('whySubtitle') }}</p>
     </div>
-    <div class="features-grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-[18px]">
       @for (f of features(); track f.title) {
-        <div class="feature-card">
-          <div class="feature-card__icon">
-            <span class="material-icons-round">{{ f.icon }}</span>
+        <div class="bg-white border border-gray-200 rounded-[18px] p-7 transition-all duration-200 hover:border-[#006233] hover:shadow-[0_10px_32px_rgba(0,98,51,.08)] hover:-translate-y-[3px]">
+          <div class="w-12 h-12 rounded-xl bg-[#e8f5ee] flex items-center justify-center mb-[18px]">
+            <span class="material-icons-round text-[24px] text-[#006233]">{{ f.icon }}</span>
           </div>
-          <h3 class="feature-card__title">{{ f.title }}</h3>
-          <p class="feature-card__desc">{{ f.desc }}</p>
+          <h3 class="text-[.95rem] font-bold text-[#1a1a2e] mb-2">{{ f.title }}</h3>
+          <p class="text-[.84rem] text-gray-600 leading-[1.6]">{{ f.desc }}</p>
         </div>
       }
     </div>
@@ -189,45 +223,58 @@
 <!-- ═══════════════════════════════════════════════
      FOOTER
 ════════════════════════════════════════════════ -->
-<footer class="footer">
-  <div class="container">
-    <div class="footer__grid">
-      <div class="footer__brand">
-        <div class="footer__logo">
-          <div class="footer__logo-icon">
-            <span class="material-icons-round">flag</span>
+<footer class="bg-[#111827] text-white/55">
+  <div class="max-w-[1200px] mx-auto px-6">
+    <div class="grid grid-cols-[1.6fr_repeat(3,1fr)] gap-12 pt-14 pb-10 max-[820px]:grid-cols-2 max-[480px]:grid-cols-1">
+
+      <!-- Brand -->
+      <div>
+        <div class="flex items-center gap-2.5">
+          <div class="w-[34px] h-[34px] rounded-[9px] bg-[#006233] flex items-center justify-center shrink-0">
+            <span class="material-icons-round text-[18px] text-white">flag</span>
           </div>
-          <span class="logo-font">daba</span>
+          <span class="font-pacifico text-[1.6rem] text-white">daba</span>
         </div>
-        <p>{{ lang.t('footerDesc') }}</p>
-        <div class="footer__socials">
-          <a href="#" class="footer__social"><span class="material-icons-round">facebook</span></a>
-          <a href="#" class="footer__social"><span class="material-icons-round">tag</span></a>
+        <p class="text-[.85rem] mt-3.5 leading-[1.7] max-w-[230px]">{{ lang.t('footerDesc') }}</p>
+        <div class="flex gap-2.5 mt-[18px]">
+          <a href="#" class="w-9 h-9 rounded-[9px] bg-white/[.06] border border-white/10 flex items-center justify-center transition-colors hover:bg-white/[.12]">
+            <span class="material-icons-round text-[17px] text-white/65">facebook</span>
+          </a>
+          <a href="#" class="w-9 h-9 rounded-[9px] bg-white/[.06] border border-white/10 flex items-center justify-center transition-colors hover:bg-white/[.12]">
+            <span class="material-icons-round text-[17px] text-white/65">tag</span>
+          </a>
         </div>
       </div>
-      <div class="footer__col">
-        <strong>{{ lang.t('footerCategories') }}</strong>
-        <a href="#">{{ lang.t('catImmobilier') }}</a>
-        <a href="#">{{ lang.t('catAutomobile') }}</a>
-        <a href="#">{{ lang.t('catEmploi') }}</a>
-        <a href="#">{{ lang.t('catElectronique') }}</a>
+
+      <!-- Categories -->
+      <div class="flex flex-col gap-[9px]">
+        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('footerCategories') }}</strong>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catImmobilier') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catAutomobile') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catEmploi') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catElectronique') }}</a>
       </div>
-      <div class="footer__col">
-        <strong>{{ lang.t('footerAccount') }}</strong>
-        <a href="#">{{ lang.t('footerLogin') }}</a>
-        <a href="#">{{ lang.t('footerPostAd') }}</a>
-        <a href="#">{{ lang.t('footerProShops') }}</a>
+
+      <!-- Account -->
+      <div class="flex flex-col gap-[9px]">
+        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('footerAccount') }}</strong>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerLogin') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerPostAd') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerProShops') }}</a>
       </div>
-      <div class="footer__col">
-        <strong>{{ lang.t('help') }}</strong>
-        <a href="#">{{ lang.t('helpCenter') }}</a>
-        <a href="#">{{ lang.t('terms') }}</a>
-        <a href="#">{{ lang.t('privacy') }}</a>
+
+      <!-- Help -->
+      <div class="flex flex-col gap-[9px]">
+        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('help') }}</strong>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('helpCenter') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('terms') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('privacy') }}</a>
       </div>
     </div>
   </div>
-  <div class="footer__bottom">
-    <div class="container footer__bottom-inner">
+
+  <div class="border-t border-white/[.08]">
+    <div class="max-w-[1200px] mx-auto px-6 flex justify-between items-center py-[18px] text-[.78rem] flex-wrap gap-2">
       <span>{{ lang.t('copyright') }}</span>
       <span>{{ lang.t('madeIn') }}</span>
     </div>

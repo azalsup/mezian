@@ -2,42 +2,51 @@
 <!-- LOGIN                                                                  -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 @if (screen() === 'login') {
-  <div class="form-body">
-    <h2 class="form-title">{{ lang.t('loginTitle') }}</h2>
-    <p class="form-subtitle">{{ lang.t('loginSubtitle') }}</p>
+  <div class="px-8 pb-8 pt-5">
+    <h2 class="text-[1.35rem] font-bold text-[#1a1a2e]">{{ lang.t('loginTitle') }}</h2>
+    <p class="text-gray-500 text-[.9rem] mt-1 mb-4">{{ lang.t('loginSubtitle') }}</p>
 
-    <label class="field-label">{{ lang.t('identifierLabel') }}</label>
+    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ lang.t('identifierLabel') }}</label>
     <input type="text"
            [(ngModel)]="loginId"
            [placeholder]="lang.t('identifierPlaceholder')"
-           class="field-input"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]"
            (keydown.enter)="submitLogin()" />
 
-    <label class="field-label mt-4">{{ lang.t('passwordLabel') }}</label>
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">{{ lang.t('passwordLabel') }}</label>
     <input type="password"
            [(ngModel)]="loginPwd"
            [placeholder]="lang.t('passwordPlaceholder')"
-           class="field-input"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]"
            (keydown.enter)="submitLogin()" />
 
-    @if (error()) { <p class="field-error">{{ error() }}</p> }
+    @if (error()) {
+      <p class="mt-1.5 text-[.8rem] text-red-600">{{ error() }}</p>
+    }
 
-    <button (click)="submitLogin()" [disabled]="loading()" class="btn-primary mt-6">
+    <button (click)="submitLogin()" [disabled]="loading()"
+      class="w-full h-12 bg-[#006233] hover:bg-[#005229] disabled:opacity-60 disabled:cursor-not-allowed text-white text-base font-semibold rounded-full flex items-center justify-center gap-2 border-none cursor-pointer transition-colors mt-6">
       @if (loading()) { <span class="material-icons-round spin-icon">sync</span> }
       @else { {{ lang.t('loginBtn') }} }
     </button>
 
     @if (cfg.otpEnabled) {
-      <div class="or-separator"><span>{{ lang.t('orSeparator') }}</span></div>
-      <button (click)="goOtp()" class="btn-outline">
+      <div class="flex items-center gap-3 my-4">
+        <div class="flex-1 h-px bg-gray-200"></div>
+        <span class="text-gray-400 text-[.8rem]">{{ lang.t('orSeparator') }}</span>
+        <div class="flex-1 h-px bg-gray-200"></div>
+      </div>
+      <button (click)="goOtp()"
+        class="w-full h-12 border-[1.5px] border-gray-300 hover:border-[#006233] hover:bg-gray-50 rounded-full bg-transparent flex items-center justify-center gap-2 text-[.95rem] font-medium text-gray-700 cursor-pointer transition-all">
         <span class="material-icons-round">sms</span>
         {{ lang.t('loginWithOtp') }}
       </button>
     }
 
-    <p class="switch-text">
+    <p class="text-center mt-5 text-sm text-gray-500">
       {{ lang.t('noAccount') }}
-      <button class="link" (click)="goRegister()">{{ lang.t('createAccount') }}</button>
+      <button class="text-[#006233] hover:text-[#005229] text-sm font-medium underline underline-offset-2 bg-transparent border-none cursor-pointer p-0 transition-colors"
+        (click)="goRegister()">{{ lang.t('createAccount') }}</button>
     </p>
   </div>
 }
@@ -46,23 +55,27 @@
 <!-- OTP — phone entry                                                      -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 @if (screen() === 'otp-phone') {
-  <div class="form-body">
-    <button class="back-btn" (click)="goBack()">
-      <span class="material-icons-round" style="font-size:16px">arrow_back</span>
+  <div class="px-8 pb-8 pt-5">
+    <button class="inline-flex items-center text-[.85rem] text-gray-500 hover:text-[#006233] font-medium bg-transparent border-none cursor-pointer p-0 transition-colors"
+      (click)="goBack()">
+      <span class="material-icons-round text-[16px]">arrow_back</span>
       {{ lang.t('back') }}
     </button>
-    <h2 class="form-title mt-3">{{ lang.t('loginWithOtp') }}</h2>
+    <h2 class="text-[1.35rem] font-bold text-[#1a1a2e] mt-3">{{ lang.t('loginWithOtp') }}</h2>
 
-    <label class="field-label mt-4">{{ lang.t('phoneLabel') }}</label>
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">{{ lang.t('phoneLabel') }}</label>
     <input type="tel"
            [(ngModel)]="otpPhone"
            [placeholder]="lang.t('phonePlaceholder')"
-           class="field-input"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]"
            (keydown.enter)="submitOtpPhone()" />
 
-    @if (error()) { <p class="field-error">{{ error() }}</p> }
+    @if (error()) {
+      <p class="mt-1.5 text-[.8rem] text-red-600">{{ error() }}</p>
+    }
 
-    <button (click)="submitOtpPhone()" [disabled]="loading()" class="btn-primary mt-6">
+    <button (click)="submitOtpPhone()" [disabled]="loading()"
+      class="w-full h-12 bg-[#006233] hover:bg-[#005229] disabled:opacity-60 disabled:cursor-not-allowed text-white text-base font-semibold rounded-full flex items-center justify-center gap-2 border-none cursor-pointer transition-colors mt-6">
       @if (loading()) { <span class="material-icons-round spin-icon">sync</span> }
       @else { {{ lang.t('sendCode') }} }
     </button>
@@ -73,29 +86,34 @@
 <!-- OTP — code entry                                                       -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 @if (screen() === 'otp-code') {
-  <div class="form-body">
-    <button class="back-btn" (click)="goBack()">
-      <span class="material-icons-round" style="font-size:16px">arrow_back</span>
+  <div class="px-8 pb-8 pt-5">
+    <button class="inline-flex items-center text-[.85rem] text-gray-500 hover:text-[#006233] font-medium bg-transparent border-none cursor-pointer p-0 transition-colors"
+      (click)="goBack()">
+      <span class="material-icons-round text-[16px]">arrow_back</span>
       {{ lang.t('back') }}
     </button>
-    <h2 class="form-title mt-3">{{ lang.t('otpTitle') }}</h2>
-    <p class="form-subtitle">{{ lang.t('otpSentTo') }} <strong>{{ otpPhone }}</strong></p>
+    <h2 class="text-[1.35rem] font-bold text-[#1a1a2e] mt-3">{{ lang.t('otpTitle') }}</h2>
+    <p class="text-gray-500 text-[.9rem] mt-1 mb-4">{{ lang.t('otpSentTo') }} <strong>{{ otpPhone }}</strong></p>
 
-    <label class="field-label mt-4">{{ lang.t('otpLabel') }}</label>
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">{{ lang.t('otpLabel') }}</label>
     <input type="text" inputmode="numeric" maxlength="6"
            [(ngModel)]="otpCode"
            [placeholder]="lang.t('otpPlaceholder')"
-           class="field-input otp-input"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit] text-center tracking-[.5em] text-xl font-semibold"
            (keydown.enter)="submitOtpCode()" />
 
-    @if (error()) { <p class="field-error">{{ error() }}</p> }
+    @if (error()) {
+      <p class="mt-1.5 text-[.8rem] text-red-600">{{ error() }}</p>
+    }
 
-    <button (click)="submitOtpCode()" [disabled]="loading()" class="btn-primary mt-6">
+    <button (click)="submitOtpCode()" [disabled]="loading()"
+      class="w-full h-12 bg-[#006233] hover:bg-[#005229] disabled:opacity-60 disabled:cursor-not-allowed text-white text-base font-semibold rounded-full flex items-center justify-center gap-2 border-none cursor-pointer transition-colors mt-6">
       @if (loading()) { <span class="material-icons-round spin-icon">sync</span> }
       @else { {{ lang.t('validate') }} }
     </button>
-    <p class="switch-text">
-      <button class="link" (click)="resendOtp()">{{ lang.t('resendCode') }}</button>
+    <p class="text-center mt-5 text-sm text-gray-500">
+      <button class="text-[#006233] hover:text-[#005229] text-sm font-medium underline underline-offset-2 bg-transparent border-none cursor-pointer p-0 transition-colors"
+        (click)="resendOtp()">{{ lang.t('resendCode') }}</button>
     </p>
   </div>
 }
@@ -104,47 +122,59 @@
 <!-- REGISTER — step 1: credentials                                         -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 @if (screen() === 'reg-credentials') {
-  <div class="form-body">
-    <div class="step-indicator">
-      <span class="step active">1</span><span class="step-line"></span>
-      <span class="step">2</span><span class="step-line"></span>
-      <span class="step">3</span>
+  <div class="px-8 pb-8 pt-5">
+    <!-- Step indicator -->
+    <div class="flex items-center">
+      <span class="w-7 h-7 rounded-full border-2 border-[#006233] text-[#006233] flex items-center justify-center text-xs font-bold shrink-0">1</span>
+      <div class="flex-1 h-0.5 bg-gray-300"></div>
+      <span class="w-7 h-7 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+      <div class="flex-1 h-0.5 bg-gray-300"></div>
+      <span class="w-7 h-7 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center text-xs font-bold shrink-0">3</span>
     </div>
-    <h2 class="form-title mt-3">{{ lang.t('registerTitle') }}</h2>
-    <p class="form-subtitle">{{ lang.t('registerSubtitle') }}</p>
 
-    <label class="field-label mt-4">
+    <h2 class="text-[1.35rem] font-bold text-[#1a1a2e] mt-3">{{ lang.t('registerTitle') }}</h2>
+    <p class="text-gray-500 text-[.9rem] mt-1 mb-4">{{ lang.t('registerSubtitle') }}</p>
+
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">
       {{ lang.t('phoneLabel') }}
-      @if (!cfg.phoneRequired) { <span class="optional">{{ lang.t('optional') }}</span> }
+      @if (!cfg.phoneRequired) { <span class="text-xs text-gray-400 font-normal ms-1">{{ lang.t('optional') }}</span> }
     </label>
     <input type="tel" [(ngModel)]="regPhone"
-           [placeholder]="lang.t('phonePlaceholder')" class="field-input" />
+           [placeholder]="lang.t('phonePlaceholder')"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]" />
 
-    <label class="field-label mt-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">
       {{ lang.t('emailLabel') }}
-      @if (!cfg.emailRequired) { <span class="optional">{{ lang.t('optional') }}</span> }
+      @if (!cfg.emailRequired) { <span class="text-xs text-gray-400 font-normal ms-1">{{ lang.t('optional') }}</span> }
     </label>
     <input type="email" [(ngModel)]="regEmail"
-           [placeholder]="lang.t('emailPlaceholder')" class="field-input" />
+           [placeholder]="lang.t('emailPlaceholder')"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]" />
 
-    <label class="field-label mt-4">{{ lang.t('passwordLabel') }}</label>
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">{{ lang.t('passwordLabel') }}</label>
     <input type="password" [(ngModel)]="regPassword"
-           [placeholder]="lang.t('passwordPlaceholder')" class="field-input" />
+           [placeholder]="lang.t('passwordPlaceholder')"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]" />
 
-    <label class="field-label mt-4">{{ lang.t('confirmPasswordLabel') }}</label>
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">{{ lang.t('confirmPasswordLabel') }}</label>
     <input type="password" [(ngModel)]="regConfirm"
-           [placeholder]="lang.t('confirmPasswordPlaceholder')" class="field-input"
+           [placeholder]="lang.t('confirmPasswordPlaceholder')"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]"
            (keydown.enter)="submitRegCredentials()" />
 
-    @if (error()) { <p class="field-error">{{ error() }}</p> }
+    @if (error()) {
+      <p class="mt-1.5 text-[.8rem] text-red-600">{{ error() }}</p>
+    }
 
-    <button (click)="submitRegCredentials()" class="btn-primary mt-6">
+    <button (click)="submitRegCredentials()"
+      class="w-full h-12 bg-[#006233] hover:bg-[#005229] text-white text-base font-semibold rounded-full flex items-center justify-center gap-2 border-none cursor-pointer transition-colors mt-6">
       {{ lang.t('next') }}
-      <span class="material-icons-round" style="font-size:18px">arrow_forward</span>
+      <span class="material-icons-round text-[18px]">arrow_forward</span>
     </button>
-    <p class="switch-text">
+    <p class="text-center mt-5 text-sm text-gray-500">
       {{ lang.t('hasAccount') }}
-      <button class="link" (click)="goLogin()">{{ lang.t('login') }}</button>
+      <button class="text-[#006233] hover:text-[#005229] text-sm font-medium underline underline-offset-2 bg-transparent border-none cursor-pointer p-0 transition-colors"
+        (click)="goLogin()">{{ lang.t('login') }}</button>
     </p>
   </div>
 }
@@ -153,32 +183,41 @@
 <!-- REGISTER — step 2: identity                                            -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 @if (screen() === 'reg-identity') {
-  <div class="form-body">
-    <button class="back-btn" (click)="goBack()">
-      <span class="material-icons-round" style="font-size:16px">arrow_back</span>
+  <div class="px-8 pb-8 pt-5">
+    <button class="inline-flex items-center text-[.85rem] text-gray-500 hover:text-[#006233] font-medium bg-transparent border-none cursor-pointer p-0 transition-colors"
+      (click)="goBack()">
+      <span class="material-icons-round text-[16px]">arrow_back</span>
       {{ lang.t('back') }}
     </button>
-    <div class="step-indicator mt-3">
-      <span class="step done">
-        <span class="material-icons-round" style="font-size:14px">check</span>
-      </span>
-      <span class="step-line done"></span>
-      <span class="step active">2</span><span class="step-line"></span>
-      <span class="step">3</span>
-    </div>
-    <h2 class="form-title mt-3">{{ lang.t('identityTitle') }}</h2>
-    <p class="form-subtitle">{{ lang.t('identitySubtitle') }}</p>
 
-    <label class="field-label mt-4">{{ lang.t('displayNameLabel') }}</label>
+    <!-- Step indicator -->
+    <div class="flex items-center mt-3">
+      <span class="w-7 h-7 rounded-full border-2 border-[#006233] bg-[#006233] text-white flex items-center justify-center shrink-0">
+        <span class="material-icons-round text-[14px]">check</span>
+      </span>
+      <div class="flex-1 h-0.5 bg-[#006233]"></div>
+      <span class="w-7 h-7 rounded-full border-2 border-[#006233] text-[#006233] flex items-center justify-center text-xs font-bold shrink-0">2</span>
+      <div class="flex-1 h-0.5 bg-gray-300"></div>
+      <span class="w-7 h-7 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+    </div>
+
+    <h2 class="text-[1.35rem] font-bold text-[#1a1a2e] mt-3">{{ lang.t('identityTitle') }}</h2>
+    <p class="text-gray-500 text-[.9rem] mt-1 mb-4">{{ lang.t('identitySubtitle') }}</p>
+
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">{{ lang.t('displayNameLabel') }}</label>
     <input type="text" [(ngModel)]="regName"
-           [placeholder]="lang.t('displayNamePlaceholder')" class="field-input"
+           [placeholder]="lang.t('displayNamePlaceholder')"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]"
            (keydown.enter)="submitRegIdentity()" />
 
-    @if (error()) { <p class="field-error">{{ error() }}</p> }
+    @if (error()) {
+      <p class="mt-1.5 text-[.8rem] text-red-600">{{ error() }}</p>
+    }
 
-    <button (click)="submitRegIdentity()" class="btn-primary mt-6">
+    <button (click)="submitRegIdentity()"
+      class="w-full h-12 bg-[#006233] hover:bg-[#005229] text-white text-base font-semibold rounded-full flex items-center justify-center gap-2 border-none cursor-pointer transition-colors mt-6">
       {{ lang.t('next') }}
-      <span class="material-icons-round" style="font-size:18px">arrow_forward</span>
+      <span class="material-icons-round text-[18px]">arrow_forward</span>
     </button>
   </div>
 }
@@ -187,54 +226,66 @@
 <!-- REGISTER — step 3: address                                             -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 @if (screen() === 'reg-address') {
-  <div class="form-body">
-    <button class="back-btn" (click)="goBack()">
-      <span class="material-icons-round" style="font-size:16px">arrow_back</span>
+  <div class="px-8 pb-8 pt-5">
+    <button class="inline-flex items-center text-[.85rem] text-gray-500 hover:text-[#006233] font-medium bg-transparent border-none cursor-pointer p-0 transition-colors"
+      (click)="goBack()">
+      <span class="material-icons-round text-[16px]">arrow_back</span>
       {{ lang.t('back') }}
     </button>
-    <div class="step-indicator mt-3">
-      <span class="step done">
-        <span class="material-icons-round" style="font-size:14px">check</span>
-      </span>
-      <span class="step-line done"></span>
-      <span class="step done">
-        <span class="material-icons-round" style="font-size:14px">check</span>
-      </span>
-      <span class="step-line done"></span>
-      <span class="step active">3</span>
-    </div>
-    <h2 class="form-title mt-3">{{ lang.t('addressTitle') }}</h2>
-    <p class="form-subtitle">{{ lang.t('addressSubtitle') }}</p>
 
-    <label class="field-label mt-4">
-      {{ lang.t('addressLabel') }} <span class="optional">{{ lang.t('optional') }}</span>
+    <!-- Step indicator -->
+    <div class="flex items-center mt-3">
+      <span class="w-7 h-7 rounded-full border-2 border-[#006233] bg-[#006233] text-white flex items-center justify-center shrink-0">
+        <span class="material-icons-round text-[14px]">check</span>
+      </span>
+      <div class="flex-1 h-0.5 bg-[#006233]"></div>
+      <span class="w-7 h-7 rounded-full border-2 border-[#006233] bg-[#006233] text-white flex items-center justify-center shrink-0">
+        <span class="material-icons-round text-[14px]">check</span>
+      </span>
+      <div class="flex-1 h-0.5 bg-[#006233]"></div>
+      <span class="w-7 h-7 rounded-full border-2 border-[#006233] text-[#006233] flex items-center justify-center text-xs font-bold shrink-0">3</span>
+    </div>
+
+    <h2 class="text-[1.35rem] font-bold text-[#1a1a2e] mt-3">{{ lang.t('addressTitle') }}</h2>
+    <p class="text-gray-500 text-[.9rem] mt-1 mb-4">{{ lang.t('addressSubtitle') }}</p>
+
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">
+      {{ lang.t('addressLabel') }}
+      <span class="text-xs text-gray-400 font-normal ms-1">{{ lang.t('optional') }}</span>
     </label>
     <input type="text" [(ngModel)]="regAddress"
-           [placeholder]="lang.t('addressPlaceholder')" class="field-input" />
+           [placeholder]="lang.t('addressPlaceholder')"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]" />
 
-    <div class="two-col mt-4">
+    <div class="grid grid-cols-2 gap-3 mt-4">
       <div>
-        <label class="field-label">{{ lang.t('cityLabel') }}</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ lang.t('cityLabel') }}</label>
         <input type="text" [(ngModel)]="regCity"
                [placeholder]="lang.t('cityPlaceholder')"
-               list="cities-list" class="field-input" />
+               list="cities-list"
+               class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]" />
         <datalist id="cities-list">
           @for (c of cities; track c) { <option [value]="c">{{ c }}</option> }
         </datalist>
       </div>
       <div>
-        <label class="field-label">{{ lang.t('postalCodeLabel') }}</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ lang.t('postalCodeLabel') }}</label>
         <input type="text" inputmode="numeric" [(ngModel)]="regPostalCode"
-               [placeholder]="lang.t('postalCodePlaceholder')" class="field-input" />
+               [placeholder]="lang.t('postalCodePlaceholder')"
+               class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]" />
       </div>
     </div>
 
-    <label class="field-label mt-4">{{ lang.t('countryLabel') }}</label>
-    <input type="text" [(ngModel)]="regCountry" class="field-input" />
+    <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">{{ lang.t('countryLabel') }}</label>
+    <input type="text" [(ngModel)]="regCountry"
+           class="w-full h-12 px-4 border-[1.5px] border-gray-300 rounded-xl text-base outline-none focus:border-[#006233] transition-colors font-[inherit]" />
 
-    @if (error()) { <p class="field-error">{{ error() }}</p> }
+    @if (error()) {
+      <p class="mt-1.5 text-[.8rem] text-red-600">{{ error() }}</p>
+    }
 
-    <button (click)="submitRegAddress()" [disabled]="loading()" class="btn-primary mt-6">
+    <button (click)="submitRegAddress()" [disabled]="loading()"
+      class="w-full h-12 bg-[#006233] hover:bg-[#005229] disabled:opacity-60 disabled:cursor-not-allowed text-white text-base font-semibold rounded-full flex items-center justify-center gap-2 border-none cursor-pointer transition-colors mt-6">
       @if (loading()) { <span class="material-icons-round spin-icon">sync</span> }
       @else { {{ lang.t('finishBtn') }} }
     </button>

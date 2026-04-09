@@ -1,11 +1,10 @@
-<div class="auth-page">
-  <div class="auth-card">
+<div class="min-h-[calc(100vh-64px)] bg-[#f3f4f6] flex items-center justify-center p-8">
+  <div class="w-[min(460px,100%)] bg-white rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,.10)] overflow-hidden">
     <!-- Logo -->
-    <div class="auth-card__logo">
+    <div class="flex items-center gap-2 px-8 pt-6">
       <span class="text-3xl">🇲🇦</span>
-      <span class="logo-font text-3xl text-[#006233]">daba</span>
+      <span class="font-pacifico text-3xl text-[#006233]">daba</span>
     </div>
-
     <!-- Form -->
     <app-auth-form [initialScreen]="initialScreen()" [asPage]="true" />
   </div>

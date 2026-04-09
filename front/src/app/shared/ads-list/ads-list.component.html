@@ -1,19 +1,26 @@
-<section class="ads-list">
-  <div class="ads-list__header">
+<section class="w-full max-w-[1030px] mt-6">
+  <div class="flex justify-between items-center gap-4 mb-5 max-[620px]:flex-col max-[620px]:items-stretch">
     <div>
-      <h3>{{ category }} ads</h3>
-      <p>Latest listings for the chosen category.</p>
+      <h3 class="text-[1.2rem] font-extrabold text-[#1a1a2e]">{{ category }} ads</h3>
+      <p class="mt-1.5 text-gray-500">Latest listings for the chosen category.</p>
     </div>
-    <button class="btn btn--ghost">View all</button>
+    <button class="border border-gray-200 bg-transparent text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-50 cursor-pointer transition-colors">
+      View all
+    </button>
   </div>
-  <div class="ads-list__grid">
-    <article *ngFor="let ad of ads" class="ad-card">
-      <div class="ad-card__meta">
-        <span class="ad-card__badge">{{ ad.badge }}</span>
-      </div>
-      <h4>{{ ad.title }}</h4>
-      <p>{{ ad.detail }}</p>
-      <button class="btn btn--ghost">See listing</button>
-    </article>
+
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-[18px]">
+    @for (ad of ads; track ad.title) {
+      <article class="flex flex-col gap-3.5 p-6 rounded-2xl border border-black/[.08] bg-white">
+        <div class="flex justify-between">
+          <span class="inline-flex items-center gap-2 text-[.8rem] font-bold text-red-600">{{ ad.badge }}</span>
+        </div>
+        <h4 class="text-base text-[#1a1a2e] font-semibold">{{ ad.title }}</h4>
+        <p class="text-gray-500 leading-[1.6]">{{ ad.detail }}</p>
+        <button class="border border-gray-200 bg-transparent text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-50 cursor-pointer transition-colors self-start">
+          See listing
+        </button>
+      </article>
+    }
   </div>
 </section>

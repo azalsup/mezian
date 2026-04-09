@@ -1,14 +1,26 @@
 @if (auth.modalOpen()) {
-  <div class="modal-backdrop" (click)="close()"></div>
+  <!-- Backdrop -->
+  <div
+    class="fixed inset-0 bg-black/45 z-[200] [animation:fadeIn_.15s_ease]"
+    (click)="close()">
+  </div>
 
-  <div class="modal-card" role="dialog">
-    <div class="modal-header">
-      <div class="flex items-center gap-x-2">
-        <div class="modal-logo-icon"><span class="material-icons-round" style="font-size:18px">flag</span></div>
-        <span class="logo-font text-2xl text-[#006233]">daba</span>
+  <!-- Card -->
+  <div class="fixed inset-x-0 top-1/2 -translate-y-1/2 mx-auto w-[min(460px,94vw)] max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,.2)] z-[201] [animation:slideUp_.2s_ease]"
+    role="dialog">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 pt-5 sticky top-0 bg-white z-[1]">
+      <div class="flex items-center gap-2">
+        <div class="w-[30px] h-[30px] rounded-lg bg-[#006233] flex items-center justify-center">
+          <span class="material-icons-round text-white text-[18px]">flag</span>
+        </div>
+        <span class="font-pacifico text-2xl text-[#006233]">daba</span>
       </div>
-      <button class="modal-close" (click)="close()">
-        <span class="material-icons-round" style="font-size:20px">close</span>
+      <button
+        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
+        (click)="close()">
+        <span class="material-icons-round text-[20px]">close</span>
       </button>
     </div>
 
