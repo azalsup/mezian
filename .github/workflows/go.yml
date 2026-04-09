@@ -24,14 +24,14 @@ jobs:
           cd backend
           GOOS=linux GOARCH=amd64 go build -o ../bin/server cmd/server/main.go
 
-      - name: Copy binary to VM
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.GCP_IP }}
-          username: ${{ secrets.GCP_USERNAME }}
-          key: ${{ secrets.SSH_GCP_PRIVATE_KEY }}
-          source: "bin/server"
-          target: "/tmp"
+       - name: Copy binary to VM
+         uses: appleboy/scp-action@v0.1.7
+         with:
+           host: ${{ secrets.GCP_IP }}
+           username: ${{ secrets.GCP_USERNAME }}
+           key: ${{ secrets.SSH_GCP_PRIVATE_KEY }}
+           source: "bin/server,backend/config/"
+           target: "/tmp"
 
       - name: Deploy and Restart Service
         uses: appleboy/ssh-action@v1.0.3
@@ -48,8 +48,12 @@ jobs:
             # 2. Move binary from tmp to destination
             sudo mv /tmp/bin/server /opt/daba/bin/server
 
-            # 3. Fix permissions
+            # 3. Copy config files
+            sudo cp -r /tmp/backend/config /opt/daba/
+
+            # 4. Fix permissions
             sudo chown -R dabauser:dabauser /opt/daba/bin/
+            sudo chown -R dabauser:dabauser /opt/daba/config/
             sudo chmod +x /opt/daba/bin/server
 
             # 4. Start the service
