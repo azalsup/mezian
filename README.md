@@ -9,8 +9,7 @@ Daba is an online classified ads platform for the Moroccan market. It allows ind
 | Layer | Technology |
 |-------|------------|
 | Backend | Go 1.22 + [Gin](https://github.com/gin-gonic/gin) |
-| Frontend | Angular 19 (standalone components) |
-| SDK | TypeScript (`@classifieds/sdk`) |
+| Frontend | Angular 19 (standalone components) + TypeScript SDK |
 | Database | SQLite + [GORM](https://gorm.io) |
 | Authentication | JWT + OTP (WhatsApp / SMS) |
 | Images | Upload + thumbnails via [imaging](https://github.com/disintegration/imaging) |
@@ -22,8 +21,7 @@ Daba is an online classified ads platform for the Moroccan market. It allows ind
 ```
 daba/
 ├── backend/    # Go REST API (Gin)
-├── front/      # Angular 19 application
-├── sdk/        # TypeScript SDK (@daba/sdk)
+├── front/      # Angular 19 application with integrated TypeScript SDK
 ├── build.sh    # Production build script
 ├── serve_backend.sh  # Run backend in dev
 ├── serve_front.sh    # Run frontend in dev
@@ -77,25 +75,6 @@ The server starts on **http://localhost:8080**.
    ```
 
 The frontend starts on **http://localhost:4200** (proxied to backend on `/api`).
-
-### SDK
-
-The SDK is used by the frontend to communicate with the backend.
-
-1. Navigate to SDK directory:
-   ```bash
-   cd sdk
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Build the SDK:
-   ```bash
-   npm run build
-   ```
 
 ### Running Both in Development
 
@@ -326,35 +305,6 @@ The app starts on **http://localhost:4200**.
 
 ```bash
 npm run build
-```
-
----
-
-## TypeScript SDK
-
-The `@daba/sdk` SDK allows you to interact with the API from any JavaScript/TypeScript app.
-
-### Build
-
-```bash
-cd sdk
-npm install
-npm run build
-```
-
-### Usage
-
-```typescript
-import { ClassifiedsClient } from '@classifieds/sdk';
-
-const client = new ClassifiedsClient({ baseURL: 'http://localhost:8080' });
-
-// Authentication
-await client.auth.sendOtp({ phone: '+212600000000' });
-await client.auth.verifyOtp({ phone: '+212600000000', code: '123456' });
-
-// Ads
-const ads = await client.ads.list();
 ```
 
 ---
