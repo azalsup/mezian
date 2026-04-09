@@ -4,12 +4,12 @@
  * Handles: Bearer token injection, automatic refresh, typed errors.
  */
 
-import type { ApiError, AuthTokens } from "../types/index.js";
+import type { ApiErrorResponse, AuthTokens } from "../types/index.js";
 
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
-    public readonly body: ApiError,
+    public readonly body: ApiErrorResponse,
   ) {
     super(body.error ?? `HTTP ${status}`);
     this.name = "ApiError";

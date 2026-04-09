@@ -8,7 +8,7 @@
 // ---------------------------------------------------------------------------
 
 /** Standard API error response */
-export interface ApiError {
+export interface ApiErrorResponse {
   error: string;
   details?: Record<string, string>;
 }
@@ -124,6 +124,7 @@ export interface Category {
   parent_id?: number;
   sort_order: number;
   is_active: boolean;
+  featured?: boolean;
   children?: Category[];
   attribute_definitions?: AttributeDefinition[];
 }

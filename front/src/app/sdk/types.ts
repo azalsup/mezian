@@ -138,6 +138,7 @@ export interface Category {
   icon?:                  string;
   sort_order:             number;
   is_active:              boolean;
+  featured?:              boolean;
   parent_id?:             number;
   children?:              Category[];
   attribute_definitions?: AttributeDefinition[];

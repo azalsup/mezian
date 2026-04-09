@@ -20,11 +20,16 @@ export class CategoriesBarComponent {
   openCat       = signal<string | null>(null);
   expandedInAll = signal<string | null>(null);
   dropdownLeft  = signal(24);
+  showAll       = signal(false);
 
   readonly categories = this.catService.categories;
 
-  /** First 6 categories shown in the nav bar */
-  readonly navCats = computed(() => this.categories().slice(0, 6));
+  /** Featured categories shown in the nav bar */
+  readonly navCats = computed(() => this.categories().filter(c => c.featured));
+
+  toggleAll(): void {
+    this.showAll.set(!this.showAll());
+  }
 
   /** Data for the open per-category dropdown (null when 'all' or closed) */
   readonly openCatData = computed(() => {
