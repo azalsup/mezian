@@ -1,36 +1,60 @@
-<footer class="mx-auto mt-10 max-w-7xl rounded-[32px] bg-slate-950 p-10 text-slate-300 shadow-[0_24px_80px_rgba(0,0,0,0.16)]">
-  <div class="grid gap-8 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
-    <div>
-      <span class="block text-3xl font-black uppercase tracking-[0.3em] text-white">Daba</span>
-      <p class="mt-4 max-w-md text-sm leading-7 text-slate-400">{{ lang.t('footerBrandText') }}</p>
-    </div>
-    <div class="space-y-3">
-      <p class="text-sm font-semibold uppercase tracking-[0.22em] text-white">{{ lang.t('footerBrand') }}</p>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('aboutUs') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('press') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('careers') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('sustainability') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('support') }}</a>
-    </div>
-    <div class="space-y-3">
-      <p class="text-sm font-semibold uppercase tracking-[0.22em] text-white">{{ lang.t('help') }}</p>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('helpCenter') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('communityGuidelines') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('securityTips') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('legal') }}</a>
-    </div>
-    <div class="space-y-3">
-      <p class="text-sm font-semibold uppercase tracking-[0.22em] text-white">{{ lang.t('legalSection') }}</p>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('legalNotice') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('terms') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('privacy') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('cookies') }}</a>
-      <a class="block text-sm text-slate-300 hover:text-white" href="#">{{ lang.t('pro') }}</a>
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════ -->
+<footer class="bg-[#111827] text-white/55">
+  <div class="max-w-[1200px] mx-auto px-6">
+    <div class="grid grid-cols-[1.6fr_repeat(3,1fr)] gap-12 pt-14 pb-10 max-[820px]:grid-cols-2 max-[480px]:grid-cols-1">
+
+      <!-- Brand -->
+      <div>
+        <div class="flex items-center gap-2.5">
+          <div class="w-[34px] h-[34px] rounded-[9px] bg-[#006233] flex items-center justify-center shrink-0">
+            <span class="material-icons-round text-[18px] text-white">flag</span>
+          </div>
+          <span class="font-pacifico text-[1.6rem] text-white">daba</span>
+        </div>
+        <p class="text-[.85rem] mt-3.5 leading-[1.7] max-w-[230px]">{{ lang.t('footerDesc') }}</p>
+        <div class="flex gap-2.5 mt-[18px]">
+          <a href="#" class="w-9 h-9 rounded-[9px] bg-white/[.06] border border-white/10 flex items-center justify-center transition-colors hover:bg-white/[.12]">
+            <span class="material-icons-round text-[17px] text-white/65">facebook</span>
+          </a>
+          <a href="#" class="w-9 h-9 rounded-[9px] bg-white/[.06] border border-white/10 flex items-center justify-center transition-colors hover:bg-white/[.12]">
+            <span class="material-icons-round text-[17px] text-white/65">tag</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="flex flex-col gap-[9px]">
+        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('footerCategories') }}</strong>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catImmobilier') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catAutomobile') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catEmploi') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catElectronique') }}</a>
+      </div>
+
+      <!-- Account -->
+      <div class="flex flex-col gap-[9px]">
+        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('footerAccount') }}</strong>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerLogin') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerPostAd') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerProShops') }}</a>
+      </div>
+
+      <!-- Help -->
+      <div class="flex flex-col gap-[9px]">
+        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('help') }}</strong>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('helpCenter') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('terms') }}</a>
+        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('privacy') }}</a>
+      </div>
     </div>
   </div>
 
-  <div class="mt-10 border-t border-slate-800 pt-6">
-    <app-social-bar></app-social-bar>
-    <p class="mt-6 text-xs text-slate-500">© 2013-2026 Wallapop. All rights reserved.</p>
+  <div class="border-t border-white/[.08]">
+    <div class="max-w-[1200px] mx-auto px-6 flex justify-between items-center py-[18px] text-[.78rem] flex-wrap gap-2">
+      <span>{{ lang.t('copyright') }}</span>
+      <span>{{ lang.t('madeIn') }}</span>
+    </div>
   </div>
 </footer>

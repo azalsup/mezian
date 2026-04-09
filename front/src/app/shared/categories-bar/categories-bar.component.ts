@@ -1,5 +1,6 @@
 import { Component, inject, computed, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { LangService } from '../../core/services/lang.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import type { Category } from '../../sdk';
@@ -7,7 +8,7 @@ import type { Category } from '../../sdk';
 @Component({
   selector: 'app-categories-bar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './categories-bar.component.html',
   styleUrls: ['./categories-bar.component.scss'],
 })

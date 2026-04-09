@@ -1,0 +1,16 @@
+<div class="flex gap-2">
+  <div class="relative flex-1">
+    <span class="material-icons-round absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px] pointer-events-none">search</span>
+    <input type="text"
+      class="w-full h-12 ps-10 pe-4 rounded-xl border border-gray-200 bg-white text-[.9rem] text-[#1a1a2e] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
+      [placeholder]="lang.t('searchAds')"
+      [value]="_text"
+      (input)="_text = $any($event.target).value"
+      (keydown.enter)="submit()">
+  </div>
+  <button
+    class="h-12 px-6 bg-[#006233] text-white text-[.88rem] font-semibold rounded-xl hover:bg-[#005229] active:scale-95 transition-all shrink-0"
+    (click)="submit()">
+    {{ lang.t('searchButton') }}
+  </button>
+</div>

@@ -38,7 +38,8 @@
       (click)="$event.stopPropagation()">
       <a
         class="flex items-center gap-2.5 px-4 py-3 text-[.88rem] font-bold text-[#006233] bg-[#e8f5ee] rounded-[10px] mx-2 my-1 transition-colors hover:bg-[#d4eddf]"
-        [href]="'/ads/' + cat.slug">
+        routerLink="/ads" [queryParams]="{cat: cat.slug}"
+        (click)="closeDropdowns()">
         <span class="material-icons-round text-[18px]">{{ cat.icon }}</span>
         {{ label(cat) }}
         <span class="material-icons-round text-[16px] ms-auto">arrow_forward</span>
@@ -48,7 +49,8 @@
         @for (sub of cat.children!; track sub.slug) {
           <a
             class="block px-4 py-[9px] text-[.85rem] text-gray-600 transition-colors hover:bg-gray-50 hover:text-[#1a1a2e]"
-            [href]="'/ads/' + sub.slug">{{ label(sub) }}</a>
+            routerLink="/ads" [queryParams]="{cat: cat.slug, sub: sub.slug}"
+            (click)="closeDropdowns()">{{ label(sub) }}</a>
         }
       }
     </div>
@@ -66,7 +68,8 @@
             <span class="material-icons-round text-[18px] text-[#006233]">{{ cat.icon }}</span>
             <a
               class="flex-1 text-[.88rem] font-medium text-gray-700 hover:text-[#006233] transition-colors"
-              [href]="'/ads/' + cat.slug">{{ label(cat) }}</a>
+              routerLink="/ads" [queryParams]="{cat: cat.slug}"
+              (click)="closeDropdowns()">{{ label(cat) }}</a>
             @if (cat.children?.length) {
               <button
                 class="p-0.5 text-gray-400 hover:text-gray-700 transition-colors"
@@ -81,7 +84,8 @@
             @for (sub of cat.children!; track sub.slug) {
               <a
                 class="flex items-center pl-11 pr-4 py-[7px] text-[.83rem] text-gray-500 hover:text-[#006233] hover:bg-[#f0faf5] transition-colors"
-                [href]="'/ads/' + sub.slug">{{ label(sub) }}</a>
+                routerLink="/ads" [queryParams]="{cat: cat.slug, sub: sub.slug}"
+                (click)="closeDropdowns()">{{ label(sub) }}</a>
             }
           }
         </div>

@@ -23,10 +23,16 @@
       <div class="px-[14px] text-gray-400 flex items-center shrink-0">
         <span class="material-icons-round text-[20px]">search</span>
       </div>
-      <input
+      <input #heroSearch
         class="flex-1 border-none outline-none text-[.9rem] text-[#1a1a2e] min-w-0 bg-transparent placeholder:text-gray-400"
         type="text"
-        [placeholder]="lang.t('heroSearch')">
+        [placeholder]="lang.t('heroSearch')"
+        (keydown.enter)="goToAds(heroSearch.value)">
+      <button
+        class="h-full px-5 bg-[#006233] text-white text-[.85rem] font-semibold hover:bg-[#005229] transition-colors shrink-0"
+        (click)="goToAds(heroSearch.value)">
+        {{ lang.t('searchButton') }}
+      </button>
     </div>
   </div>
 
@@ -171,63 +177,4 @@
 </section>
 
 
-<!-- ═══════════════════════════════════════════════
-     FOOTER
-════════════════════════════════════════════════ -->
-<footer class="bg-[#111827] text-white/55">
-  <div class="max-w-[1200px] mx-auto px-6">
-    <div class="grid grid-cols-[1.6fr_repeat(3,1fr)] gap-12 pt-14 pb-10 max-[820px]:grid-cols-2 max-[480px]:grid-cols-1">
-
-      <!-- Brand -->
-      <div>
-        <div class="flex items-center gap-2.5">
-          <div class="w-[34px] h-[34px] rounded-[9px] bg-[#006233] flex items-center justify-center shrink-0">
-            <span class="material-icons-round text-[18px] text-white">flag</span>
-          </div>
-          <span class="font-pacifico text-[1.6rem] text-white">daba</span>
-        </div>
-        <p class="text-[.85rem] mt-3.5 leading-[1.7] max-w-[230px]">{{ lang.t('footerDesc') }}</p>
-        <div class="flex gap-2.5 mt-[18px]">
-          <a href="#" class="w-9 h-9 rounded-[9px] bg-white/[.06] border border-white/10 flex items-center justify-center transition-colors hover:bg-white/[.12]">
-            <span class="material-icons-round text-[17px] text-white/65">facebook</span>
-          </a>
-          <a href="#" class="w-9 h-9 rounded-[9px] bg-white/[.06] border border-white/10 flex items-center justify-center transition-colors hover:bg-white/[.12]">
-            <span class="material-icons-round text-[17px] text-white/65">tag</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Categories -->
-      <div class="flex flex-col gap-[9px]">
-        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('footerCategories') }}</strong>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catImmobilier') }}</a>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catAutomobile') }}</a>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catEmploi') }}</a>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('catElectronique') }}</a>
-      </div>
-
-      <!-- Account -->
-      <div class="flex flex-col gap-[9px]">
-        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('footerAccount') }}</strong>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerLogin') }}</a>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerPostAd') }}</a>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('footerProShops') }}</a>
-      </div>
-
-      <!-- Help -->
-      <div class="flex flex-col gap-[9px]">
-        <strong class="text-white text-[.85rem] font-bold mb-1">{{ lang.t('help') }}</strong>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('helpCenter') }}</a>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('terms') }}</a>
-        <a href="#" class="text-[.82rem] hover:text-white transition-colors">{{ lang.t('privacy') }}</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="border-t border-white/[.08]">
-    <div class="max-w-[1200px] mx-auto px-6 flex justify-between items-center py-[18px] text-[.78rem] flex-wrap gap-2">
-      <span>{{ lang.t('copyright') }}</span>
-      <span>{{ lang.t('madeIn') }}</span>
-    </div>
-  </div>
-</footer>
+<app-site-footer />

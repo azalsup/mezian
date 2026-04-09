@@ -68,6 +68,38 @@ export interface UserListResponse {
   page_size: number;
 }
 
+// ── Ads ───────────────────────────────────────────────────────────────────────
+
+export interface Ad {
+  id:                number;
+  title:             string;
+  price:             number | null;
+  city:              string;
+  category_slug:     string;
+  subcategory_slug?: string;
+  images:            string[];
+  created_at:        string;
+  badge?:            'top' | 'new' | 'urgent' | 'premium';
+}
+
+export interface AdsQuery {
+  q?:        string;
+  cat?:      string;
+  sub?:      string;
+  city?:     string;
+  minPrice?: number;
+  maxPrice?: number;
+  page?:     number;
+  sort?:     'newest' | 'price_asc' | 'price_desc';
+}
+
+export interface AdsResponse {
+  data:      Ad[];
+  total:     number;
+  page:      number;
+  page_size: number;
+}
+
 // ── Categories ────────────────────────────────────────────────────────────────
 
 export interface AttributeDefinition {

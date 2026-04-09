@@ -1,12 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SocialBarComponent } from '../social-bar/social-bar.component';
 import { LangService } from '../../core/services/lang.service';
 
 @Component({
   selector: 'app-site-footer',
   standalone: true,
-  imports: [CommonModule, SocialBarComponent],
+  imports: [CommonModule],
   templateUrl: './site-footer.component.html',
   styleUrls: ['./site-footer.component.scss'],
 })

@@ -22,6 +22,12 @@ export const routes: Routes = [
     data: { screen: 'reg-credentials' },
   },
   {
+    path: 'ads',
+    loadComponent: () =>
+      import('./pages/ads/ads-page.component').then(m => m.AdsPageComponent),
+    title: 'Annonces — Daba',
+  },
+  {
     path: 'admin',
     loadChildren: () =>
       import('./admin/admin.routes').then(m => m.ADMIN_ROUTES),

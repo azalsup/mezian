@@ -1,0 +1,85 @@
+<div class="flex flex-col gap-5">
+
+  <!-- Category -->
+  <div class="flex flex-col gap-1.5">
+    <label class="text-[.8rem] font-semibold text-gray-500 uppercase tracking-wide">
+      {{ lang.t('filterCategory') }}
+    </label>
+    <select
+      class="w-full h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
+      [value]="cat()"
+      (change)="setCat($any($event.target).value)">
+      <option value="">{{ lang.t('allCategories') }}</option>
+      @for (c of categories(); track c.slug) {
+        <option [value]="c.slug">{{ label(c) }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Subcategory (shown only when a category is selected) -->
+  @if (subcategories().length) {
+    <div class="flex flex-col gap-1.5">
+      <label class="text-[.8rem] font-semibold text-gray-500 uppercase tracking-wide">
+        {{ lang.t('filterSubcategory') }}
+      </label>
+      <select
+        class="w-full h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
+        [value]="sub()"
+        (change)="sub.set($any($event.target).value)">
+        <option value="">{{ lang.t('allSubcategories') }}</option>
+        @for (s of subcategories(); track s.slug) {
+          <option [value]="s.slug">{{ label(s) }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  <!-- City -->
+  <div class="flex flex-col gap-1.5">
+    <label class="text-[.8rem] font-semibold text-gray-500 uppercase tracking-wide">
+      {{ lang.t('filterCity') }}
+    </label>
+    <select
+      class="w-full h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
+      [value]="city()"
+      (change)="city.set($any($event.target).value)">
+      <option value="">{{ lang.t('allCities') }}</option>
+      @for (c of CITIES; track c) {
+        <option [value]="c">{{ c }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Price range -->
+  <div class="flex flex-col gap-1.5">
+    <label class="text-[.8rem] font-semibold text-gray-500 uppercase tracking-wide">
+      {{ lang.t('filterPriceRange') }}
+    </label>
+    <div class="flex gap-2">
+      <input type="number" min="0"
+        class="w-0 flex-1 h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
+        [placeholder]="lang.t('filterMinPrice')"
+        [value]="minPrice()"
+        (input)="minPrice.set($any($event.target).value)">
+      <input type="number" min="0"
+        class="w-0 flex-1 h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
+        [placeholder]="lang.t('filterMaxPrice')"
+        [value]="maxPrice()"
+        (input)="maxPrice.set($any($event.target).value)">
+    </div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="flex flex-col gap-2 pt-1">
+    <button
+      class="h-10 bg-[#006233] text-white text-[.88rem] font-semibold rounded-xl hover:bg-[#005229] transition-colors"
+      (click)="doApply()">
+      {{ lang.t('applyFilters') }}
+    </button>
+    <button
+      class="h-10 bg-transparent text-gray-500 text-[.85rem] font-medium rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
+      (click)="doReset()">
+      {{ lang.t('resetFilters') }}
+    </button>
+  </div>
+</div>

@@ -5,11 +5,15 @@ export { AuthApi }            from './auth.api';
 export { CategoriesApi }      from './categories.api';
 export { AdminApi }           from './admin.api';
 export type { RolePayload }   from './admin.api';
+export { AdsApi }             from './ads.api';
 export type {
   AuthTokens,
   User,
   AuthResponse,
   RegisterPayload,
+  Ad,
+  AdsQuery,
+  AdsResponse,
   Category,
   AttributeDefinition,
   Permission,

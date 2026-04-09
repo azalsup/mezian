@@ -1,7 +1,9 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { LangService } from '../../core/services/lang.service';
 import { CategoriesBarComponent } from '../../shared/categories-bar/categories-bar.component';
+import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
 
 interface AdTile {
   id: number;
@@ -22,12 +24,17 @@ interface AdSection {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, CategoriesBarComponent],
+  imports: [CommonModule, CategoriesBarComponent, SiteFooterComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
-  readonly lang = inject(LangService);
+  readonly lang   = inject(LangService);
+  private readonly router = inject(Router);
+
+  goToAds(query: string): void {
+    this.router.navigate(['/ads'], query.trim() ? { queryParams: { q: query.trim() } } : {});
+  }
 
   // ── Why Daba features ──────────────────────────────────────────────────────
   readonly features = computed(() => [
@@ -37,7 +44,7 @@ export class HomeComponent {
     { icon: 'tune',         title: this.lang.t('feat4Title'), desc: this.lang.t('feat4Desc') },
   ]);
 
-  // ── Ad tile sections (placeholder — replaced by API data later) ───────────
+  // ── [TODO] Ad tile sections (placeholder — replaced by API data later) ───────────
   readonly adSections: AdSection[] = [
     {
       icon: 'local_fire_department',
