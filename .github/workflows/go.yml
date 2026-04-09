@@ -1,5 +1,3 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 name: Go Build and Deploy
 
 on:
@@ -20,18 +18,18 @@ jobs:
           go-version: '1.25.4'
 
       - name: Build
-         run: |
-           cd backend
-           GOOS=linux GOARCH=amd64 go build -o ../bin/server cmd/server/main.go
+        run: |
+          cd backend
+          GOOS=linux GOARCH=amd64 go build -o ../bin/server cmd/server/main.go
 
       - name: Copy binary to VM
-         uses: appleboy/scp-action@v0.1.7
-         with:
-           host: ${{ secrets.GCP_IP }}
-           username: ${{ secrets.GCP_USERNAME }}
-           key: ${{ secrets.SSH_GCP_PRIVATE_KEY }}
-           source: "bin/server,backend/config/"
-           target: "/tmp"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.GCP_IP }}
+          username: ${{ secrets.GCP_USERNAME }}
+          key: ${{ secrets.SSH_GCP_PRIVATE_KEY }}
+          source: "bin/server,backend/config/"
+          target: "/tmp"
 
       - name: Deploy and Restart Service
         uses: appleboy/ssh-action@v1.0.3
@@ -48,16 +46,17 @@ jobs:
             # 2. Move binary from tmp to destination
             sudo mv /tmp/bin/server /opt/daba/bin/server
 
-            # 3. Copy config files
-            sudo cp -r /tmp/backend/config /opt/daba/
+            # 3. Update config files (copy contents of the folder)
+            sudo cp -rn /tmp/backend/config/* /opt/daba/config/
 
             # 4. Fix permissions
             sudo chown -R dabauser:dabauser /opt/daba/bin/
             sudo chown -R dabauser:dabauser /opt/daba/config/
             sudo chmod +x /opt/daba/bin/server
 
-            # 4. Start the service
+            # 5. Start the service
             sudo systemctl start daba
 
-            # 5. Status check
+            # 6. Status check
+            sleep 2
             sudo systemctl status daba --no-pager -l
