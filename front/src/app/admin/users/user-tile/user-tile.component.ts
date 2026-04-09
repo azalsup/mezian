@@ -1,6 +1,6 @@
 import {
   Component, Input, Output, EventEmitter,
-  inject, signal, HostListener, OnChanges
+  inject, signal, OnChanges
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,16 +14,13 @@ export type UserAction = 'updated' | 'banned' | 'unbanned' | 'deleted' | 'rolesC
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './user-tile.component.html',
-  host: { style: 'display: block; position: relative;' },
+  host: { style: 'display: block;' },
 })
 export class UserTileComponent implements OnChanges {
   private readonly adminApi = inject(AdminApi);
-  private readonly el       = inject(ElementRef);
 
   @Input({ required: true }) user!: User;
-  /** 'admin' → all actions; 'moderator' → ban only */
-  @Input() callerRole: string = 'admin';
-  /** Pass available roles for RBAC assignment (optional, fetched if not provided) */
+  @Input() callerRole = 'admin';
   @Input() allRoles: Role[] = [];
 
   @Output() readonly action = new EventEmitter<UserAction>();
@@ -31,36 +28,37 @@ export class UserTileComponent implements OnChanges {
   // ── Dropdown ────────────────────────────────────────────────────────────────
   menuOpen = signal(false);
 
-  toggleMenu(e: MouseEvent): void { e.stopPropagation(); this.menuOpen.set(!this.menuOpen()); }
+  toggleMenu(e: MouseEvent): void {
+    e.stopPropagation();
+    this.menuOpen.update(v => !v);
+  }
 
-  @HostListener('document:click')
-  closeMenu(): void { this.menuOpen.set(false); }
+  closeMenu(e: MouseEvent): void {
+    e.stopPropagation();
+    this.menuOpen.set(false);
+  }
 
-  // ── Edit user modal ─────────────────────────────────────────────────────────
-  showEdit    = signal(false);
-  editForm    = signal({ display_name: '', phone: '', email: '', address: '',
-                         city: '', postal_code: '', country: '', is_verified: false, role: 'user' });
-  saving      = signal(false);
-  editError   = signal('');
+  // ── Edit modal ──────────────────────────────────────────────────────────────
+  showEdit  = signal(false);
+  saving    = signal(false);
+  editError = signal('');
+  editForm  = signal({ display_name: '', phone: '', email: '', address: '',
+                       city: '', postal_code: '', country: '', is_verified: false, role: 'user' });
 
   openEdit(): void {
     const u = this.user;
     this.editForm.set({
-      display_name: u.display_name,
-      phone:        u.phone,
-      email:        u.email        ?? '',
-      address:      u.address      ?? '',
-      city:         u.city         ?? '',
-      postal_code:  u.postal_code  ?? '',
-      country:      u.country      ?? '',
-      is_verified:  u.is_verified,
+      display_name: u.display_name,    phone:       u.phone,
+      email:        u.email       ?? '', address:   u.address     ?? '',
+      city:         u.city        ?? '', postal_code: u.postal_code ?? '',
+      country:      u.country     ?? '', is_verified: u.is_verified,
       role:         u.role,
     });
     this.editError.set('');
     this.showEdit.set(true);
   }
 
-  patchEdit(field: string, value: unknown): void {
+  patch(field: string, value: unknown): void {
     this.editForm.set({ ...this.editForm(), [field]: value });
   }
 
@@ -70,15 +68,10 @@ export class UserTileComponent implements OnChanges {
     if (!f.phone.trim())        { this.editError.set('Le téléphone est requis.'); return; }
     this.saving.set(true);
     this.adminApi.updateUser(this.user.id, {
-      display_name: f.display_name.trim(),
-      phone:        f.phone.trim(),
-      email:        f.email        || null,
-      address:      f.address      || null,
-      city:         f.city         || null,
-      postal_code:  f.postal_code  || null,
-      country:      f.country      || null,
-      is_verified:  f.is_verified,
-      role:         f.role,
+      display_name: f.display_name.trim(), phone: f.phone.trim(),
+      email: f.email || null, address: f.address || null,
+      city: f.city || null, postal_code: f.postal_code || null,
+      country: f.country || null, is_verified: f.is_verified, role: f.role,
     }).subscribe({
       next: () => { this.saving.set(false); this.showEdit.set(false); this.action.emit('updated'); },
       error: () => { this.saving.set(false); this.editError.set('Erreur lors de la sauvegarde.'); },
@@ -86,18 +79,17 @@ export class UserTileComponent implements OnChanges {
   }
 
   // ── Confirm (ban / unban / delete) ──────────────────────────────────────────
-  showConfirm   = signal(false);
-  confirmAct    = signal<'ban' | 'unban' | 'delete' | null>(null);
-  confirming    = signal(false);
-  confirmError  = signal('');
+  showConfirm  = signal(false);
+  confirmAct   = signal<'ban' | 'unban' | 'delete' | null>(null);
+  confirming   = signal(false);
+  confirmError = signal('');
 
   openConfirm(act: 'ban' | 'unban' | 'delete'): void {
     this.confirmAct.set(act); this.confirmError.set(''); this.showConfirm.set(true);
   }
 
   doConfirm(): void {
-    const act = this.confirmAct();
-    if (!act) return;
+    const act = this.confirmAct(); if (!act) return;
     this.confirming.set(true);
     const obs = act === 'ban'   ? this.adminApi.banUser(this.user.id)
               : act === 'unban' ? this.adminApi.unbanUser(this.user.id)
@@ -107,28 +99,28 @@ export class UserTileComponent implements OnChanges {
         this.confirming.set(false); this.showConfirm.set(false);
         this.action.emit(act === 'ban' ? 'banned' : act === 'unban' ? 'unbanned' : 'deleted');
       },
-      error: () => { this.confirming.set(false); this.confirmError.set('Erreur lors de l\'opération.'); },
+      error: () => { this.confirming.set(false); this.confirmError.set("Erreur lors de l'opération."); },
     });
   }
 
-  // ── Reset password modal ────────────────────────────────────────────────────
-  showReset   = signal(false);
-  newPassword = signal('');
-  resetting   = signal(false);
-  resetError  = signal('');
+  // ── Reset password ──────────────────────────────────────────────────────────
+  showReset  = signal(false);
+  newPwd     = signal('');
+  resetting  = signal(false);
+  resetError = signal('');
 
-  openReset(): void { this.newPassword.set(''); this.resetError.set(''); this.showReset.set(true); }
+  openReset(): void { this.newPwd.set(''); this.resetError.set(''); this.showReset.set(true); }
 
   doReset(): void {
-    if (this.newPassword().length < 6) { this.resetError.set('Minimum 6 caractères.'); return; }
+    if (this.newPwd().length < 6) { this.resetError.set('Minimum 6 caractères.'); return; }
     this.resetting.set(true);
-    this.adminApi.resetUserPassword(this.user.id, this.newPassword()).subscribe({
+    this.adminApi.resetUserPassword(this.user.id, this.newPwd()).subscribe({
       next: () => { this.resetting.set(false); this.showReset.set(false); },
       error: () => { this.resetting.set(false); this.resetError.set('Erreur lors de la réinitialisation.'); },
     });
   }
 
-  // ── RBAC roles modal ────────────────────────────────────────────────────────
+  // ── RBAC roles ──────────────────────────────────────────────────────────────
   showRoles       = signal(false);
   selectedRoleIds = signal<Set<number>>(new Set());
   savingRoles     = signal(false);
@@ -138,11 +130,8 @@ export class UserTileComponent implements OnChanges {
   openRoles(): void {
     this.selectedRoleIds.set(new Set(this.user.roles?.map(r => r.id) ?? []));
     this.rolesError.set('');
-    if (this.allRoles.length > 0) {
-      this.loadedRoles.set(this.allRoles);
-    } else {
-      this.adminApi.listRoles().subscribe({ next: r => this.loadedRoles.set(r) });
-    }
+    this.loadedRoles.set(this.allRoles.length ? this.allRoles : []);
+    if (!this.allRoles.length) this.adminApi.listRoles().subscribe({ next: r => this.loadedRoles.set(r) });
     this.showRoles.set(true);
   }
 
@@ -160,9 +149,9 @@ export class UserTileComponent implements OnChanges {
     });
   }
 
-  // ── Computed helpers ────────────────────────────────────────────────────────
-  get canBan():   boolean { return this.callerRole === 'admin' || this.callerRole === 'moderator'; }
+  // ── Permissions ─────────────────────────────────────────────────────────────
   get canEdit():  boolean { return this.callerRole === 'admin'; }
+  get canBan():   boolean { return this.callerRole === 'admin' || this.callerRole === 'moderator'; }
   get canDelete():boolean { return this.callerRole === 'admin'; }
   get canReset(): boolean { return this.callerRole === 'admin'; }
   get canRoles(): boolean { return this.callerRole === 'admin'; }
