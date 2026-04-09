@@ -35,6 +35,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/ad-detail/ad-detail-page.component').then(m => m.AdDetailPageComponent),
     title: 'Annonce — Daba',
+    data: { renderMode: 'server' },
   },
   {
     path: 'admin',
