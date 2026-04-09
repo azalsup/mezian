@@ -1,0 +1,51 @@
+ads:
+- title: "Test Ad 1"
+  body: "This is the first test ad.\n\nGenerated for backend testing."
+  price: 1000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 2"
+  body: "This is the second test ad.\n\nGenerated for backend testing."
+  price: 2000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 3"
+  body: "This is the third test ad.\n\nGenerated for backend testing."
+  price: 3000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 4"
+  body: "This is the fourth test ad.\n\nGenerated for backend testing."
+  price: 4000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 5"
+  body: "This is the fifth test ad.\n\nGenerated for backend testing."
+  price: 5000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 6"
+  body: "This is the sixth test ad.\n\nGenerated for backend testing."
+  price: 6000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 7"
+  body: "This is the seventh test ad.\n\nGenerated for backend testing."
+  price: 7000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 8"
+  body: "This is the eighth test ad.\n\nGenerated for backend testing."
+  price: 8000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 9"
+  body: "This is the ninth test ad.\n\nGenerated for backend testing."
+  price: 9000.0
+  currency: "MAD"
+  city: "Casablanca"
+- title: "Test Ad 10"
+  body: "This is the tenth test ad.\n\nGenerated for backend testing."
+  price: 10000.0
+  currency: "MAD"
+  city: "Casablanca"

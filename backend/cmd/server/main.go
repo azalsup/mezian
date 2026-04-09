@@ -86,7 +86,7 @@ func main() {
 	catHandler := handler.NewCategoryHandler(catRepo)
 	mediaHandler := handler.NewMediaHandler(mediaSvc)
 	shopHandler := handler.NewShopHandler(shopSvc)
-	adminHandler := handler.NewAdminHandler(roleRepo)
+	adminHandler := handler.NewAdminHandler(roleRepo, userRepo)
 
 	// --- Router ---
 	deps := &router.Deps{

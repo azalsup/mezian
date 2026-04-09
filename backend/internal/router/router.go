@@ -134,7 +134,17 @@ func New(deps *Deps) *gin.Engine {
 		users.GET("/me/shop", deps.ShopHandler.GetMyShop)
 	}
 
-	// --- Admin (role=admin required) ---
+	// --- Admin: admin + moderator ---
+	adminBase := api.Group("/admin")
+	adminBase.Use(middleware.RequireAuth(deps.AuthService))
+	adminBase.Use(middleware.RequireRole("admin", "moderator"))
+	{
+		adminBase.GET("/users", deps.AdminHandler.ListUsers)
+		adminBase.PUT("/users/:id/ban", deps.AdminHandler.BanUser)
+		adminBase.PUT("/users/:id/unban", deps.AdminHandler.UnbanUser)
+	}
+
+	// --- Admin: admin only ---
 	admin := api.Group("/admin")
 	admin.Use(middleware.RequireAuth(deps.AuthService))
 	admin.Use(middleware.RequireRole("admin"))
@@ -144,8 +154,10 @@ func New(deps *Deps) *gin.Engine {
 		admin.POST("/roles", deps.AdminHandler.CreateRole)
 		admin.PUT("/roles/:id", deps.AdminHandler.UpdateRole)
 		admin.DELETE("/roles/:id", deps.AdminHandler.DeleteRole)
-		admin.GET("/users", deps.AdminHandler.ListUsers)
+		admin.PUT("/users/:id", deps.AdminHandler.UpdateUser)
 		admin.PUT("/users/:id/roles", deps.AdminHandler.SetUserRoles)
+		admin.DELETE("/users/:id", deps.AdminHandler.DeleteUser)
+		admin.PUT("/users/:id/reset-password", deps.AdminHandler.ResetPassword)
 	}
 
 	return r

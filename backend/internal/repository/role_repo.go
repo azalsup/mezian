@@ -32,9 +32,12 @@ func (r *RoleRepo) SeedPermissions() error {
     perms := []models.Permission{
         {Key: "categories.read",  Group: "categories", LabelFR: "Voir les catégories",         Description: "Lire l'arbre de catégories"},
         {Key: "categories.write", Group: "categories", LabelFR: "Gérer les catégories",        Description: "Créer, modifier et supprimer les catégories"},
-        {Key: "users.read",       Group: "users",       LabelFR: "Voir les utilisateurs",       Description: "Lister et consulter les profils utilisateur"},
-        {Key: "users.write",      Group: "users",       LabelFR: "Modifier les utilisateurs",   Description: "Éditer les informations d'un utilisateur"},
-        {Key: "users.roles",      Group: "users",       LabelFR: "Gérer les rôles utilisateurs",Description: "Assigner ou retirer des rôles à un utilisateur"},
+        {Key: "users.read",           Group: "users", LabelFR: "Voir les utilisateurs",          Description: "Lister et consulter les profils utilisateur"},
+        {Key: "users.write",          Group: "users", LabelFR: "Modifier les utilisateurs",      Description: "Éditer les informations d'un utilisateur"},
+        {Key: "users.roles",          Group: "users", LabelFR: "Gérer les rôles utilisateurs",   Description: "Assigner ou retirer des rôles à un utilisateur"},
+        {Key: "users.ban",            Group: "users", LabelFR: "Bannir les utilisateurs",         Description: "Désactiver temporairement un compte utilisateur"},
+        {Key: "users.delete",         Group: "users", LabelFR: "Supprimer les utilisateurs",     Description: "Supprimer définitivement un compte utilisateur"},
+        {Key: "users.reset_password", Group: "users", LabelFR: "Réinitialiser les mots de passe",Description: "Forcer la réinitialisation du mot de passe d'un utilisateur"},
         {Key: "roles.read",       Group: "roles",       LabelFR: "Voir les rôles",              Description: "Lister les rôles et leurs permissions"},
         {Key: "roles.write",      Group: "roles",       LabelFR: "Gérer les rôles",             Description: "Créer, modifier et supprimer les rôles"},
         {Key: "ads.read",         Group: "ads",         LabelFR: "Voir toutes les annonces",    Description: "Accès aux annonces non publiées ou signalées"},
@@ -125,6 +128,7 @@ func (r *RoleRepo) SeedSystemRoles() error {
             perms: []string{
                 "categories.read", "categories.write",
                 "users.read", "users.write", "users.roles",
+                "users.ban", "users.delete", "users.reset_password",
                 "roles.read", "roles.write",
                 "ads.read", "ads.moderate",
             },
@@ -132,8 +136,8 @@ func (r *RoleRepo) SeedSystemRoles() error {
         {
             slug: "moderator",
             name: "Modérateur",
-            desc: "Modération des annonces et consultation des catégories.",
-            perms: []string{"categories.read", "ads.read", "ads.moderate"},
+            desc: "Modération des annonces et gestion basique des utilisateurs.",
+            perms: []string{"categories.read", "ads.read", "ads.moderate", "users.read", "users.ban"},
         },
     }
 
@@ -165,12 +169,22 @@ func (r *RoleRepo) SeedSystemRoles() error {
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 
-// ListUsers returns all users with their roles (paginated).
-func (r *RoleRepo) ListUsers(page, pageSize int) ([]models.User, int64, error) {
+// ListUsers returns users with their roles (paginated).
+// userType: "external" (role=user), "internal" (role!=user), "" (all).
+func (r *RoleRepo) ListUsers(page, pageSize int, userType string) ([]models.User, int64, error) {
     var users []models.User
     var total int64
-    r.db.Model(&models.User{}).Count(&total)
-    err := r.db.Preload("Roles.Permissions").
+
+    q := r.db.Model(&models.User{})
+    switch userType {
+    case "external":
+        q = q.Where("role = ?", "user")
+    case "internal":
+        q = q.Where("role != ?", "user")
+    }
+
+    q.Count(&total)
+    err := q.Preload("Roles.Permissions").
         Order("id ASC").
         Offset((page - 1) * pageSize).
         Limit(pageSize).

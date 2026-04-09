@@ -74,10 +74,16 @@ export class AdminShellComponent {
   protected readonly auth   = inject(AuthService);
   private   readonly router = inject(Router);
 
-  readonly navItems: NavItem[] = [
-    { label: 'Rôles',         icon: 'fa-shield-halved', path: '/admin/roles' },
-    { label: 'Utilisateurs',  icon: 'fa-users',         path: '/admin/users' },
-  ];
+  get navItems(): NavItem[] {
+    const isAdmin = this.auth.currentUser()?.role === 'admin';
+    const items: NavItem[] = [
+      { label: 'Utilisateurs', icon: 'fa-users',         path: '/admin/users' },
+    ];
+    if (isAdmin) {
+      items.unshift({ label: 'Rôles', icon: 'fa-shield-halved', path: '/admin/roles' });
+    }
+    return items;
+  }
 
   logout(): void {
     this.auth.logout();

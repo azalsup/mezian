@@ -123,6 +123,26 @@ func (r *UserRepo) RevokeRefreshToken(id uint) error {
     return r.db.Model(&models.RefreshToken{}).Where("id = ?", id).Update("revoked_at", &now).Error
 }
 
+// UpdateProfile applies a partial update to user profile fields.
+func (r *UserRepo) UpdateProfile(id uint, fields map[string]any) error {
+    return r.db.Model(&models.User{}).Where("id = ?", id).Updates(fields).Error
+}
+
+// BanUser sets the is_banned flag on a user.
+func (r *UserRepo) BanUser(id uint, banned bool) error {
+    return r.db.Model(&models.User{}).Where("id = ?", id).Update("is_banned", banned).Error
+}
+
+// DeleteUser hard-deletes a user by ID.
+func (r *UserRepo) DeleteUser(id uint) error {
+    return r.db.Unscoped().Delete(&models.User{}, id).Error
+}
+
+// ResetPassword sets a new bcrypt password hash for a user.
+func (r *UserRepo) ResetPassword(id uint, hash string) error {
+    return r.db.Model(&models.User{}).Where("id = ?", id).Update("password_hash", hash).Error
+}
+
 // RevokeAllUserTokens revokes all active refresh tokens for a user.
 func (r *UserRepo) RevokeAllUserTokens(userID uint) error {
     now := time.Now()

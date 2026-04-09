@@ -20,7 +20,8 @@ type User struct {
     City         *string `gorm:"column:city"             json:"city,omitempty"`
     PostalCode   *string `gorm:"column:postal_code"      json:"postal_code,omitempty"`
     Country      *string `gorm:"column:country"          json:"country,omitempty"` // ISO 3166-1 alpha-2, ex: MA
-    Role         string  `gorm:"default:'user';not null" json:"role"` // user | admin | moderator
+    Role         string  `gorm:"default:'user';not null" json:"role"`      // user | admin | moderator
+    IsBanned     bool    `gorm:"default:false"           json:"is_banned"`
     Roles        []Role  `gorm:"many2many:user_roles;"   json:"roles,omitempty"`
 }
 

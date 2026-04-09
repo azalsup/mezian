@@ -19,6 +19,7 @@ export interface User {
   postal_code?: string;
   country?:     string;
   role:         'user' | 'admin' | 'moderator' | string;
+  is_banned?:   boolean;
   roles?:       Role[];
   created_at:   string;
   updated_at:   string;
