@@ -63,6 +63,10 @@ export class NavbarComponent {
     this.router.navigate(['/']);
   }
 
+  goHome(): void {
+    this.router.navigate(['/']);
+  }
+
   @HostListener('document:click')
   onDocumentClick(): void {
     this.showProfileMenu = false;

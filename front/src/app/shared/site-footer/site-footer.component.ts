@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { LangService } from '../../core/services/lang.service';
 import {
@@ -20,6 +21,7 @@ import {
 })
 export class SiteFooterComponent {
   protected readonly lang = inject(LangService);
+  private readonly router = inject(Router);
 
   readonly faFacebook  = faFacebook;
   readonly faWhatsapp  = faWhatsapp;
@@ -27,4 +29,8 @@ export class SiteFooterComponent {
   readonly faXTwitter  = faXTwitter;
   readonly faInstagram = faInstagram;
   readonly faLinkedin  = faLinkedin;
+
+  goHome(): void {
+    this.router.navigate(['/']);
+  }
 }
