@@ -1,17 +1,94 @@
-<section class="mx-auto mt-10 max-w-7xl rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_18px_48px_rgba(0,0,0,0.06)]">
-  <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-    <div>
-      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-700">{{ lang.t('allCategories') }}</p>
-      <p class="mt-2 text-sm text-slate-600">{{ lang.t('browseCategories') }}</p>
+<!-- Category nav bar -->
+<div #barEl class="bg-[rgba(10,20,15,.75)] backdrop-blur-sm border-t border-white/[.07] relative z-[100]">
+  <div class="max-w-[1200px] mx-auto px-6 flex items-stretch gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+
+    <!-- All categories button -->
+    <div class="relative shrink-0">
+      <button
+        class="flex items-center gap-1.5 px-[18px] h-12 text-[.85rem] bg-transparent border-none cursor-pointer transition-colors duration-150 whitespace-nowrap hover:text-white hover:bg-white/[.06]"
+        (click)="toggleCat('all', $event)">
+        <span class="material-icons-round text-[18px]">category</span>
+        <span>{{ lang.t('allCategories') }}</span>
+        <span class="material-icons-round text-[16px] opacity-60 transition-transform duration-200"
+          [class.rotate-180]="openCat() === 'all'">expand_more</span>
+      </button>
     </div>
-    <select class="min-w-[220px] rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm">
-      <option value="">{{ lang.t('selectCategory') }}</option>
-      <option *ngFor="let category of categories" [value]="category.slug">{{ category.labelFr }}</option>
-    </select>
+
+    <!-- Per-category buttons (data-driven, responsive) -->
+    @for (cat of navCats(); track cat.slug; let i = $index) {
+      <div class="relative shrink-0" [ngClass]="navCatCls(i)">
+        <button
+          class="flex items-center gap-1.5 px-[18px] h-12 text-[.85rem] bg-transparent border-none cursor-pointer transition-colors duration-150 whitespace-nowrap hover:text-white hover:bg-white/[.06]"
+          [ngClass]="catBtnCls(cat)"
+          (click)="toggleCat(cat.slug, $event)">
+          <span class="material-icons-round text-[18px]">{{ cat.icon }}</span>
+          <span>{{ label(cat) }}</span>
+          <span class="material-icons-round text-[16px] opacity-60 transition-transform duration-200"
+            [class.rotate-180]="openCat() === cat.slug">expand_more</span>
+        </button>
+      </div>
+    }
   </div>
-  <div class="mt-6 flex flex-wrap gap-3">
-    <button class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#006233] hover:text-[#006233]">{{ lang.t('vehicles') }}</button>
-    <button class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#006233] hover:text-[#006233]">{{ lang.t('realEstate') }}</button>
-    <button class="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#006233] hover:text-[#006233]">{{ lang.t('jobs') }}</button>
-  </div>
-</section>
+
+  <!-- Per-category dropdown: header link + subcategory list -->
+  @if (openCatData(); as cat) {
+    <div
+      class="absolute top-full min-w-[240px] bg-white rounded-[0_16px_16px_16px] shadow-[0_16px_48px_rgba(0,0,0,.18)] py-2 z-[200] [animation:dropdown-in_.15s_ease]"
+      [style.left.px]="dropdownLeft()"
+      (click)="$event.stopPropagation()">
+      <a
+        class="flex items-center gap-2.5 px-4 py-3 text-[.88rem] font-bold text-[#006233] bg-[#e8f5ee] rounded-[10px] mx-2 my-1 transition-colors hover:bg-[#d4eddf]"
+        [href]="'/ads/' + cat.slug">
+        <span class="material-icons-round text-[18px]">{{ cat.icon }}</span>
+        {{ label(cat) }}
+        <span class="material-icons-round text-[16px] ms-auto">arrow_forward</span>
+      </a>
+      @if (cat.children?.length) {
+        <div class="h-px bg-gray-200 mx-2 my-1.5"></div>
+        @for (sub of cat.children!; track sub.slug) {
+          <a
+            class="block px-4 py-[9px] text-[.85rem] text-gray-600 transition-colors hover:bg-gray-50 hover:text-[#1a1a2e]"
+            [href]="'/ads/' + sub.slug">{{ label(sub) }}</a>
+        }
+      }
+    </div>
+  }
+
+  <!-- All categories dropdown: expandable list of every category + subcategories -->
+  @if (openCat() === 'all') {
+    <div
+      class="absolute top-full w-[300px] bg-white rounded-[0_16px_16px_16px] shadow-[0_16px_48px_rgba(0,0,0,.18)] py-2 z-[200] max-h-[70vh] overflow-y-auto [animation:dropdown-in_.15s_ease]"
+      [style.left.px]="dropdownLeft()"
+      (click)="$event.stopPropagation()">
+      @for (cat of categories(); track cat.slug) {
+        <div>
+          <div class="flex items-center px-4 py-2.5 gap-2.5 hover:bg-gray-50 transition-colors">
+            <span class="material-icons-round text-[18px] text-[#006233]">{{ cat.icon }}</span>
+            <a
+              class="flex-1 text-[.88rem] font-medium text-gray-700 hover:text-[#006233] transition-colors"
+              [href]="'/ads/' + cat.slug">{{ label(cat) }}</a>
+            @if (cat.children?.length) {
+              <button
+                class="p-0.5 text-gray-400 hover:text-gray-700 transition-colors"
+                (click)="toggleAllSub(cat.slug, $event)">
+                <span
+                  class="material-icons-round text-[16px] block transition-transform duration-200"
+                  [class.rotate-90]="expandedInAll() === cat.slug">chevron_right</span>
+              </button>
+            }
+          </div>
+          @if (expandedInAll() === cat.slug) {
+            @for (sub of cat.children!; track sub.slug) {
+              <a
+                class="flex items-center pl-11 pr-4 py-[7px] text-[.83rem] text-gray-500 hover:text-[#006233] hover:bg-[#f0faf5] transition-colors"
+                [href]="'/ads/' + sub.slug">{{ label(sub) }}</a>
+            }
+          }
+        </div>
+        @if (!$last) {
+          <div class="h-px bg-gray-100 mx-4"></div>
+        }
+      }
+    </div>
+  }
+</div>

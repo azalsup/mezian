@@ -16,6 +16,7 @@ export class NavbarComponent {
 
   showProfileMenu = false;
   showLangMenu    = false;
+  showMobileMenu  = false;
 
   onSellClick(): void {
     if (!this.auth.isLoggedIn()) {
@@ -33,6 +34,11 @@ export class NavbarComponent {
     event.stopPropagation();
     this.showLangMenu = !this.showLangMenu;
     this.showProfileMenu = false;
+  }
+
+  toggleMobileMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.showMobileMenu = !this.showMobileMenu;
   }
 
   selectLang(code: Lang, event: MouseEvent): void {
@@ -61,5 +67,6 @@ export class NavbarComponent {
   onDocumentClick(): void {
     this.showProfileMenu = false;
     this.showLangMenu    = false;
+    this.showMobileMenu  = false;
   }
 }

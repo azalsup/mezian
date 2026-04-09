@@ -1,8 +1,7 @@
-import { Component, inject, computed, signal, HostListener } from '@angular/core';
-import { CommonModule, NgClass } from '@angular/common';
+import { Component, inject, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { LangService } from '../../core/services/lang.service';
-import { CategoriesService } from '../../core/services/categories.service';
-import type { Category } from '../../sdk';
+import { CategoriesBarComponent } from '../../shared/categories-bar/categories-bar.component';
 
 interface AdTile {
   id: number;
@@ -23,60 +22,12 @@ interface AdSection {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, NgClass],
+  imports: [CommonModule, CategoriesBarComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
-  readonly lang       = inject(LangService);
-  readonly catService = inject(CategoriesService);
-
-  readonly cities = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda'];
-
-  openCat = signal<string | null>(null);
-
-  toggleCat(slug: string, event: MouseEvent): void {
-    event.stopPropagation();
-    this.openCat.set(this.openCat() === slug ? null : slug);
-  }
-
-  @HostListener('document:click')
-  closeCat(): void {
-    this.openCat.set(null);
-  }
-
-  /** Root categories from API/static JSON — used in the nav bar */
-  readonly navCategories = this.catService.categories;
-
-  /** The currently open category object (null when closed) */
-  readonly openCatData = computed(() => {
-    const slug = this.openCat();
-    if (!slug) return null;
-    return this.catService.categories().find(c => c.slug === slug) ?? null;
-  });
-
-  /** CSS classes for a category nav button */
-  catBtnCls(cat: Category): Record<string, boolean> {
-    const isOpen     = this.openCat() === cat.slug;
-    const isFeatured = cat.sort_order <= 3;
-    return {
-      'text-white/75':    !isFeatured && !isOpen,
-      'text-[#6ee7a8]':  isFeatured && !isOpen,
-      'font-semibold':    isFeatured,
-      'text-white':       isOpen,
-      'bg-white/[.06]':   isOpen,
-    };
-  }
-
-  /** Localised label for a category */
-  label(cat: Category): string {
-    return this.catService.nameOf(cat);
-  }
-
-  /** Localised label for a subcategory */
-  subLabel(sub: Category): string {
-    return this.catService.nameOf(sub);
-  }
+  readonly lang = inject(LangService);
 
   // ── Why Daba features ──────────────────────────────────────────────────────
   readonly features = computed(() => [

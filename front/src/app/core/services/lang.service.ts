@@ -43,8 +43,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // Home — hero
     heroBadge:      'Petites annonces',
-    heroTitle1:     'Trouvez, vendez,',
-    heroTitle2:     'Connectez-vous.',
+    heroTitle1:     'Trouvez,',
+    heroTitle2:     'vendez',
     heroSubtitle:   'Des milliers d\'annonces immobilier, voitures, emploi et plus. Publiez gratuitement en quelques secondes.',
     heroSearch:     'Appartement, Clio, iPhone…',
     statAds:        '+40 000',
@@ -219,8 +219,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // Home — hero
     heroBadge:      'Classifieds',
-    heroTitle1:     'Find, sell,',
-    heroTitle2:     'Connect.',
+    heroTitle1:     'Find,',
+    heroTitle2:     'sell',
     heroSubtitle:   'Thousands of listings in real estate, cars, jobs and more. Post for free in seconds.',
     heroSearch:     'Apartment, Car, iPhone…',
     statAds:        '+40,000',

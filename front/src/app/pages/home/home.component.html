@@ -2,7 +2,7 @@
      HERO + SEARCH + CATEGORY NAV
 ════════════════════════════════════════════════ -->
 <section class="bg-[linear-gradient(160deg,#1a1a2e_0%,#1a1a2e_55%,#0c2b1a_100%)] text-white relative overflow-visible">
-  <div class="max-w-[1200px] mx-auto px-6 pt-14 relative z-[1]">
+  <div class="max-w-[1200px] mx-auto px-6 pt-10 relative z-[1]">
 
     <!-- Badge -->
     <div class="inline-flex items-center gap-1.5 bg-[#006233]/25 border border-[#00a854]/35 text-[#6ee7a8] text-[.75rem] font-semibold tracking-[1.5px] uppercase px-3 py-[5px] rounded-full mb-5">
@@ -12,75 +12,26 @@
 
     <!-- Title -->
     <h1 class="text-[clamp(2rem,4.5vw,3.2rem)] font-extrabold leading-[1.15] mb-8">
-      {{ lang.t('heroTitle1') }}<br>
+      {{ lang.t('heroTitle1') }}
       <span class="bg-gradient-to-br from-[#00c96e] to-[#00a854] bg-clip-text text-transparent">
         {{ lang.t('heroTitle2') }}
       </span>
     </h1>
 
     <!-- Search bar -->
-    <div class="flex items-center bg-white rounded-t-2xl shadow-[0_20px_60px_rgba(0,0,0,.35)] max-w-[860px] h-[60px] overflow-hidden">
+    <div class="flex items-center bg-white rounded-t-2xl shadow-[0_20px_60px_rgba(0,0,0,.35)] max-w-[860px] h-[48px] overflow-hidden">
       <div class="px-[14px] text-gray-400 flex items-center shrink-0">
-        <span class="material-icons-round text-[22px]">search</span>
+        <span class="material-icons-round text-[20px]">search</span>
       </div>
       <input
-        class="flex-1 border-none outline-none text-[.96rem] text-[#1a1a2e] min-w-0 bg-transparent placeholder:text-gray-400"
+        class="flex-1 border-none outline-none text-[.9rem] text-[#1a1a2e] min-w-0 bg-transparent placeholder:text-gray-400"
         type="text"
         [placeholder]="lang.t('heroSearch')">
-      <div class="w-px h-7 bg-gray-200 shrink-0"></div>
-      <div class="flex items-center gap-1.5 px-3 shrink-0">
-        <span class="material-icons-round text-[18px] text-gray-400">location_on</span>
-        <select class="border-none outline-none text-[.88rem] text-gray-600 bg-transparent cursor-pointer max-w-[150px]">
-          <option value="">{{ lang.t('allCities') }}</option>
-          @for (city of cities; track city) {
-            <option [value]="city">{{ city }}</option>
-          }
-        </select>
-      </div>
-      <button class="bg-[#006233] hover:bg-[#005229] text-white h-full px-7 text-[.96rem] font-semibold border-none cursor-pointer transition-colors duration-150 whitespace-nowrap shrink-0">
-        {{ lang.t('searchButton') }}
-      </button>
     </div>
   </div>
 
   <!-- Category nav bar -->
-  <div class="bg-[rgba(10,20,15,.75)] backdrop-blur-sm border-t border-white/[.07] relative z-[100]">
-    <div class="max-w-[1200px] mx-auto px-6 flex items-stretch overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      @for (cat of navCategories(); track cat.slug) {
-        <div class="relative shrink-0">
-          <button
-            class="flex items-center gap-1.5 px-[18px] h-12 text-[.85rem] bg-transparent border-none cursor-pointer transition-colors duration-150 whitespace-nowrap hover:text-white hover:bg-white/[.06]"
-            [ngClass]="catBtnCls(cat)"
-            (click)="toggleCat(cat.slug, $event)">
-            <span class="material-icons-round text-[18px]">{{ cat.icon }}</span>
-            <span>{{ label(cat) }}</span>
-            <span class="material-icons-round text-[16px] opacity-60 transition-transform duration-200"
-              [class.rotate-180]="openCat() === cat.slug">expand_more</span>
-          </button>
-        </div>
-      }
-    </div>
-
-    <!-- Panel outside the scroll container — not clipped by overflow-x -->
-    @if (openCatData()) {
-      <div class="absolute top-full start-6 min-w-[240px] bg-white rounded-[0_16px_16px_16px] shadow-[0_16px_48px_rgba(0,0,0,.18)] py-2 z-[200] [animation:dropdown-in_.15s_ease]"
-        (click)="$event.stopPropagation()">
-        @if (openCatData()!.sort_order <= 3) {
-          <a class="flex items-center gap-2.5 px-4 py-3 text-[.88rem] font-bold text-[#006233] bg-[#e8f5ee] rounded-[10px] mx-2 my-1 transition-colors hover:bg-[#d4eddf]"
-            [href]="'/annonces/' + openCatData()!.slug">
-            <span class="material-icons-round text-[18px]">{{ openCatData()!.icon }}</span>
-            {{ label(openCatData()!) }} — {{ lang.t('seeAll') }}
-            <span class="material-icons-round text-[16px] ms-auto">arrow_forward</span>
-          </a>
-          <div class="h-px bg-gray-200 mx-2 my-1.5"></div>
-        }
-        @for (sub of openCatData()!.children ?? []; track sub.slug) {
-          <a class="block px-4 py-[9px] text-[.85rem] text-gray-600 transition-colors hover:bg-gray-50 hover:text-[#1a1a2e]"
-            [href]="'/annonces/' + sub.slug">{{ subLabel(sub) }}</a>
-        }
-      </div>
-    }
-  </div>
+  <app-categories-bar></app-categories-bar>
 </section>
 
 
@@ -96,7 +47,7 @@
           <span class="material-icons-round text-[26px] text-[#006233]">{{ section.icon }}</span>
           <h2 class="text-[clamp(1.2rem,2.5vw,1.6rem)] font-extrabold text-[#1a1a2e]">{{ lang.t(section.titleKey) }}</h2>
         </div>
-        <a [href]="'/annonces/' + section.slug"
+        <a [href]="'/ads/' + section.slug"
           class="inline-flex items-center gap-1 text-[.85rem] font-semibold text-[#006233] transition-all hover:gap-2.5">
           {{ lang.t('seeAllAds') }}
           <span class="material-icons-round text-[18px]">arrow_forward</span>
