@@ -28,6 +28,12 @@ export const routes: Routes = [
     title: 'Annonces — Daba',
   },
   {
+    path: 'ads/:id',
+    loadComponent: () =>
+      import('./pages/ad-detail/ad-detail-page.component').then(m => m.AdDetailPageComponent),
+    title: 'Annonce — Daba',
+  },
+  {
     path: 'admin',
     loadChildren: () =>
       import('./admin/admin.routes').then(m => m.ADMIN_ROUTES),

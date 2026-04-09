@@ -80,6 +80,10 @@ export interface Ad {
   images:            string[];
   created_at:        string;
   badge?:            'top' | 'new' | 'urgent' | 'premium';
+  description?:      string;
+  seller_name?:      string;
+  seller_phone?:     string;
+  views?:            number;
 }
 
 export interface AdsQuery {

@@ -196,6 +196,14 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     priceNegotiable:   'Prix à discuter',
     allSubcategories:  'Toutes les sous-catégories',
     allCategories:     'Toutes les catégories',
+    contactSeller:     'Contacter le vendeur',
+    backToResults:     'Retour aux annonces',
+    adNotFound:        'Annonce introuvable',
+    adNotFoundSub:     'Cette annonce n\'existe plus ou a été supprimée.',
+    adDescription:     'Description',
+    postedOn:          'Publié le',
+    views:             'vues',
+    share:             'Partager',
 
     // Errors
     errInvalidPhone:    'Numéro de téléphone invalide',
@@ -396,6 +404,14 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     priceNegotiable:   'Negotiable',
     allSubcategories:  'All subcategories',
     allCategories:     'All categories',
+    contactSeller:     'Contact seller',
+    backToResults:     'Back to listings',
+    adNotFound:        'Listing not found',
+    adNotFoundSub:     'This listing no longer exists or has been removed.',
+    adDescription:     'Description',
+    postedOn:          'Posted on',
+    views:             'views',
+    share:             'Share',
 
     // Errors
     errInvalidPhone:    'Invalid phone number',
@@ -596,6 +612,14 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     priceNegotiable:   'قابل للتفاوض',
     allSubcategories:  'جميع الفئات الفرعية',
     allCategories:     'جميع الفئات',
+    contactSeller:     'تواصل مع البائع',
+    backToResults:     'العودة إلى الإعلانات',
+    adNotFound:        'الإعلان غير موجود',
+    adNotFoundSub:     'هذا الإعلان لم يعد موجودًا أو تم حذفه.',
+    adDescription:     'الوصف',
+    postedOn:          'نُشر في',
+    views:             'مشاهدة',
+    share:             'مشاركة',
 
     // Errors
     errInvalidPhone:    'رقم الهاتف غير صالح',

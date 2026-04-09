@@ -1,12 +1,13 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { LangService } from '../../core/services/lang.service';
 import type { Ad } from '../../sdk';
 
 @Component({
   selector: 'app-ad-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './ad-card.component.html',
 })
 export class AdCardComponent {

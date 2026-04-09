@@ -1,0 +1,195 @@
+<app-categories-bar />
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-[1200px] mx-auto px-6 py-6">
+
+    <!-- ── Loading skeleton ─────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+        <div class="flex flex-col gap-4">
+          <div class="aspect-[4/3] bg-gray-200 rounded-2xl animate-pulse"></div>
+          <div class="bg-white rounded-2xl p-5 flex flex-col gap-3">
+            <div class="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+            <div class="h-4 bg-gray-200 rounded animate-pulse w-full"></div>
+            <div class="h-4 bg-gray-200 rounded animate-pulse w-2/3"></div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4">
+          <div class="h-52 bg-gray-200 rounded-2xl animate-pulse"></div>
+          <div class="h-28 bg-gray-200 rounded-2xl animate-pulse"></div>
+        </div>
+      </div>
+    }
+
+    <!-- ── Error state ──────────────────────────────────────────────────── -->
+    @else if (error()) {
+      <div class="flex flex-col items-center justify-center py-24 text-center">
+        <span class="material-icons-round text-[64px] text-gray-200 mb-4">search_off</span>
+        <p class="font-semibold text-gray-700 mb-1.5">{{ lang.t('adNotFound') }}</p>
+        <p class="text-gray-400 text-[.88rem] mb-6">{{ lang.t('adNotFoundSub') }}</p>
+        <a routerLink="/ads"
+          class="px-6 py-3 bg-[#006233] text-white text-[.88rem] font-semibold rounded-xl hover:bg-[#005229] transition-colors">
+          {{ lang.t('backToResults') }}
+        </a>
+      </div>
+    }
+
+    <!-- ── Ad detail ────────────────────────────────────────────────────── -->
+    @else {
+    @if (ad(); as adData) {
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-1.5 text-[.8rem] text-gray-400 mb-5 flex-wrap">
+        <a routerLink="/" class="hover:text-[#006233] transition-colors">Daba</a>
+        <span class="material-icons-round text-[14px]">chevron_right</span>
+        <a routerLink="/ads" class="hover:text-[#006233] transition-colors">{{ lang.t('allAds') }}</a>
+        @if (category(); as cat) {
+          <span class="material-icons-round text-[14px]">chevron_right</span>
+          <a routerLink="/ads" [queryParams]="{cat: adData.category_slug}"
+            class="hover:text-[#006233] transition-colors">{{ catLabel(cat) }}</a>
+        }
+        @if (subcategory(); as sub) {
+          <span class="material-icons-round text-[14px]">chevron_right</span>
+          <a routerLink="/ads" [queryParams]="{cat: adData.category_slug, sub: sub.slug}"
+            class="hover:text-[#006233] transition-colors">{{ catLabel(sub) }}</a>
+        }
+        <span class="material-icons-round text-[14px]">chevron_right</span>
+        <span class="text-gray-600 truncate max-w-[200px]">{{ adData.title }}</span>
+      </nav>
+
+      <!-- Main grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+
+        <!-- ── Left column: images + description ───────────────────────── -->
+        <div class="flex flex-col gap-4">
+
+          <!-- Image gallery -->
+          <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+            <div class="relative aspect-[4/3] bg-gray-100">
+              @if (adData.images.length) {
+                <img [src]="adData.images[activeImage()]" [alt]="adData.title"
+                  class="w-full h-full object-cover">
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full text-gray-200 gap-2">
+                  <span class="material-icons-round text-[72px]">image</span>
+                </div>
+              }
+              @if (adData.badge) {
+                <span class="absolute top-3 start-3 px-2.5 py-1 text-[.75rem] font-bold tracking-wide rounded-lg"
+                  [ngClass]="badgeCls(adData.badge)">
+                  {{ badgeLabel(adData.badge) }}
+                </span>
+              }
+            </div>
+
+            <!-- Thumbnails -->
+            @if (adData.images.length > 1) {
+              <div class="flex gap-2 p-3 overflow-x-auto [scrollbar-width:none]">
+                @for (img of adData.images; track img; let i = $index) {
+                  <button
+                    class="w-16 h-16 rounded-lg overflow-hidden shrink-0 ring-2 transition-all"
+                    [class.ring-[#006233]]="activeImage() === i"
+                    [class.ring-transparent]="activeImage() !== i"
+                    (click)="activeImage.set(i)">
+                    <img [src]="img" [alt]="adData.title" class="w-full h-full object-cover">
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Description -->
+          @if (adData.description) {
+            <div class="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 class="text-[.95rem] font-bold text-[#1a1a2e] mb-3">{{ lang.t('adDescription') }}</h2>
+              <p class="text-[.88rem] text-gray-600 leading-relaxed whitespace-pre-line">{{ adData.description }}</p>
+            </div>
+          }
+
+        </div>
+
+        <!-- ── Right column: price card + contact (sticky) ─────────────── -->
+        <div class="flex flex-col gap-4 lg:sticky lg:top-4">
+
+          <!-- Price card -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <h1 class="text-[1.1rem] font-bold text-[#1a1a2e] leading-snug mb-3">{{ adData.title }}</h1>
+
+            <div class="flex items-center gap-2 mb-4">
+              <span class="material-icons-round text-[15px] text-gray-400">location_on</span>
+              <span class="text-[.83rem] text-gray-500">{{ adData.city }}</span>
+              <span class="text-gray-300 mx-1">•</span>
+              <span class="text-[.83rem] text-gray-400">{{ lang.t('postedOn') }} {{ formatDate(adData.created_at) }}</span>
+            </div>
+
+            @if (adData.views) {
+              <div class="flex items-center gap-1 text-[.78rem] text-gray-400 mb-4">
+                <span class="material-icons-round text-[14px]">visibility</span>
+                <span>{{ adData.views }} {{ lang.t('views') }}</span>
+              </div>
+            }
+
+            <div class="h-px bg-gray-100 mb-4"></div>
+
+            @if (adData.price !== null) {
+              <p class="text-[2rem] font-extrabold text-[#006233] tracking-tight">
+                {{ adData.price | number:'1.0-0' }}&nbsp;<span class="text-[1.2rem]">{{ lang.t('currency') }}</span>
+              </p>
+            } @else {
+              <p class="text-[1.1rem] font-semibold text-gray-500 italic">{{ lang.t('priceNegotiable') }}</p>
+            }
+          </div>
+
+          <!-- Seller + contact -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            @if (adData.seller_name) {
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-[#e8f5ee] flex items-center justify-center shrink-0">
+                  <span class="material-icons-round text-[#006233] text-[20px]">person</span>
+                </div>
+                <div>
+                  <p class="text-[.88rem] font-semibold text-[#1a1a2e]">{{ adData.seller_name }}</p>
+                  <p class="text-[.75rem] text-gray-400">Particulier</p>
+                </div>
+              </div>
+            }
+            <button
+              class="w-full h-12 bg-[#006233] text-white text-[.9rem] font-semibold rounded-xl hover:bg-[#005229] active:scale-[.98] transition-all flex items-center justify-center gap-2">
+              <span class="material-icons-round text-[20px]">phone</span>
+              {{ lang.t('contactSeller') }}
+            </button>
+          </div>
+
+          <!-- Category chips -->
+          @if (category(); as cat) {
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-wrap gap-2">
+              <a routerLink="/ads" [queryParams]="{cat: adData.category_slug}"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#e8f5ee] text-[#006233] text-[.8rem] font-medium rounded-full hover:bg-[#d4eddf] transition-colors">
+                <span class="material-icons-round text-[14px]">{{ cat.icon }}</span>
+                {{ catLabel(cat) }}
+              </a>
+              @if (subcategory(); as sub) {
+                <a routerLink="/ads" [queryParams]="{cat: adData.category_slug, sub: sub.slug}"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 text-[.8rem] font-medium rounded-full hover:bg-gray-200 transition-colors">
+                  {{ catLabel(sub) }}
+                </a>
+              }
+            </div>
+          }
+
+          <!-- Back link -->
+          <a routerLink="/ads"
+            class="flex items-center gap-1.5 text-[.83rem] text-gray-400 hover:text-[#006233] transition-colors">
+            <span class="material-icons-round text-[16px]">arrow_back</span>
+            {{ lang.t('backToResults') }}
+          </a>
+
+        </div>
+      </div>
+    }
+    } <!-- @else -->
+
+  </div>
+</div>
+
+<app-site-footer />
