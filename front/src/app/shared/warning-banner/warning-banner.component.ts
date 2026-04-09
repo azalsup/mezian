@@ -5,8 +5,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-warning-banner',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './warning-banner.component.html',
   styleUrl: './warning-banner.component.scss'
 })

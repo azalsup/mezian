@@ -1,16 +1,15 @@
 import { Component, inject, computed, signal, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { LangService } from '../../core/services/lang.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import type { Category } from '../../sdk';
 
 @Component({
   selector: 'app-categories-bar',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterModule],
   templateUrl: './categories-bar.component.html',
-  styleUrls: ['./categories-bar.component.scss'],
+  styleUrl: './categories-bar.component.scss',
 })
 export class CategoriesBarComponent {
   readonly lang       = inject(LangService);

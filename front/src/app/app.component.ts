@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from './shared/navbar/navbar.component';
+import { SharedModule } from './shared/shared.module';
 import { AuthModalComponent } from './shared/auth-modal/auth-modal.component';
 import { LangService } from './core/services/lang.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent, AuthModalComponent],
+  imports: [RouterOutlet, SharedModule, AuthModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   host: {

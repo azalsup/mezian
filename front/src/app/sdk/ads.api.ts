@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from './api-client';
-import type { Ad, AdsQuery, AdsResponse } from './types';
+import type { Ad, AdsQuery, AdsResponse, CreateAdPayload } from './types';
 
 @Injectable({ providedIn: 'root' })
 export class AdsApi {
@@ -23,5 +23,9 @@ export class AdsApi {
 
   getById(id: number): Observable<Ad> {
     return this.api.get<Ad>(`/ads/${id}`);
+  }
+
+  createAd(payload: CreateAdPayload): Observable<Ad> {
+    return this.api.post<Ad>('/ads', payload);
   }
 }

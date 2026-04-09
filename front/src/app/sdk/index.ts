@@ -14,6 +14,7 @@ export type {
   Ad,
   AdsQuery,
   AdsResponse,
+  CreateAdPayload,
   Category,
   AttributeDefinition,
   Permission,

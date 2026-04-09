@@ -1,4 +1,7 @@
 import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './core/services/auth.service';
 
 export const routes: Routes = [
   {
@@ -38,6 +41,17 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./admin/admin.routes').then(m => m.ADMIN_ROUTES),
     title: 'Administration — Daba',
+  },
+  {
+    path: 'post-ad',
+    loadComponent: () =>
+      import('./pages/post-ad/post-ad-page.component').then(m => m.PostAdPageComponent),
+    title: 'Déposer une annonce — Daba',
+    canActivate: [() => {
+      const auth   = inject(AuthService);
+      const router = inject(Router);
+      return auth.isLoggedIn() ? true : router.createUrlTree(['/login']);
+    }],
   },
   { path: '**', redirectTo: '' },
 ];

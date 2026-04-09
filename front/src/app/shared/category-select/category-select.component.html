@@ -1,0 +1,31 @@
+<!-- Category -->
+<div class="flex flex-col gap-1.5">
+  <label class="text-[.85rem] font-semibold text-gray-700">
+    {{ lang.t('postAdCategory') }}
+  </label>
+  <select
+    class="w-full h-11 px-3 rounded-xl border border-gray-200 text-[.88rem] text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006233]/30 focus:border-[#006233] transition-colors"
+    (change)="setCat($any($event.target).value)">
+    <option value="">{{ lang.t('postAdSelectCat') }}</option>
+    @for (cat of catService.categories(); track cat.id) {
+      <option [value]="cat.id">{{ catLabel(cat) }}</option>
+    }
+  </select>
+</div>
+
+<!-- Subcategory (only when category has children) -->
+@if (subcategories().length) {
+  <div class="flex flex-col gap-1.5">
+    <label class="text-[.85rem] font-semibold text-gray-700">
+      {{ lang.t('postAdSubcategory') }}
+    </label>
+    <select
+      class="w-full h-11 px-3 rounded-xl border border-gray-200 text-[.88rem] text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006233]/30 focus:border-[#006233] transition-colors"
+      (change)="setSub($any($event.target).value)">
+      <option value="">{{ lang.t('postAdSelectSub') }}</option>
+      @for (sub of subcategories(); track sub.id) {
+        <option [value]="sub.id">{{ catLabel(sub) }}</option>
+      }
+    </select>
+  </div>
+}

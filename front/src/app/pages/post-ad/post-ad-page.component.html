@@ -1,0 +1,115 @@
+<app-categories-bar />
+
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-[680px] mx-auto px-6">
+
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-[1.6rem] font-extrabold text-[#1a1a2e] leading-tight">
+        {{ lang.t('postAdTitle') }}
+      </h1>
+      <p class="text-gray-500 text-[.88rem] mt-1">{{ lang.t('postAdSubtitle') }}</p>
+    </div>
+
+    <!-- Success banner -->
+    @if (success()) {
+      <div class="flex items-center gap-3 bg-[#e8f5ee] border border-[#006233]/20 rounded-2xl px-5 py-4 mb-6">
+        <span class="material-icons-round text-[#006233] text-[22px]">check_circle</span>
+        <p class="text-[#006233] font-semibold text-[.9rem]">{{ lang.t('postAdSuccess') }}</p>
+      </div>
+    }
+
+    <!-- Error banner -->
+    @if (error()) {
+      <div class="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 mb-6">
+        <span class="material-icons-round text-red-500 text-[22px]">error_outline</span>
+        <p class="text-red-600 text-[.88rem]">{{ error() }}</p>
+      </div>
+    }
+
+    <!-- Form card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-6">
+
+      <!-- Category select (reusable component) -->
+      <app-category-select (selectionChange)="onSelectionChange($event)" />
+
+      <!-- Title -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[.85rem] font-semibold text-gray-700">
+          {{ lang.t('postAdAdTitle') }}
+        </label>
+        <input
+          type="text"
+          [placeholder]="lang.t('postAdTitlePlaceholder')"
+          [value]="title()"
+          (input)="title.set($any($event.target).value)"
+          class="w-full h-11 px-3 rounded-xl border border-gray-200 text-[.88rem] text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006233]/30 focus:border-[#006233] transition-colors" />
+      </div>
+
+      <!-- Description -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[.85rem] font-semibold text-gray-700">
+          {{ lang.t('postAdDescription') }}
+        </label>
+        <textarea
+          rows="5"
+          [placeholder]="lang.t('postAdDescPlaceholder')"
+          [value]="description()"
+          (input)="description.set($any($event.target).value)"
+          class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-[.88rem] text-gray-700 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#006233]/30 focus:border-[#006233] transition-colors">
+        </textarea>
+      </div>
+
+      <!-- Price + City row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <!-- Price -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[.85rem] font-semibold text-gray-700">
+            {{ lang.t('postAdPrice') }}
+          </label>
+          <input
+            type="number"
+            min="0"
+            [placeholder]="lang.t('postAdPricePlaceholder')"
+            [value]="price()"
+            (input)="price.set($any($event.target).value)"
+            class="w-full h-11 px-3 rounded-xl border border-gray-200 text-[.88rem] text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006233]/30 focus:border-[#006233] transition-colors" />
+          <span class="text-[.75rem] text-gray-400">{{ lang.t('postAdPriceFree') }}</span>
+        </div>
+
+        <!-- City -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[.85rem] font-semibold text-gray-700">
+            {{ lang.t('postAdCity') }}
+          </label>
+          <select
+            (change)="city.set($any($event.target).value)"
+            class="w-full h-11 px-3 rounded-xl border border-gray-200 text-[.88rem] text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006233]/30 focus:border-[#006233] transition-colors">
+            <option value="">{{ lang.t('postAdSelectCity') }}</option>
+            @for (c of cities; track c) {
+              <option [value]="c">{{ c }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button
+        (click)="submit()"
+        [disabled]="submitting() || success()"
+        class="w-full h-12 bg-[#006233] text-white text-[.92rem] font-bold rounded-xl hover:bg-[#005229] active:scale-[.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        @if (submitting()) {
+          <span class="material-icons-round animate-spin text-[20px]">refresh</span>
+          {{ lang.t('loading') }}
+        } @else {
+          <span class="material-icons-round text-[20px]">add_circle</span>
+          {{ lang.t('postAdSubmit') }}
+        }
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<app-site-footer />

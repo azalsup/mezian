@@ -104,6 +104,15 @@ export interface AdsResponse {
   page_size: number;
 }
 
+export interface CreateAdPayload {
+  category_id:    number;
+  title:          string;
+  body:           string;
+  price?:         number;
+  currency:       string;
+  city:           string;
+}
+
 // ── Categories ────────────────────────────────────────────────────────────────
 
 export interface AttributeDefinition {

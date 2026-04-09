@@ -1,14 +1,13 @@
 import { Component, HostListener, inject, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { LangService, Lang } from '../../core/services/lang.service';
 import { AuthService } from '../../core/services/auth.service';
-import { WarningBannerComponent } from '../warning-banner/warning-banner.component';
 
 @Component({
   selector: 'app-navbar',
-  standalone: true,
-  imports: [CommonModule, WarningBannerComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
