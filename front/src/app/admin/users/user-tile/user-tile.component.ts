@@ -18,6 +18,7 @@ export type UserAction = 'updated' | 'banned' | 'unbanned' | 'deleted' | 'rolesC
 })
 export class UserTileComponent implements OnChanges {
   private readonly adminApi = inject(AdminApi);
+  private readonly el       = inject(ElementRef);
 
   @Input({ required: true }) user!: User;
   /** 'admin' → all actions; 'moderator' → ban only */
