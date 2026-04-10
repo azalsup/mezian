@@ -31,48 +31,7 @@
         </button>
 
         <!-- Profile / Register -->
-        <div class="relative">
-          <button
-            (click)="toggleProfileMenu($event)"
-            class="flex items-center gap-3 px-6 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors">
-            <span class="material-icons-round text-[#006233] text-[28px]">account_circle</span>
-            <span class="font-medium">{{ auth.isLoggedIn() ? lang.t('profile') : lang.t('register') }}</span>
-            <span class="material-icons-round text-gray-400 text-[18px]">expand_more</span>
-          </button>
-
-          @if (showProfileMenu) {
-            <div class="absolute end-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50" (click)="$event.stopPropagation()">
-              @if (!auth.isLoggedIn()) {
-                <div class="px-5 py-4 flex flex-col gap-2">
-                  <button (click)="openRegister()"
-                    class="w-full bg-[#006233] hover:bg-[#005229] text-white h-11 rounded-3xl font-medium transition-colors">
-                    {{ lang.t('createProfile') }}
-                  </button>
-                  <button (click)="openLogin()"
-                    class="w-full border border-gray-300 hover:border-[#006233] text-gray-700 hover:text-[#006233] h-11 rounded-3xl font-medium transition-colors">
-                    {{ lang.t('login') }}
-                  </button>
-                </div>
-              } @else {
-                <div class="px-4">
-                  <div class="flex items-center gap-3 p-4 border-b">
-                    <span class="material-icons-round text-[#006233] text-[52px]">account_circle</span>
-                    <div>
-                      <p class="font-semibold">{{ auth.currentUser()?.display_name || auth.currentUser()?.phone }}</p>
-                      <p class="text-xs text-gray-500">{{ auth.currentUser()?.city || lang.t('location') }}</p>
-                    </div>
-                  </div>
-                  <a href="#" class="block px-4 py-3 hover:bg-gray-50 rounded-xl">{{ lang.t('myProfile') }}</a>
-                  <a href="#" class="block px-4 py-3 hover:bg-gray-50 rounded-xl">{{ lang.t('myShop') }}</a>
-                  <a href="#" (click)="logout()"
-                    class="block px-4 py-3 text-red-600 hover:bg-gray-50 rounded-xl">
-                    {{ lang.t('logout') }}
-                  </a>
-                </div>
-              }
-            </div>
-          }
-        </div>
+        <app-profile-dropdown></app-profile-dropdown>
 
         <!-- Language switcher -->
         <div class="relative">
@@ -119,48 +78,7 @@
         </button>
 
         <!-- Profile / Register -->
-        <div class="relative">
-          <button
-            (click)="toggleProfileMenu($event)"
-            class="w-full flex items-center justify-center gap-3 px-6 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors">
-            <span class="material-icons-round text-[#006233] text-[28px]">account_circle</span>
-            <span class="font-medium">{{ auth.isLoggedIn() ? lang.t('profile') : lang.t('register') }}</span>
-            <span class="material-icons-round text-gray-400 text-[18px]">expand_more</span>
-          </button>
-
-          @if (showProfileMenu) {
-            <div class="absolute left-0 mt-3 w-full bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50">
-              @if (!auth.isLoggedIn()) {
-                <div class="px-5 py-4 flex flex-col gap-2">
-                  <button (click)="openRegister()"
-                    class="w-full bg-[#006233] hover:bg-[#005229] text-white h-11 rounded-3xl font-medium transition-colors">
-                    {{ lang.t('createProfile') }}
-                  </button>
-                  <button (click)="openLogin()"
-                    class="w-full border border-gray-300 hover:border-[#006233] text-gray-700 hover:text-[#006233] h-11 rounded-3xl font-medium transition-colors">
-                    {{ lang.t('login') }}
-                  </button>
-                </div>
-              } @else {
-                <div class="px-4">
-                  <div class="flex items-center gap-3 p-4 border-b">
-                    <span class="material-icons-round text-[#006233] text-[52px]">account_circle</span>
-                    <div>
-                      <p class="font-semibold">{{ auth.currentUser()?.display_name || auth.currentUser()?.phone }}</p>
-                      <p class="text-xs text-gray-500">{{ auth.currentUser()?.city || lang.t('location') }}</p>
-                    </div>
-                  </div>
-                  <a href="#" class="block px-4 py-3 hover:bg-gray-50 rounded-xl">{{ lang.t('myProfile') }}</a>
-                  <a href="#" class="block px-4 py-3 hover:bg-gray-50 rounded-xl">{{ lang.t('myShop') }}</a>
-                  <a href="#" (click)="logout()"
-                    class="block px-4 py-3 text-red-600 hover:bg-gray-50 rounded-xl">
-                    {{ lang.t('logout') }}
-                  </a>
-                </div>
-              }
-            </div>
-          }
-        </div>
+        <app-profile-dropdown [isMobile]="true"></app-profile-dropdown>
 
         <!-- Language switcher -->
         <div class="relative">
