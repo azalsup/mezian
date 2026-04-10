@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthApi, ApiClient } from '../../sdk';
+import { StorageService } from './storage.service';
 import type { AuthTokens, AuthResponse, RegisterPayload, User } from '../../sdk';
 
 // Re-export types so existing consumers keep their import path working.
@@ -23,6 +24,7 @@ const STORAGE_KEY = 'auth_tokens';
 export class AuthService {
   private readonly authApi    = inject(AuthApi);
   private readonly apiClient  = inject(ApiClient);
+  private readonly storage    = inject(StorageService);
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly currentUser    = signal<User | null>(null);
@@ -89,23 +91,19 @@ export class AuthService {
   private setSession(res: AuthResponse): void {
     this.apiClient.setToken(res.tokens.access_token);
     this.refreshToken = res.tokens.refresh_token;
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(res.tokens));
-    }
+    this.storage.setItem(STORAGE_KEY, JSON.stringify(res.tokens));
     this.currentUser.set(res.user);
   }
 
   private clearSession(): void {
     this.apiClient.setToken(null);
     this.refreshToken = null;
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    this.storage.removeItem(STORAGE_KEY);
     this.currentUser.set(null);
   }
 
   private restoreSession(): void {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = this.storage.getItem(STORAGE_KEY);
     if (!raw) {
       this.sessionChecked.set(true);
       return;
@@ -119,7 +117,7 @@ export class AuthService {
         error: ()   => { this.clearSession(); this.sessionChecked.set(true); },
       });
     } catch {
-      localStorage.removeItem(STORAGE_KEY);
+      this.storage.removeItem(STORAGE_KEY);
       this.sessionChecked.set(true);
     }
   }
