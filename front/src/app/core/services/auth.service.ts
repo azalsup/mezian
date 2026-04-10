@@ -25,8 +25,9 @@ export class AuthService {
   private readonly apiClient  = inject(ApiClient);
   private readonly platformId = inject(PLATFORM_ID);
 
-  readonly currentUser = signal<User | null>(null);
-  readonly isLoggedIn  = computed(() => this.currentUser() !== null);
+  readonly currentUser    = signal<User | null>(null);
+  readonly isLoggedIn     = computed(() => this.currentUser() !== null);
+  readonly sessionChecked = signal(false);
 
   /** Controls the auth modal */
   readonly modalOpen = signal(false);
@@ -37,6 +38,9 @@ export class AuthService {
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       this.restoreSession();
+    } else {
+      // SSR: no localStorage, no session to restore — mark as checked immediately.
+      this.sessionChecked.set(true);
     }
   }
 
@@ -102,17 +106,21 @@ export class AuthService {
 
   private restoreSession(): void {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    if (!raw) {
+      this.sessionChecked.set(true);
+      return;
+    }
     try {
       const tokens: AuthTokens = JSON.parse(raw);
       this.apiClient.setToken(tokens.access_token);
       this.refreshToken = tokens.refresh_token;
       this.authApi.me().subscribe({
-        next:  user => this.currentUser.set(user),
-        error: ()   => this.clearSession(),
+        next:  user => { this.currentUser.set(user); this.sessionChecked.set(true); },
+        error: ()   => { this.clearSession(); this.sessionChecked.set(true); },
       });
     } catch {
       localStorage.removeItem(STORAGE_KEY);
+      this.sessionChecked.set(true);
     }
   }
 }

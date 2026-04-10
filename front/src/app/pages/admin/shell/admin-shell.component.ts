@@ -77,7 +77,8 @@ export class AdminShellComponent {
   get navItems(): NavItem[] {
     const isAdmin = this.auth.currentUser()?.role === 'admin';
     const items: NavItem[] = [
-      { label: 'Utilisateurs', icon: 'fa-users',         path: '/admin/users' },
+      { label: 'Utilisateurs',  icon: 'fa-users',         path: '/admin/users' },
+      { label: 'Catégories',    icon: 'fa-tags',          path: '/admin/categories' },
     ];
     if (isAdmin) {
       items.unshift({ label: 'Rôles', icon: 'fa-shield-halved', path: '/admin/roles' });

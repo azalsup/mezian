@@ -1,7 +1,22 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from './api-client';
-import { Permission, Role, User, UserListResponse } from './types';
+import { Category, Permission, Role, User, UserListResponse } from './types';
+
+export interface CategoryPayload {
+  name_fr:    string;
+  name_ar:    string;
+  name_en?:   string;
+  icon?:      string;
+  sort_order?: number;
+  featured?:  boolean;
+  is_active?: boolean;
+}
+
+export interface CategoryCreatePayload extends CategoryPayload {
+  slug:      string;
+  parent_id?: number;
+}
 
 export interface RolePayload {
   name:           string;
@@ -76,5 +91,23 @@ export class AdminApi {
 
   resetUserPassword(userId: number, newPassword: string): Observable<{ message: string }> {
     return this.api.put(`/admin/users/${userId}/reset-password`, { new_password: newPassword });
+  }
+
+  // ── Categories ─────────────────────────────────────────────────────────────
+
+  listAdminCategories(): Observable<Category[]> {
+    return this.api.get('/admin/categories');
+  }
+
+  createCategory(payload: CategoryCreatePayload): Observable<Category> {
+    return this.api.post('/admin/categories', payload);
+  }
+
+  updateCategory(id: number, payload: Partial<CategoryPayload>): Observable<{ ok: boolean }> {
+    return this.api.put(`/admin/categories/${id}`, payload);
+  }
+
+  deleteCategory(id: number): Observable<{ ok: boolean }> {
+    return this.api.delete(`/admin/categories/${id}`);
   }
 }

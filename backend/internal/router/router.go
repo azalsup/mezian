@@ -152,6 +152,10 @@ func New(deps *Deps) *gin.Engine {
 		adminBase.GET("/users", deps.AdminHandler.ListUsers)
 		adminBase.PUT("/users/:id/ban", deps.AdminHandler.BanUser)
 		adminBase.PUT("/users/:id/unban", deps.AdminHandler.UnbanUser)
+
+		adminBase.GET("/categories", deps.CategoryHandler.AdminListCategories)
+		adminBase.POST("/categories", deps.CategoryHandler.AdminCreateCategory)
+		adminBase.PUT("/categories/:id", deps.CategoryHandler.AdminUpdateCategory)
 	}
 
 	// --- Admin: admin only ---
@@ -168,6 +172,7 @@ func New(deps *Deps) *gin.Engine {
 		admin.PUT("/users/:id/roles", deps.AdminHandler.SetUserRoles)
 		admin.DELETE("/users/:id", deps.AdminHandler.DeleteUser)
 		admin.PUT("/users/:id/reset-password", deps.AdminHandler.ResetPassword)
+		admin.DELETE("/categories/:id", deps.CategoryHandler.AdminDeleteCategory)
 	}
 
 	return r

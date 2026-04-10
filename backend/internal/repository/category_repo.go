@@ -103,6 +103,35 @@ type CategoryRepo struct{ db *gorm.DB }
 // NewCategoryRepo creates a new CategoryRepo.
 func NewCategoryRepo(db *gorm.DB) *CategoryRepo { return &CategoryRepo{db} }
 
+// FindAllAdmin returns ALL root categories (including inactive) with their children.
+func (r *CategoryRepo) FindAllAdmin() ([]models.Category, error) {
+	var categories []models.Category
+	err := r.db.
+		Where("parent_id IS NULL").
+		Order("sort_order ASC, name_fr ASC").
+		Preload("Children", func(db *gorm.DB) *gorm.DB {
+			return db.Order("sort_order ASC, name_fr ASC")
+		}).
+		Find(&categories).Error
+	return categories, err
+}
+
+// CreateCategory inserts a new category.
+func (r *CategoryRepo) CreateCategory(cat *models.Category) error {
+	return r.db.Create(cat).Error
+}
+
+// UpdateCategory patches editable fields on a category by ID.
+func (r *CategoryRepo) UpdateCategory(id uint, fields map[string]any) error {
+	return r.db.Model(&models.Category{}).Where("id = ?", id).Updates(fields).Error
+}
+
+// DeleteCategory soft-deletes a category and its children.
+func (r *CategoryRepo) DeleteCategory(id uint) error {
+	r.db.Where("parent_id = ?", id).Delete(&models.Category{})
+	return r.db.Delete(&models.Category{}, id).Error
+}
+
 // FindAll returns all root categories with their children and attribute definitions.
 func (r *CategoryRepo) FindAll() ([]models.Category, error) {
 	var categories []models.Category

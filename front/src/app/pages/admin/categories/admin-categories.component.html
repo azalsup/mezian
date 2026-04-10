@@ -1,0 +1,343 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-semibold text-gray-900">Catégories</h2>
+    <p class="text-sm text-gray-500 mt-0.5">{{ categories().length }} catégories racines</p>
+  </div>
+  <button (click)="openCreate(null)"
+    class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 h-9 rounded-lg transition-colors">
+    <i class="fa-solid fa-plus text-[12px]"></i>
+    Nouvelle catégorie
+  </button>
+</div>
+
+<!-- Error -->
+@if (error()) {
+  <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center gap-2">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    {{ error() }}
+  </div>
+}
+
+<!-- Loading -->
+@if (loading()) {
+  <div class="flex items-center justify-center py-16 text-gray-400">
+    <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+  </div>
+}
+
+<!-- Category list -->
+@if (!loading()) {
+  <div class="space-y-2">
+    @for (cat of categories(); track cat.id) {
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+
+        <!-- Root category row -->
+        <div class="flex items-center gap-3 px-4 py-3">
+
+          <!-- Expand toggle -->
+          <button (click)="toggleExpand(cat.id)"
+            class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors shrink-0">
+            <i class="fa-solid {{ isExpanded(cat.id) ? 'fa-chevron-down' : 'fa-chevron-right' }} text-[11px]"></i>
+          </button>
+
+          <!-- Icon -->
+          <span class="material-icons-round text-indigo-500 text-[22px] w-6 text-center shrink-0">{{ cat.icon || 'category' }}</span>
+
+          <!-- Names -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-semibold text-gray-900">{{ cat.name_fr }}</span>
+              <span class="text-xs text-gray-400">{{ cat.name_ar }}</span>
+              @if (cat.name_en) {
+                <span class="text-xs text-gray-400">/ {{ cat.name_en }}</span>
+              }
+              <span class="text-xs text-gray-400 font-mono bg-gray-100 px-1.5 py-0.5 rounded">{{ cat.slug }}</span>
+              @if (cat.children?.length) {
+                <span class="text-xs text-gray-400">{{ cat.children!.length }} sous-cat.</span>
+              }
+            </div>
+          </div>
+
+          <!-- Featured star — easy toggle -->
+          <button
+            (click)="toggleFeatured(cat)"
+            [title]="cat.featured ? 'Retirer des vedettes' : 'Mettre en vedette'"
+            class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors shrink-0"
+            [class.text-amber-400]="cat.featured"
+            [class.hover:text-amber-500]="cat.featured"
+            [class.text-gray-300]="!cat.featured"
+            [class.hover:text-amber-400]="!cat.featured"
+            [class.hover:bg-amber-50]="true">
+            <i class="fa-solid fa-star text-[16px]"></i>
+          </button>
+
+          <!-- Active toggle -->
+          <button
+            (click)="toggleActive(cat)"
+            [title]="cat.is_active ? 'Désactiver' : 'Activer'"
+            class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors shrink-0"
+            [class.text-emerald-500]="cat.is_active"
+            [class.hover:bg-emerald-50]="cat.is_active"
+            [class.text-gray-300]="!cat.is_active"
+            [class.hover:bg-gray-100]="!cat.is_active">
+            <i class="fa-solid {{ cat.is_active ? 'fa-eye' : 'fa-eye-slash' }} text-[14px]"></i>
+          </button>
+
+          <!-- Edit -->
+          <button (click)="openEdit(cat)"
+            class="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 border border-indigo-200 hover:border-indigo-400 px-3 h-7 rounded-lg transition-colors shrink-0">
+            <i class="fa-solid fa-pen text-[10px]"></i>
+            Modifier
+          </button>
+
+          <!-- Add sub-category -->
+          <button (click)="openCreate(cat)"
+            class="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-200 hover:border-gray-400 px-3 h-7 rounded-lg transition-colors shrink-0">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            Sous-cat.
+          </button>
+
+          <!-- Delete (admin only) -->
+          @if (isAdmin) {
+            <button (click)="deleteCategory(cat)"
+              class="flex items-center justify-center w-7 h-7 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0">
+              <i class="fa-solid fa-trash text-[12px]"></i>
+            </button>
+          }
+        </div>
+
+        <!-- Subcategories (expanded) -->
+        @if (isExpanded(cat.id) && cat.children?.length) {
+          <div class="border-t border-gray-100 bg-gray-50 divide-y divide-gray-100">
+            @for (sub of cat.children; track sub.id) {
+              <div class="flex items-center gap-3 px-4 py-2.5 pl-12">
+
+                <span class="material-icons-round text-gray-400 text-[18px] w-5 text-center shrink-0">{{ sub.icon || 'subdirectory_arrow_right' }}</span>
+
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-medium text-gray-800">{{ sub.name_fr }}</span>
+                    <span class="text-xs text-gray-400">{{ sub.name_ar }}</span>
+                    <span class="text-xs text-gray-400 font-mono bg-gray-200 px-1.5 py-0.5 rounded">{{ sub.slug }}</span>
+                  </div>
+                </div>
+
+                <!-- Active toggle -->
+                <button
+                  (click)="toggleActive(sub, cat.id)"
+                  [title]="sub.is_active ? 'Désactiver' : 'Activer'"
+                  class="flex items-center justify-center w-7 h-7 rounded-lg transition-colors shrink-0"
+                  [class.text-emerald-500]="sub.is_active"
+                  [class.hover:bg-emerald-50]="sub.is_active"
+                  [class.text-gray-300]="!sub.is_active"
+                  [class.hover:bg-gray-100]="!sub.is_active">
+                  <i class="fa-solid {{ sub.is_active ? 'fa-eye' : 'fa-eye-slash' }} text-[13px]"></i>
+                </button>
+
+                <button (click)="openEdit(sub)"
+                  class="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 border border-indigo-200 hover:border-indigo-400 px-2.5 h-6 rounded-lg transition-colors shrink-0">
+                  <i class="fa-solid fa-pen text-[9px]"></i>
+                  Modifier
+                </button>
+
+                @if (isAdmin) {
+                  <button (click)="deleteCategory(sub)"
+                    class="flex items-center justify-center w-6 h-6 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0">
+                    <i class="fa-solid fa-trash text-[11px]"></i>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+      </div>
+    }
+  </div>
+}
+
+<!-- ═══════════════════════ EDIT MODAL ═══════════════════════ -->
+@if (showEdit()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg" (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b">
+        <h3 class="font-semibold text-gray-900">Modifier la catégorie</h3>
+        <button (click)="closeEdit()" class="text-gray-400 hover:text-gray-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Nom FR *</label>
+            <input [(ngModel)]="fNameFr" type="text"
+              class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Nom AR *</label>
+            <input [(ngModel)]="fNameAr" type="text" dir="rtl"
+              class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Nom EN</label>
+            <input [(ngModel)]="fNameEn" type="text"
+              class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Icône Material</label>
+            <div class="flex items-center gap-2">
+              <input [(ngModel)]="fIcon" type="text" placeholder="directions_car"
+                class="flex-1 h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+              @if (fIcon) {
+                <span class="material-icons-round text-indigo-500 text-[20px]">{{ fIcon }}</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Ordre d'affichage</label>
+            <input [(ngModel)]="fSortOrder" type="number"
+              class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+          </div>
+          <div class="flex flex-col gap-2 pt-4">
+            @if (!editingCat()?.parent_id) {
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" [(ngModel)]="fFeatured" class="w-4 h-4 accent-amber-400" />
+                <span class="text-sm text-gray-700 flex items-center gap-1">
+                  <i class="fa-solid fa-star text-amber-400 text-[13px]"></i>
+                  Vedette
+                </span>
+              </label>
+            }
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" [(ngModel)]="fIsActive" class="w-4 h-4 accent-indigo-500" />
+              <span class="text-sm text-gray-700">Active</span>
+            </label>
+          </div>
+        </div>
+
+        @if (editError()) {
+          <p class="text-sm text-red-600">{{ editError() }}</p>
+        }
+      </div>
+
+      <div class="flex justify-end gap-2 px-6 py-4 border-t">
+        <button (click)="closeEdit()"
+          class="px-4 h-9 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Annuler
+        </button>
+        <button (click)="saveEdit()" [disabled]="saving()"
+          class="px-5 h-9 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-lg transition-colors">
+          {{ saving() ? 'Sauvegarde…' : 'Sauvegarder' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════ CREATE MODAL ═══════════════════════ -->
+@if (showCreate()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg" (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b">
+        <h3 class="font-semibold text-gray-900">
+          @if (createParent()) {
+            Nouvelle sous-catégorie de « {{ createParent()!.name_fr }} »
+          } @else {
+            Nouvelle catégorie racine
+          }
+        </h3>
+        <button (click)="closeCreate()" class="text-gray-400 hover:text-gray-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Nom FR * <span class="text-gray-400">(génère le slug)</span></label>
+          <input [(ngModel)]="cNameFr" (blur)="slugifyCreate()" type="text"
+            class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Slug *</label>
+          <input [(ngModel)]="cSlug" type="text" placeholder="ex: electronique"
+            class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm font-mono outline-none focus:border-indigo-400" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Nom AR *</label>
+            <input [(ngModel)]="cNameAr" type="text" dir="rtl"
+              class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Nom EN</label>
+            <input [(ngModel)]="cNameEn" type="text"
+              class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Icône Material</label>
+            <div class="flex items-center gap-2">
+              <input [(ngModel)]="cIcon" type="text" placeholder="category"
+                class="flex-1 h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+              @if (cIcon) {
+                <span class="material-icons-round text-indigo-500 text-[20px]">{{ cIcon }}</span>
+              }
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Ordre</label>
+            <input [(ngModel)]="cSortOrder" type="number"
+              class="w-full h-9 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-400" />
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+          @if (!createParent()) {
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" [(ngModel)]="cFeatured" class="w-4 h-4 accent-amber-400" />
+              <span class="text-sm text-gray-700 flex items-center gap-1">
+                <i class="fa-solid fa-star text-amber-400 text-[13px]"></i>
+                Vedette
+              </span>
+            </label>
+          }
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" [(ngModel)]="cIsActive" class="w-4 h-4 accent-indigo-500" />
+            <span class="text-sm text-gray-700">Active</span>
+          </label>
+        </div>
+
+        @if (createError()) {
+          <p class="text-sm text-red-600">{{ createError() }}</p>
+        }
+      </div>
+
+      <div class="flex justify-end gap-2 px-6 py-4 border-t">
+        <button (click)="closeCreate()"
+          class="px-4 h-9 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Annuler
+        </button>
+        <button (click)="saveCreate()" [disabled]="creating()"
+          class="px-5 h-9 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-lg transition-colors">
+          {{ creating() ? 'Création…' : 'Créer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

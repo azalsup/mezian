@@ -17,8 +17,6 @@ export class AuthPageComponent implements OnInit {
   initialScreen = signal<AuthScreen>('login');
 
   constructor() {
-    // Watch currentUser — redirect as soon as a session is detected,
-    // whether it was already in localStorage or just set after login.
     effect(() => {
       if (this.auth.currentUser() !== null) {
         this.router.navigate(['/'], { replaceUrl: true });

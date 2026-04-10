@@ -68,6 +68,11 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () =>
           import('./users/admin-users.component').then(m => m.AdminUsersComponent),
       },
+      {
+        path: 'categories',
+        loadComponent: () =>
+          import('./categories/admin-categories.component').then(m => m.AdminCategoriesComponent),
+      },
     ],
   },
 ];
