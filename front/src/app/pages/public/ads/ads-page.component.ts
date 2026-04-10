@@ -1,12 +1,12 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LangService } from '../../core/services/lang.service';
-import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
-import { AdsSearchBarComponent } from '../../shared/ads-search-bar/ads-search-bar.component';
-import { AdsFiltersComponent } from '../../shared/ads-filters/ads-filters.component';
-import { AdCardComponent } from '../../shared/ad-card/ad-card.component';
-import type { Ad, AdsQuery } from '../../sdk';
+import { LangService } from '../../../core/services/lang.service';
+import { SiteFooterComponent } from '../../../shared/site-footer/site-footer.component';
+import { AdsSearchBarComponent } from '../../../shared/ads-search-bar/ads-search-bar.component';
+import { AdsFiltersComponent } from '../../../shared/ads-filters/ads-filters.component';
+import { AdCardComponent } from '../../../shared/ad-card/ad-card.component';
+import type { Ad, AdsQuery } from '../../../sdk';
 
 // [TODO] remove mock
 const MOCK_ADS: Ad[] = [

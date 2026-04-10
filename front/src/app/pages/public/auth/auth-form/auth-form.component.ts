@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
-import { LangService } from '../../../core/services/lang.service';
-import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../../core/services/auth.service';
+import { LangService } from '../../../../core/services/lang.service';
+import { environment } from '../../../../../environments/environment';
 
 export type AuthScreen =
   | 'login'

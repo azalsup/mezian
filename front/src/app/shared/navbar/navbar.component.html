@@ -43,10 +43,14 @@
           @if (showProfileMenu) {
             <div class="absolute end-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50" (click)="$event.stopPropagation()">
               @if (!auth.isLoggedIn()) {
-                <div class="px-6 py-4">
+                <div class="px-5 py-4 flex flex-col gap-2">
                   <button (click)="openRegister()"
-                    class="w-full bg-[#006233] hover:bg-[#005229] text-white h-12 rounded-3xl font-medium transition-colors">
+                    class="w-full bg-[#006233] hover:bg-[#005229] text-white h-11 rounded-3xl font-medium transition-colors">
                     {{ lang.t('createProfile') }}
+                  </button>
+                  <button (click)="openLogin()"
+                    class="w-full border border-gray-300 hover:border-[#006233] text-gray-700 hover:text-[#006233] h-11 rounded-3xl font-medium transition-colors">
+                    {{ lang.t('login') }}
                   </button>
                 </div>
               } @else {
@@ -127,10 +131,14 @@
           @if (showProfileMenu) {
             <div class="absolute left-0 mt-3 w-full bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50">
               @if (!auth.isLoggedIn()) {
-                <div class="px-6 py-4">
+                <div class="px-5 py-4 flex flex-col gap-2">
                   <button (click)="openRegister()"
-                    class="w-full bg-[#006233] hover:bg-[#005229] text-white h-12 rounded-3xl font-medium transition-colors">
+                    class="w-full bg-[#006233] hover:bg-[#005229] text-white h-11 rounded-3xl font-medium transition-colors">
                     {{ lang.t('createProfile') }}
+                  </button>
+                  <button (click)="openLogin()"
+                    class="w-full border border-gray-300 hover:border-[#006233] text-gray-700 hover:text-[#006233] h-11 rounded-3xl font-medium transition-colors">
+                    {{ lang.t('login') }}
                   </button>
                 </div>
               } @else {

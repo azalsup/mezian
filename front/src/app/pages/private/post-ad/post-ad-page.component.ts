@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { LangService } from '../../core/services/lang.service';
-import { AdsApi } from '../../sdk';
-import { CategoriesBarComponent } from '../../shared/categories-bar/categories-bar.component';
-import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
-import { CategorySelectComponent, type CategorySelection } from '../../shared/category-select/category-select.component';
-import { MOROCCO_CITIES } from '../../shared/ads-filters/ads-filters.component';
-import type { Category } from '../../sdk';
+import { LangService } from '../../../core/services/lang.service';
+import { AdsApi } from '../../../sdk';
+import { CategoriesBarComponent } from '../../../shared/categories-bar/categories-bar.component';
+import { SiteFooterComponent } from '../../../shared/site-footer/site-footer.component';
+import { CategorySelectComponent, type CategorySelection } from '../../../shared/category-select/category-select.component';
+import { MOROCCO_CITIES } from '../../../shared/ads-filters/ads-filters.component';
+import type { Category } from '../../../sdk';
 
 @Component({
   selector: 'app-post-ad-page',

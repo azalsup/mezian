@@ -1,8 +1,8 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { KeyValuePipe } from '@angular/common';
-import { AdminApi, RolePayload } from '../../sdk/admin.api';
-import { Permission, Role } from '../../sdk/types';
+import { AdminApi, RolePayload } from '../../../sdk/admin.api';
+import { Permission, Role } from '../../../sdk/types';
 
 @Component({
   selector: 'app-admin-roles',

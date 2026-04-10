@@ -1,12 +1,12 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LangService } from '../../core/services/lang.service';
-import { CategoriesService } from '../../core/services/categories.service';
-import { AdsApi } from '../../sdk';
-import { CategoriesBarComponent } from '../../shared/categories-bar/categories-bar.component';
-import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
-import type { Ad, Category } from '../../sdk';
+import { LangService } from '../../../core/services/lang.service';
+import { CategoriesService } from '../../../core/services/categories.service';
+import { AdsApi } from '../../../sdk';
+import { CategoriesBarComponent } from '../../../shared/categories-bar/categories-bar.component';
+import { SiteFooterComponent } from '../../../shared/site-footer/site-footer.component';
+import type { Ad, Category } from '../../../sdk';
 
 @Component({
   selector: 'app-ad-detail-page',

@@ -1,9 +1,9 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { LangService } from '../../core/services/lang.service';
-import { CategoriesBarComponent } from '../../shared/categories-bar/categories-bar.component';
-import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
+import { LangService } from '../../../core/services/lang.service';
+import { CategoriesBarComponent } from '../../../shared/categories-bar/categories-bar.component';
+import { SiteFooterComponent } from '../../../shared/site-footer/site-footer.component';
 
 interface AdTile {
   id: number;

@@ -1,15 +1,38 @@
 import { Routes } from '@angular/router';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../core/services/auth.service';
+import { filter, take, map } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { AuthService } from '../../core/services/auth.service';
 
-/** Guard: user must be authenticated AND have role=admin or role=moderator. */
+/**
+ * Protects admin routes.
+ * - If session is already resolved → evaluate synchronously.
+ * - If session is still loading  → wait for sessionChecked, then evaluate.
+ */
 const adminGuard = () => {
-  const auth   = inject(AuthService);
-  const router = inject(Router);
-  const user   = auth.currentUser();
-  if (user?.role === 'admin' || user?.role === 'moderator') return true;
-  return router.createUrlTree(['/admin/login']);
+  const auth     = inject(AuthService);
+  const router   = inject(Router);
+  const injector = inject(Injector);
+
+  const allow = (role: string | undefined) =>
+    role === 'admin' || role === 'moderator';
+
+  if (auth.sessionChecked()) {
+    return allow(auth.currentUser()?.role)
+      ? true
+      : router.createUrlTree(['/admin/login']);
+  }
+
+  return toObservable(auth.sessionChecked, { injector }).pipe(
+    filter(checked => checked),
+    take(1),
+    map(() =>
+      allow(auth.currentUser()?.role)
+        ? true
+        : router.createUrlTree(['/admin/login']),
+    ),
+  );
 };
 
 export const ADMIN_ROUTES: Routes = [

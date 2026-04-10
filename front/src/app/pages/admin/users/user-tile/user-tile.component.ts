@@ -4,8 +4,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminApi } from '../../../sdk/admin.api';
-import type { Role, User } from '../../../sdk/types';
+import { AdminApi } from '../../../../sdk/admin.api';
+import type { Role, User } from '../../../../sdk/types';
 
 export type UserAction = 'updated' | 'banned' | 'unbanned' | 'deleted' | 'rolesChanged';
 

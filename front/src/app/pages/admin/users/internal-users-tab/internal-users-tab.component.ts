@@ -1,8 +1,8 @@
 import { Component, Input, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminApi } from '../../../sdk/admin.api';
+import { AdminApi } from '../../../../sdk/admin.api';
 import { UserTileComponent } from '../user-tile/user-tile.component';
-import type { User, Role } from '../../../sdk/types';
+import type { User, Role } from '../../../../sdk/types';
 
 @Component({
   selector: 'app-internal-users-tab',
