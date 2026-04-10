@@ -57,6 +57,16 @@ func New(deps *Deps) *gin.Engine {
 
 	api := r.Group("/api/v1")
 
+	// Health check — also reports CORS origins so you can verify the loaded config remotely
+	api.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":       "ok",
+			"time":         time.Now().UTC(),
+			"cors_origins": deps.Config.Server.CORSOrigins,
+			"mode":         deps.Config.Server.Mode,
+		})
+	})
+
 	// --- Auth (public) ---
 	auth := api.Group("/auth")
 	{
