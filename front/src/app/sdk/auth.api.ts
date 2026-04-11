@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { ApiClient } from './api-client';
 import { AuthResponse, RegisterPayload, User } from './types';
 
@@ -39,6 +40,10 @@ export class AuthApi {
 
   /** Returns the authenticated user profile. */
   me(): Observable<User> {
-    return this.api.get('/auth/me');
+    return this.api.get<{ data: User }>('/auth/me').pipe(
+      tap(raw => console.log('[AuthApi.me] raw backend response:', raw)),
+      map(r => r.data),
+      tap(user => console.log('[AuthApi.me] mapped user:', user)),
+    );
   }
 }

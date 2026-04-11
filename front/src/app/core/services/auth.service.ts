@@ -29,6 +29,11 @@ export class AuthService {
 
   readonly currentUser    = signal<User | null>(null);
   readonly isLoggedIn     = computed(() => this.currentUser() !== null);
+  readonly isStaff        = computed(() => {
+    const role = this.currentUser()?.role?.toLowerCase();
+    return !!(role && role !== 'user');
+  });
+  readonly isAdmin        = computed(() => this.currentUser()?.role?.toLowerCase() === 'administrator' || this.currentUser()?.role?.toLowerCase() === 'admin');
   readonly sessionChecked = signal(false);
 
   /** Controls the auth modal */

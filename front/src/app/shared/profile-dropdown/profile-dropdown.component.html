@@ -1,14 +1,21 @@
 <div class="relative">
   <button
     (click)="toggleProfileMenu($event)"
-    [class]="isMobile ? 'w-full flex items-center justify-center gap-3 px-6 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors' : 'flex items-center gap-3 px-6 h-11 border border-gray-300 hover:border-[#006233] rounded-3xl transition-colors'">
-    <span class="material-icons-round text-[#006233] text-[28px]">account_circle</span>
-    <span class="font-medium">{{ auth.isLoggedIn() ? lang.t('profile') : lang.t('register') }}</span>
+    [class]="isMobile
+      ? 'w-full flex items-center justify-center gap-3 px-6 h-11 border rounded-3xl transition-colors ' + (isStaff() ? 'border-red-400 hover:border-red-600' : 'border-gray-300 hover:border-[#006233]')
+      : 'flex items-center gap-3 px-6 h-11 border rounded-3xl transition-colors ' + (isStaff() ? 'border-red-400 hover:border-red-600' : 'border-gray-300 hover:border-[#006233]')">
+    <span class="material-icons-round text-[28px]" [style.color]="isStaff() ? '#dc2626' : '#006233'">account_circle</span>
+    <span class="font-medium" [style.color]="isStaff() ? '#dc2626' : ''">
+      {{ auth.isLoggedIn() ? lang.t('profile') : lang.t('register') }}
+    </span>
     <span class="material-icons-round text-gray-400 text-[18px]">expand_more</span>
   </button>
 
   @if (showProfileMenu) {
-    <div [class]="isMobile ? 'absolute left-0 mt-3 w-full bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50' : 'absolute end-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50'" (click)="$event.stopPropagation()">
+    <div
+      [class]="isMobile ? 'absolute left-0 mt-3 w-full bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50' : 'absolute end-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl py-3 border text-sm z-50'"
+      (click)="$event.stopPropagation()">
+
       @if (!auth.isLoggedIn()) {
         <div class="px-5 py-4 flex flex-col gap-2">
           <button (click)="openRegister()"
@@ -22,17 +29,32 @@
         </div>
       } @else {
         <div class="px-4">
-          <div class="flex items-center gap-3 p-4 border-b">
-            <span class="material-icons-round text-[#006233] text-[52px]">account_circle</span>
-            <div>
-              <p class="font-semibold">{{ auth.currentUser()?.display_name || auth.currentUser()?.phone }}</p>
+          <div class="flex items-center gap-3 p-4 border-b" [class.border-red-200]="isStaff()">
+            <span class="material-icons-round text-[52px]" [style.color]="isStaff() ? '#dc2626' : '#006233'">account_circle</span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="font-semibold truncate">{{ auth.currentUser()?.display_name || auth.currentUser()?.phone }}</p>
+                @if (isStaff()) {
+                  <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-100 text-red-700 shrink-0">
+                    {{ auth.currentUser()!.role }}
+                  </span>
+                }
+              </div>
               <p class="text-xs text-gray-500">{{ auth.currentUser()?.city || lang.t('location') }}</p>
             </div>
           </div>
+
+          @if (isStaff()) {
+            <a routerLink="/admin" (click)="close()" class="flex items-center gap-2 px-4 py-3 text-red-600 font-medium hover:bg-red-50 rounded-xl">
+              <span class="material-icons-round text-[18px]">dashboard</span>
+              {{ lang.t('dashboard') || 'Dashboard' }}
+            </a>
+            <div class="mx-4 border-t border-red-100"></div>
+          }
+
           <a href="#" class="block px-4 py-3 hover:bg-gray-50 rounded-xl">{{ lang.t('myProfile') }}</a>
           <a href="#" class="block px-4 py-3 hover:bg-gray-50 rounded-xl">{{ lang.t('myShop') }}</a>
-          <a href="#" (click)="logout()"
-            class="block px-4 py-3 text-red-600 hover:bg-gray-50 rounded-xl">
+          <a href="#" (click)="logout()" class="block px-4 py-3 text-red-600 hover:bg-gray-50 rounded-xl">
             {{ lang.t('logout') }}
           </a>
         </div>

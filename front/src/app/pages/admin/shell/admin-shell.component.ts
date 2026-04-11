@@ -75,12 +75,12 @@ export class AdminShellComponent {
   private   readonly router = inject(Router);
 
   get navItems(): NavItem[] {
-    const isAdmin = this.auth.currentUser()?.role === 'admin';
+    const isStaff = this.auth.isStaff();
     const items: NavItem[] = [
       { label: 'Utilisateurs',  icon: 'fa-users',         path: '/admin/users' },
       { label: 'Catégories',    icon: 'fa-tags',          path: '/admin/categories' },
     ];
-    if (isAdmin) {
+    if (isStaff) {
       items.unshift({ label: 'Rôles', icon: 'fa-shield-halved', path: '/admin/roles' });
     }
     return items;

@@ -1,5 +1,5 @@
-import { Component, inject, Input, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, Input, HostListener, computed } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LangService } from '../../core/services/lang.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -7,9 +7,9 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-profile-dropdown',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './profile-dropdown.component.html',
-  styleUrl: './profile-dropdown.component.scss',
+  styleUrls: ['./profile-dropdown.component.scss'],
 })
 export class ProfileDropdownComponent {
   protected readonly lang = inject(LangService);
@@ -17,6 +17,8 @@ export class ProfileDropdownComponent {
   private readonly router = inject(Router);
 
   @Input() isMobile = false;
+
+  readonly isStaff = computed(() => this.auth.isStaff());
 
   showProfileMenu = false;
 
@@ -33,6 +35,10 @@ export class ProfileDropdownComponent {
   openLogin(): void {
     this.showProfileMenu = false;
     this.router.navigate(['/login']);
+  }
+
+  close(): void {
+    this.showProfileMenu = false;
   }
 
   logout(): void {

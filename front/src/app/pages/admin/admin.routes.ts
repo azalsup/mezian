@@ -16,22 +16,22 @@ const adminGuard = () => {
   const injector = inject(Injector);
 
   const allow = (role: string | undefined) =>
-    role === 'admin' || role === 'moderator';
+    role?.toLowerCase() !== 'user';
+
+  const redirect = (user: any) => {
+    if (!user) return router.createUrlTree(['/login']);
+    if (!allow(user.role)) return router.createUrlTree(['/']);
+    return true;
+  };
 
   if (auth.sessionChecked()) {
-    return allow(auth.currentUser()?.role)
-      ? true
-      : router.createUrlTree(['/admin/login']);
+    return redirect(auth.currentUser());
   }
 
   return toObservable(auth.sessionChecked, { injector }).pipe(
     filter(checked => checked),
     take(1),
-    map(() =>
-      allow(auth.currentUser()?.role)
-        ? true
-        : router.createUrlTree(['/admin/login']),
-    ),
+    map(() => redirect(auth.currentUser())),
   );
 };
 
@@ -49,14 +49,8 @@ export const ADMIN_ROUTES: Routes = [
     children: [
       {
         path: '',
-        canActivate: [() => {
-          const auth   = inject(AuthService);
-          const router = inject(Router);
-          const role   = auth.currentUser()?.role;
-          return router.createUrlTree([role === 'admin' ? '/admin/roles' : '/admin/users']);
-        }],
         loadComponent: () =>
-          import('./users/admin-users.component').then(m => m.AdminUsersComponent),
+          import('./admin-main.component').then(m => m.AdminMainComponent),
       },
       {
         path: 'roles',
