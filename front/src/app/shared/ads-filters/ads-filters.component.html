@@ -1,85 +1,140 @@
 <div class="flex flex-col gap-5">
 
-  <!-- Category -->
-  <div class="flex flex-col gap-1.5">
-    <label class="text-[.8rem] font-semibold text-gray-500 uppercase tracking-wide">
+  <!-- ── Category chips ─────────────────────────────────────────────────── -->
+  <div>
+    <p class="text-[.72rem] font-bold text-gray-400 uppercase tracking-widest mb-2.5">
       {{ lang.t('filterCategory') }}
-    </label>
-    <select
-      class="w-full h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
-      [value]="cat()"
-      (change)="setCat($any($event.target).value)">
-      <option value="">{{ lang.t('allCategories') }}</option>
+    </p>
+    <div class="flex flex-col gap-1">
+
+      <button
+        (click)="setCat('')"
+        class="flex items-center gap-2 px-3 h-9 rounded-xl text-[.83rem] font-medium text-start transition-all"
+        [class.bg-[#006233]]="cat() === ''"
+        [class.text-white]="cat() === ''"
+        [class.text-gray-600]="cat() !== ''"
+        [class.hover:bg-gray-100]="cat() !== ''">
+        <span class="material-icons-round text-[16px]">apps</span>
+        {{ lang.t('allCategories') }}
+      </button>
+
       @for (c of categories(); track c.slug) {
-        <option [value]="c.slug">{{ label(c) }}</option>
+        <button
+          (click)="setCat(c.slug)"
+          class="flex items-center gap-2 px-3 h-9 rounded-xl text-[.83rem] font-medium text-start transition-all"
+          [class.bg-[#006233]]="cat() === c.slug"
+          [class.text-white]="cat() === c.slug"
+          [class.text-gray-600]="cat() !== c.slug"
+          [class.hover:bg-gray-100]="cat() !== c.slug">
+          @if (c.icon) {
+            <span class="material-icons-round text-[16px]">{{ c.icon }}</span>
+          } @else {
+            <span class="material-icons-round text-[16px]">label_outline</span>
+          }
+          <span class="truncate">{{ label(c) }}</span>
+        </button>
+
+        <!-- Subcategories expand inline right below the selected category -->
+        @if (cat() === c.slug && c.children?.length) {
+          <div class="ml-3 border-l-2 border-[#006233]/20 flex flex-col">
+            <button
+              (click)="sub.set('')"
+              class="flex items-center gap-2 pl-3 pr-2 py-[7px] text-[.81rem] transition-colors text-start"
+              [class.text-[#006233]]="sub() === ''"
+              [class.font-semibold]="sub() === ''"
+              [class.text-gray-400]="sub() !== ''"
+              [class.hover:text-[#1a1a2e]]="sub() !== ''">
+              <span class="material-icons-round text-[13px]">subdirectory_arrow_right</span>
+              {{ lang.t('allSubcategories') }}
+            </button>
+            @for (s of c.children!; track s.slug) {
+              <button
+                (click)="sub.set(s.slug)"
+                class="flex items-center gap-2 pl-3 pr-2 py-[7px] text-[.81rem] transition-colors text-start"
+                [class.text-[#006233]]="sub() === s.slug"
+                [class.font-semibold]="sub() === s.slug"
+                [class.bg-[#f0faf5]]="sub() === s.slug"
+                [class.rounded-lg]="sub() === s.slug"
+                [class.text-gray-500]="sub() !== s.slug"
+                [class.hover:text-[#1a1a2e]]="sub() !== s.slug">
+                <span class="w-1 h-1 rounded-full bg-current shrink-0 opacity-50"></span>
+                {{ label(s) }}
+              </button>
+            }
+          </div>
+        }
+
       }
-    </select>
+
+    </div>
   </div>
 
-  <!-- Subcategory (shown only when a category is selected) -->
-  @if (subcategories().length) {
-    <div class="flex flex-col gap-1.5">
-      <label class="text-[.8rem] font-semibold text-gray-500 uppercase tracking-wide">
-        {{ lang.t('filterSubcategory') }}
-      </label>
+  <!-- ── City ───────────────────────────────────────────────────────────── -->
+  <div>
+    <p class="text-[.72rem] font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+      {{ lang.t('filterCity') }}
+    </p>
+    <div class="relative">
+      <span class="material-icons-round text-[16px] text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">location_on</span>
       <select
-        class="w-full h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
-        [value]="sub()"
-        (change)="sub.set($any($event.target).value)">
-        <option value="">{{ lang.t('allSubcategories') }}</option>
-        @for (s of subcategories(); track s.slug) {
-          <option [value]="s.slug">{{ label(s) }}</option>
+        class="w-full h-10 pl-8 pr-3 rounded-xl border border-gray-200 bg-white text-[.85rem] text-gray-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors cursor-pointer"
+        [value]="city()"
+        (change)="city.set($any($event.target).value)">
+        <option value="">{{ lang.t('allCities') }}</option>
+        @for (c of CITIES; track c) {
+          <option [value]="c">{{ c }}</option>
         }
       </select>
+      <span class="material-icons-round text-[16px] text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
     </div>
-  }
-
-  <!-- City -->
-  <div class="flex flex-col gap-1.5">
-    <label class="text-[.8rem] font-semibold text-gray-500 uppercase tracking-wide">
-      {{ lang.t('filterCity') }}
-    </label>
-    <select
-      class="w-full h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
-      [value]="city()"
-      (change)="city.set($any($event.target).value)">
-      <option value="">{{ lang.t('allCities') }}</option>
-      @for (c of CITIES; track c) {
-        <option [value]="c">{{ c }}</option>
-      }
-    </select>
   </div>
 
-  <!-- Price range -->
-  <div class="flex flex-col gap-1.5">
-    <label class="text-[.8rem] font-semibold text-gray-500 uppercase tracking-wide">
+  <!-- ── Price range ────────────────────────────────────────────────────── -->
+  <div>
+    <p class="text-[.72rem] font-bold text-gray-400 uppercase tracking-widest mb-2.5">
       {{ lang.t('filterPriceRange') }}
-    </label>
-    <div class="flex gap-2">
-      <input type="number" min="0"
-        class="w-0 flex-1 h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
-        [placeholder]="lang.t('filterMinPrice')"
-        [value]="minPrice()"
-        (input)="minPrice.set($any($event.target).value)">
-      <input type="number" min="0"
-        class="w-0 flex-1 h-10 px-3 rounded-lg border border-gray-200 bg-white text-[.87rem] text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
-        [placeholder]="lang.t('filterMaxPrice')"
-        [value]="maxPrice()"
-        (input)="maxPrice.set($any($event.target).value)">
+    </p>
+    <div class="flex items-center gap-2">
+      <div class="relative flex-1">
+        <input type="number" min="0"
+          class="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-[.85rem] text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
+          [placeholder]="lang.t('filterMinPrice')"
+          [value]="minPrice()"
+          (input)="minPrice.set($any($event.target).value)">
+      </div>
+      <span class="text-gray-300 font-bold shrink-0">—</span>
+      <div class="relative flex-1">
+        <input type="number" min="0"
+          class="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-[.85rem] text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors"
+          [placeholder]="lang.t('filterMaxPrice')"
+          [value]="maxPrice()"
+          (input)="maxPrice.set($any($event.target).value)">
+      </div>
     </div>
+    <p class="text-[.72rem] text-gray-400 mt-1.5">{{ lang.t('currency') }}</p>
   </div>
 
-  <!-- Action buttons -->
+  <!-- ── Actions ────────────────────────────────────────────────────────── -->
   <div class="flex flex-col gap-2 pt-1">
     <button
-      class="h-10 bg-[#006233] text-white text-[.88rem] font-semibold rounded-xl hover:bg-[#005229] transition-colors"
-      (click)="doApply()">
+      (click)="doApply()"
+      class="h-10 bg-[#006233] text-white text-[.88rem] font-semibold rounded-xl hover:bg-[#005229] active:scale-[.98] transition-all flex items-center justify-center gap-2">
+      <span class="material-icons-round text-[17px]">search</span>
       {{ lang.t('applyFilters') }}
+      @if (activeCount()) {
+        <span class="bg-white/20 text-white text-[.72rem] font-bold px-1.5 py-0.5 rounded-full leading-none">
+          {{ activeCount() }}
+        </span>
+      }
     </button>
-    <button
-      class="h-10 bg-transparent text-gray-500 text-[.85rem] font-medium rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
-      (click)="doReset()">
-      {{ lang.t('resetFilters') }}
-    </button>
+    @if (activeCount()) {
+      <button
+        (click)="doReset()"
+        class="h-9 text-gray-400 text-[.82rem] font-medium hover:text-red-500 transition-colors flex items-center justify-center gap-1">
+        <span class="material-icons-round text-[15px]">close</span>
+        {{ lang.t('resetFilters') }}
+      </button>
+    }
   </div>
+
 </div>

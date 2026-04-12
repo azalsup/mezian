@@ -142,6 +142,52 @@
           <h2 class="text-[1.05rem] font-bold text-[#1a1a2e]">{{ lang.t('postAdPrice') }}</h2>
         </div>
 
+        <!-- Photos -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <label class="text-[.85rem] font-semibold text-gray-700">
+              {{ lang.t('postAdPhotos') }}
+              <span class="text-gray-400 font-normal text-[.8rem] ms-1">({{ lang.t('postAdPhotosOptional') }})</span>
+            </label>
+            <span class="text-[.78rem] text-gray-400">{{ photos().length }} / {{ maxPhotos }}</span>
+          </div>
+
+          <div class="grid grid-cols-5 gap-2">
+
+            <!-- Filled slots -->
+            @for (preview of previews(); track preview; let i = $index) {
+              <div class="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
+                <img [src]="preview" class="w-full h-full object-cover">
+                @if (i === 0) {
+                  <span class="absolute bottom-0 left-0 right-0 bg-[#006233] text-white text-[.6rem] font-bold text-center py-0.5 leading-none">
+                    COVER
+                  </span>
+                }
+                <button
+                  type="button"
+                  (click)="removePhoto(i)"
+                  class="absolute top-1 right-1 w-5 h-5 bg-black/60 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span class="material-icons-round text-[12px]">close</span>
+                </button>
+              </div>
+            }
+
+            <!-- Add slot (shown when under limit) -->
+            @if (photos().length < maxPhotos) {
+              <label
+                class="aspect-square rounded-xl border-2 border-dashed border-gray-200 hover:border-[#006233] hover:bg-[#f0faf5] flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors group">
+                <span class="material-icons-round text-[22px] text-gray-300 group-hover:text-[#006233] transition-colors">add_photo_alternate</span>
+                <input type="file" accept="image/*" multiple class="hidden" (change)="onFilesSelected($event)">
+              </label>
+            }
+
+          </div>
+
+          <p class="text-[.75rem] text-gray-400">{{ lang.t('postAdPhotosHint') }}</p>
+        </div>
+
+        <div class="h-px bg-gray-100"></div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
           <div class="flex flex-col gap-1.5">

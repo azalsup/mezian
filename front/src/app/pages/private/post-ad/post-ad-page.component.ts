@@ -1,6 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { LangService } from '../../../core/services/lang.service';
 import { AdsApi } from '../../../sdk';
 import { CategoriesBarComponent } from '../../../shared/categories-bar/categories-bar.component';
@@ -8,6 +10,8 @@ import { SiteFooterComponent } from '../../../shared/site-footer/site-footer.com
 import { CategorySelectComponent, type CategorySelection } from '../../../shared/category-select/category-select.component';
 import { MOROCCO_CITIES } from '../../../shared/ads-filters/ads-filters.component';
 import type { Category } from '../../../sdk';
+
+const MAX_PHOTOS = 5;
 
 @Component({
   selector: 'app-post-ad-page',
@@ -20,9 +24,10 @@ export class PostAdPageComponent {
   private readonly adsApi = inject(AdsApi);
   private readonly router = inject(Router);
 
-  readonly cities = MOROCCO_CITIES;
+  readonly cities   = MOROCCO_CITIES;
+  readonly maxPhotos = MAX_PHOTOS;
 
-  // Step state (1 = category, 2 = details, 3 = price & city)
+  // Step state
   readonly step = signal<1 | 2 | 3>(1);
 
   // Form state
@@ -32,6 +37,10 @@ export class PostAdPageComponent {
   readonly description = signal('');
   readonly price       = signal('');
   readonly city        = signal('');
+
+  // Photo state
+  readonly photos   = signal<File[]>([]);
+  readonly previews = signal<string[]>([]);
 
   // UI state
   readonly submitting = signal(false);
@@ -66,11 +75,29 @@ export class PostAdPageComponent {
     else if (this.step() === 3) this.step.set(2);
   }
 
+  onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+    const current = this.photos();
+    const remaining = MAX_PHOTOS - current.length;
+    const newFiles = Array.from(input.files).slice(0, remaining);
+    const newPreviews = newFiles.map(f => URL.createObjectURL(f));
+    this.photos.set([...current, ...newFiles]);
+    this.previews.set([...this.previews(), ...newPreviews]);
+    input.value = '';
+  }
+
+  removePhoto(index: number): void {
+    URL.revokeObjectURL(this.previews()[index]);
+    this.photos.update(arr => arr.filter((_, i) => i !== index));
+    this.previews.update(arr => arr.filter((_, i) => i !== index));
+  }
+
   submit(): void {
     this.error.set('');
     if (!this.city()) { this.error.set(this.lang.t('errCityRequired')); return; }
 
-    const cat = this.selectedSub() ?? this.selectedCat()!;
+    const cat      = this.selectedSub() ?? this.selectedCat()!;
     const priceVal = this.price().trim();
 
     this.submitting.set(true);
@@ -83,9 +110,19 @@ export class PostAdPageComponent {
       city:        this.city(),
     }).subscribe({
       next: (ad: any) => {
-        this.submitting.set(false);
-        this.success.set(true);
-        setTimeout(() => this.router.navigate(['/ad'], { queryParams: { id: ad.slug } }), 1500);
+        const uploads = this.photos().map(file =>
+          this.adsApi.uploadMedia(ad.slug, file).pipe(catchError(() => of(null)))
+        );
+        const finish = () => {
+          this.submitting.set(false);
+          this.success.set(true);
+          setTimeout(() => this.router.navigate(['/ad'], { queryParams: { id: ad.slug } }), 1500);
+        };
+        if (uploads.length) {
+          forkJoin(uploads).subscribe(finish);
+        } else {
+          finish();
+        }
       },
       error: () => {
         this.submitting.set(false);
