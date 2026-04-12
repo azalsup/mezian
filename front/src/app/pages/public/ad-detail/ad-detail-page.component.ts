@@ -25,22 +25,50 @@ export class AdDetailPageComponent implements OnInit {
   readonly error       = signal(false);
   readonly activeImage = signal(0);
 
+  // Resolve category from preloaded relation or from categories service
   readonly category = computed<Category | null>(() => {
     const ad = this.ad();
     if (!ad) return null;
-    return this.catService.categories().find(c => c.slug === ad.category_slug) ?? null;
+    if (ad.category) return ad.category;
+    const slug = ad.category_slug;
+    return slug ? (this.catService.categories().find(c => c.slug === slug) ?? null) : null;
   });
 
   readonly subcategory = computed<Category | null>(() => {
     const ad  = this.ad();
     const cat = this.category();
-    if (!ad?.subcategory_slug || !cat) return null;
-    return cat.children?.find(c => c.slug === ad.subcategory_slug) ?? null;
+    if (!ad || !cat) return null;
+    // subcategory is the category itself if it has a parent_id
+    if (cat.parent_id) return cat;
+    const subSlug = ad.subcategory_slug;
+    return subSlug ? (cat.children?.find(c => c.slug === subSlug) ?? null) : null;
   });
 
+  // Unified image list: prefer media URLs, fall back to legacy images array
+  readonly images = computed<string[]>(() => {
+    const ad = this.ad();
+    if (!ad) return [];
+    if (ad.media?.length) return ad.media.map(m => m.url);
+    return ad.images ?? [];
+  });
+
+  readonly body = computed(() => this.ad()?.body ?? this.ad()?.description ?? '');
+
+  readonly sellerName = computed(() =>
+    this.ad()?.user?.display_name ?? this.ad()?.seller_name ?? null
+  );
+
+  readonly viewCount = computed(() =>
+    this.ad()?.view_count ?? this.ad()?.views ?? null
+  );
+
+  readonly categorySlug = computed(() =>
+    this.ad()?.category?.slug ?? this.ad()?.category_slug ?? null
+  );
+
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.queryParamMap.get('id'));
-    this.adsApi.getById(id).subscribe({
+    const slug = this.route.snapshot.queryParamMap.get('id') ?? '';
+    this.adsApi.getBySlug(slug).subscribe({
       next:  ad => { this.ad.set(ad); this.loading.set(false); },
       error: ()  => { this.error.set(true); this.loading.set(false); },
     });

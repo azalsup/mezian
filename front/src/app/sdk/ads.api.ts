@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiClient } from './api-client';
 import type { Ad, AdsQuery, AdsResponse, CreateAdPayload } from './types';
 
@@ -21,11 +22,11 @@ export class AdsApi {
     return this.api.get<AdsResponse>(`/ads${qs ? '?' + qs : ''}`);
   }
 
-  getById(id: number): Observable<Ad> {
-    return this.api.get<Ad>(`/ads/${id}`);
+  getBySlug(slug: string): Observable<Ad> {
+    return this.api.get<{ data: Ad }>(`/ads/${slug}`).pipe(map(r => r.data));
   }
 
   createAd(payload: CreateAdPayload): Observable<Ad> {
-    return this.api.post<Ad>('/ads', payload);
+    return this.api.post<{ data: Ad }>('/ads', payload).pipe(map(r => r.data));
   }
 }

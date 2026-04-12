@@ -9,17 +9,19 @@ import (
 
 // AdFilters groups all filters applicable to the ad list.
 type AdFilters struct {
-    CategoryID *uint
-    City       string
-    MinPrice   *float64
-    MaxPrice   *float64
-    Status     string // vide = "active" par défaut
-    Search     string // fulltext search on title
-    UserID     *uint
-    ShopID     *uint
-    Page       int
-    Limit      int
-    Sort       string // price_asc | price_desc | newest | oldest | views
+    CategoryID      *uint
+    CategorySlug    string
+    SubcategorySlug string
+    City            string
+    MinPrice        *float64
+    MaxPrice        *float64
+    Status          string // vide = "active" par défaut
+    Search          string // fulltext search on title
+    UserID          *uint
+    ShopID          *uint
+    Page            int
+    Limit           int
+    Sort            string // price_asc | price_desc | newest | oldest | views
 }
 
 // AdRepo handles database operations for ads.
@@ -86,29 +88,37 @@ func (r *AdRepo) List(f AdFilters) (*AdListResult, error) {
     if status == "" {
         status = "active"
     }
-    query = query.Where("status = ?", status)
+    query = query.Where("ads.status = ?", status)
 
     if f.CategoryID != nil {
-        query = query.Where("category_id = ?", *f.CategoryID)
+        query = query.Where("ads.category_id = ?", *f.CategoryID)
+    }
+    if f.SubcategorySlug != "" {
+        query = query.Joins("JOIN categories ON categories.id = ads.category_id").
+            Where("categories.slug = ?", f.SubcategorySlug)
+    } else if f.CategorySlug != "" {
+        query = query.Joins("JOIN categories ON categories.id = ads.category_id").
+            Where("categories.slug = ? OR categories.parent_id = (SELECT id FROM categories WHERE slug = ?)",
+                f.CategorySlug, f.CategorySlug)
     }
     if f.City != "" {
-        query = query.Where("city = ?", f.City)
+        query = query.Where("ads.city = ?", f.City)
     }
     if f.MinPrice != nil {
-        query = query.Where("price >= ?", *f.MinPrice)
+        query = query.Where("ads.price >= ?", *f.MinPrice)
     }
     if f.MaxPrice != nil {
-        query = query.Where("price <= ?", *f.MaxPrice)
+        query = query.Where("ads.price <= ?", *f.MaxPrice)
     }
     if f.Search != "" {
         like := "%" + strings.ToLower(f.Search) + "%"
-        query = query.Where("LOWER(title) LIKE ? OR LOWER(body) LIKE ?", like, like)
+        query = query.Where("LOWER(ads.title) LIKE ? OR LOWER(ads.body) LIKE ?", like, like)
     }
     if f.UserID != nil {
-        query = query.Where("user_id = ?", *f.UserID)
+        query = query.Where("ads.user_id = ?", *f.UserID)
     }
     if f.ShopID != nil {
-        query = query.Where("shop_id = ?", *f.ShopID)
+        query = query.Where("ads.shop_id = ?", *f.ShopID)
     }
 
     var total int64
@@ -119,15 +129,15 @@ func (r *AdRepo) List(f AdFilters) (*AdListResult, error) {
     // Tri
     switch f.Sort {
     case "price_asc":
-        query = query.Order("price ASC")
+        query = query.Order("ads.price ASC")
     case "price_desc":
-        query = query.Order("price DESC")
+        query = query.Order("ads.price DESC")
     case "oldest":
-        query = query.Order("created_at ASC")
+        query = query.Order("ads.created_at ASC")
     case "views":
-        query = query.Order("view_count DESC")
+        query = query.Order("ads.view_count DESC")
     default: // newest + boosted en tête
-        query = query.Order("is_boosted DESC, created_at DESC")
+        query = query.Order("ads.is_boosted DESC, ads.created_at DESC")
     }
 
     // Pagination

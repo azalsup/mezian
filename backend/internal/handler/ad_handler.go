@@ -39,6 +39,12 @@ func (h *AdHandler) ListAds(c *gin.Context) {
             f.CategoryID = &uid
         }
     }
+    if v := c.Query("cat"); v != "" {
+        f.CategorySlug = v
+    }
+    if v := c.Query("sub"); v != "" {
+        f.SubcategorySlug = v
+    }
     if v := c.Query("min_price"); v != "" {
         p, err := strconv.ParseFloat(v, 64)
         if err == nil {
@@ -96,7 +102,7 @@ type createAdRequest struct {
     CategoryID uint                   `json:"category_id" binding:"required"`
     ShopID     *uint                  `json:"shop_id"`
     Title      string                 `json:"title"       binding:"required,min=5,max=150"`
-    Body       string                 `json:"body"        binding:"required,min=20"`
+    Body       string                 `json:"body"`
     Price      *float64               `json:"price"`
     Currency   string                 `json:"currency"`
     City       string                 `json:"city"        binding:"required"`

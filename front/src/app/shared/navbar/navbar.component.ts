@@ -22,7 +22,9 @@ export class NavbarComponent {
   showMobileMenu  = false;
 
   onSellClick(): void {
-    if (!this.auth.isLoggedIn()) {
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['/post-ad']);
+    } else {
       this.router.navigate(['/register']);
     }
   }

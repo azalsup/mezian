@@ -71,15 +71,36 @@ export interface UserListResponse {
 
 // ── Ads ───────────────────────────────────────────────────────────────────────
 
+export interface AdMedia {
+  ID:         number;
+  url:        string;
+  thumb_url?: string;
+  is_cover:   boolean;
+  type:       string;
+}
+
 export interface Ad {
-  id:                number;
+  ID:                number;
+  id?:               number;
+  slug:              string;
   title:             string;
-  price:             number | null;
+  body?:             string;
+  price?:            number | null;
+  currency?:         string;
   city:              string;
-  category_slug:     string;
+  status?:           string;
+  view_count?:       number;
+  is_boosted?:       boolean;
+  // relation objects (preloaded by backend)
+  category?:         Category;
+  user?:             User;
+  media?:            AdMedia[];
+  // legacy / compat fields (mock data only)
+  category_slug?:    string;
   subcategory_slug?: string;
-  images:            string[];
+  images?:           string[];
   created_at:        string;
+  updated_at?:       string;
   badge?:            'top' | 'new' | 'urgent' | 'premium';
   description?:      string;
   seller_name?:      string;

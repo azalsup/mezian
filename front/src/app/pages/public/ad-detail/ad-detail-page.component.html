@@ -45,12 +45,12 @@
         <a routerLink="/ads" class="hover:text-[#006233] transition-colors">{{ lang.t('allAds') }}</a>
         @if (category(); as cat) {
           <span class="material-icons-round text-[14px]">chevron_right</span>
-          <a routerLink="/ads" [queryParams]="{cat: adData.category_slug}"
+          <a routerLink="/ads" [queryParams]="{cat: categorySlug()}"
             class="hover:text-[#006233] transition-colors">{{ catLabel(cat) }}</a>
         }
         @if (subcategory(); as sub) {
           <span class="material-icons-round text-[14px]">chevron_right</span>
-          <a routerLink="/ads" [queryParams]="{cat: adData.category_slug, sub: sub.slug}"
+          <a routerLink="/ads" [queryParams]="{cat: categorySlug(), sub: sub.slug}"
             class="hover:text-[#006233] transition-colors">{{ catLabel(sub) }}</a>
         }
         <span class="material-icons-round text-[14px]">chevron_right</span>
@@ -66,8 +66,8 @@
           <!-- Image gallery -->
           <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
             <div class="relative aspect-[4/3] bg-gray-100">
-              @if (adData.images.length) {
-                <img [src]="adData.images[activeImage()]" [alt]="adData.title"
+              @if (images().length) {
+                <img [src]="images()[activeImage()]" [alt]="adData.title"
                   class="w-full h-full object-cover">
               } @else {
                 <div class="flex flex-col items-center justify-center h-full text-gray-200 gap-2">
@@ -83,9 +83,9 @@
             </div>
 
             <!-- Thumbnails -->
-            @if (adData.images.length > 1) {
+            @if (images().length > 1) {
               <div class="flex gap-2 p-3 overflow-x-auto [scrollbar-width:none]">
-                @for (img of adData.images; track img; let i = $index) {
+                @for (img of images(); track img; let i = $index) {
                   <button
                     class="w-16 h-16 rounded-lg overflow-hidden shrink-0 ring-2 transition-all"
                     [class.ring-[#006233]]="activeImage() === i"
@@ -99,10 +99,10 @@
           </div>
 
           <!-- Description -->
-          @if (adData.description) {
+          @if (body()) {
             <div class="bg-white rounded-2xl p-5 shadow-sm">
               <h2 class="text-[.95rem] font-bold text-[#1a1a2e] mb-3">{{ lang.t('adDescription') }}</h2>
-              <p class="text-[.88rem] text-gray-600 leading-relaxed whitespace-pre-line">{{ adData.description }}</p>
+              <p class="text-[.88rem] text-gray-600 leading-relaxed whitespace-pre-line">{{ body() }}</p>
             </div>
           }
 
@@ -122,10 +122,10 @@
               <span class="text-[.83rem] text-gray-400">{{ lang.t('postedOn') }} {{ formatDate(adData.created_at) }}</span>
             </div>
 
-            @if (adData.views) {
+            @if (viewCount()) {
               <div class="flex items-center gap-1 text-[.78rem] text-gray-400 mb-4">
                 <span class="material-icons-round text-[14px]">visibility</span>
-                <span>{{ adData.views }} {{ lang.t('views') }}</span>
+                <span>{{ viewCount() }} {{ lang.t('views') }}</span>
               </div>
             }
 
@@ -142,13 +142,13 @@
 
           <!-- Seller + contact -->
           <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            @if (adData.seller_name) {
+            @if (sellerName()) {
               <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-full bg-[#e8f5ee] flex items-center justify-center shrink-0">
                   <span class="material-icons-round text-[#006233] text-[20px]">person</span>
                 </div>
                 <div>
-                  <p class="text-[.88rem] font-semibold text-[#1a1a2e]">{{ adData.seller_name }}</p>
+                  <p class="text-[.88rem] font-semibold text-[#1a1a2e]">{{ sellerName() }}</p>
                   <p class="text-[.75rem] text-gray-400">Particulier</p>
                 </div>
               </div>
@@ -163,13 +163,13 @@
           <!-- Category chips -->
           @if (category(); as cat) {
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-wrap gap-2">
-              <a routerLink="/ads" [queryParams]="{cat: adData.category_slug}"
+              <a routerLink="/ads" [queryParams]="{cat: categorySlug()}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#e8f5ee] text-[#006233] text-[.8rem] font-medium rounded-full hover:bg-[#d4eddf] transition-colors">
                 <span class="material-icons-round text-[14px]">{{ cat.icon }}</span>
                 {{ catLabel(cat) }}
               </a>
               @if (subcategory(); as sub) {
-                <a routerLink="/ads" [queryParams]="{cat: adData.category_slug, sub: sub.slug}"
+                <a routerLink="/ads" [queryParams]="{cat: categorySlug(), sub: sub.slug}"
                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 text-[.8rem] font-medium rounded-full hover:bg-gray-200 transition-colors">
                   {{ catLabel(sub) }}
                 </a>

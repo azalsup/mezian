@@ -15,6 +15,10 @@ export class AdCardComponent {
 
   @Input({ required: true }) ad!: Ad;
 
+  coverUrl(): string | null {
+    return this.ad.media?.[0]?.url ?? this.ad.images?.[0] ?? null;
+  }
+
   badgeCls(badge: Ad['badge']): Record<string, boolean> {
     return {
       'bg-[#006233] text-white': badge === 'top',

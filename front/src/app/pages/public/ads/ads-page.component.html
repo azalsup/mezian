@@ -15,7 +15,7 @@
     <!-- Results header -->
     <div class="flex items-center justify-between mb-5 gap-4 flex-wrap">
       <p class="text-gray-500 text-[.85rem]">
-        <span class="font-semibold text-[#1a1a2e]">{{ ads().length }}</span>&nbsp;{{ lang.t('listingCount') }}
+        <span class="font-semibold text-[#1a1a2e]">{{ total() }}</span>&nbsp;{{ lang.t('listingCount') }}
       </p>
 
       <!-- Sort -->
@@ -24,7 +24,7 @@
         <select
           class="h-9 px-3 rounded-lg border border-gray-200 bg-white text-gray-700 text-[.85rem] focus:outline-none focus:ring-2 focus:ring-[#006233]/20 focus:border-[#006233] transition-colors cursor-pointer"
           [value]="sort()"
-          (change)="sort.set($any($event.target).value)">
+          (change)="onSortChange($any($event.target).value)">
           <option value="newest">{{ lang.t('sortNewest') }}</option>
           <option value="price_asc">{{ lang.t('sortPriceAsc') }}</option>
           <option value="price_desc">{{ lang.t('sortPriceDesc') }}</option>
@@ -72,9 +72,26 @@
         </div>
 
         <!-- Ads grid -->
-        @if (ads().length) {
+        @if (loading()) {
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            @for (ad of ads(); track ad.id) {
+            @for (i of [1,2,3,4,5,6]; track i) {
+              <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <div class="aspect-[4/3] bg-gray-200 animate-pulse"></div>
+                <div class="p-3 flex flex-col gap-2">
+                  <div class="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                  <div class="h-3 bg-gray-200 rounded animate-pulse w-1/3"></div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (error()) {
+          <div class="flex flex-col items-center justify-center py-24 text-center">
+            <span class="material-icons-round text-[64px] text-gray-200 mb-4">wifi_off</span>
+            <p class="font-semibold text-gray-700 mb-1.5">{{ lang.t('errNetwork') }}</p>
+          </div>
+        } @else if (ads().length) {
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            @for (ad of ads(); track ad.ID) {
               <app-ad-card [ad]="ad" />
             }
           </div>

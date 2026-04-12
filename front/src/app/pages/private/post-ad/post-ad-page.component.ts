@@ -16,11 +16,14 @@ import type { Category } from '../../../sdk';
   templateUrl: './post-ad-page.component.html',
 })
 export class PostAdPageComponent {
-  readonly lang    = inject(LangService);
+  readonly lang           = inject(LangService);
   private readonly adsApi = inject(AdsApi);
   private readonly router = inject(Router);
 
   readonly cities = MOROCCO_CITIES;
+
+  // Step state (1 = category, 2 = details, 3 = price & city)
+  readonly step = signal<1 | 2 | 3>(1);
 
   // Form state
   readonly selectedCat = signal<Category | null>(null);
@@ -40,29 +43,49 @@ export class PostAdPageComponent {
     this.selectedSub.set(sel.sub);
   }
 
+  next(): void {
+    this.error.set('');
+    if (this.step() === 1) {
+      if (!(this.selectedSub() ?? this.selectedCat())) {
+        this.error.set(this.lang.t('errCatRequired'));
+        return;
+      }
+      this.step.set(2);
+    } else if (this.step() === 2) {
+      if (!this.title().trim()) {
+        this.error.set(this.lang.t('errTitleRequired'));
+        return;
+      }
+      this.step.set(3);
+    }
+  }
+
+  back(): void {
+    this.error.set('');
+    if (this.step() === 2) this.step.set(1);
+    else if (this.step() === 3) this.step.set(2);
+  }
+
   submit(): void {
     this.error.set('');
-
-    const cat = this.selectedSub() ?? this.selectedCat();
-    if (!cat) { this.error.set(this.lang.t('errCatRequired')); return; }
-    if (!this.title().trim()) { this.error.set(this.lang.t('errTitleRequired')); return; }
     if (!this.city()) { this.error.set(this.lang.t('errCityRequired')); return; }
 
+    const cat = this.selectedSub() ?? this.selectedCat()!;
     const priceVal = this.price().trim();
 
     this.submitting.set(true);
     this.adsApi.createAd({
-      category_id: cat.id,
+      category_id: cat.ID,
       title:       this.title().trim(),
       body:        this.description().trim(),
       price:       priceVal ? Number(priceVal) : undefined,
       currency:    'MAD',
       city:        this.city(),
     }).subscribe({
-      next: (ad) => {
+      next: (ad: any) => {
         this.submitting.set(false);
         this.success.set(true);
-        setTimeout(() => this.router.navigate(['/ads', ad.id]), 1500);
+        setTimeout(() => this.router.navigate(['/ad'], { queryParams: { id: ad.slug } }), 1500);
       },
       error: () => {
         this.submitting.set(false);

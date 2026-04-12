@@ -31,7 +31,7 @@ export const routes: Routes = [
     title: 'Annonces — Daba',
   },
   {
-    path: 'ads/:id',
+    path: 'ad',
     loadComponent: () =>
       import('./pages/public/ad-detail/ad-detail-page.component').then(m => m.AdDetailPageComponent),
     title: 'Annonce — Daba',
