@@ -8,7 +8,7 @@ export interface AuthTokens {
 }
 
 export interface User {
-  id:           number;
+  ID:           number;
   phone:        string;
   email?:       string;
   is_verified:  boolean;
@@ -131,7 +131,7 @@ export interface AttributeDefinition {
 }
 
 export interface Category {
-  id:                     number;
+  ID:                     number;
   slug:                   string;
   name_fr:                string;
   name_ar:                string;

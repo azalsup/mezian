@@ -31,7 +31,7 @@ export class CategorySelectComponent {
 
   setCat(catId: string): void {
     const cat = catId
-      ? (this.catService.categories().find(c => c.id === Number(catId)) ?? null)
+      ? (this.catService.categories().find(c => c.ID === Number(catId)) ?? null)
       : null;
     this.selectedCat.set(cat);
     this.selectedSub.set(null);
@@ -40,7 +40,7 @@ export class CategorySelectComponent {
 
   setSub(subId: string): void {
     const sub = subId
-      ? (this.subcategories().find(s => s.id === Number(subId)) ?? null)
+      ? (this.subcategories().find(s => s.ID === Number(subId)) ?? null)
       : null;
     this.selectedSub.set(sub);
     this.selectionChange.emit({ cat: this.selectedCat(), sub });

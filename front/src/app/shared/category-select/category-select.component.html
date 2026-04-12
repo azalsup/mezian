@@ -7,8 +7,8 @@
     class="w-full h-11 px-3 rounded-xl border border-gray-200 text-[.88rem] text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006233]/30 focus:border-[#006233] transition-colors"
     (change)="setCat($any($event.target).value)">
     <option value="">{{ lang.t('postAdSelectCat') }}</option>
-    @for (cat of catService.categories(); track cat.id) {
-      <option [value]="cat.id">{{ catLabel(cat) }}</option>
+    @for (cat of catService.categories(); track cat.ID) {
+      <option [value]="cat.ID">{{ catLabel(cat) }}</option>
     }
   </select>
 </div>
@@ -23,8 +23,8 @@
       class="w-full h-11 px-3 rounded-xl border border-gray-200 text-[.88rem] text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#006233]/30 focus:border-[#006233] transition-colors"
       (change)="setSub($any($event.target).value)">
       <option value="">{{ lang.t('postAdSelectSub') }}</option>
-      @for (sub of subcategories(); track sub.id) {
-        <option [value]="sub.id">{{ catLabel(sub) }}</option>
+      @for (sub of subcategories(); track sub.ID) {
+        <option [value]="sub.ID">{{ catLabel(sub) }}</option>
       }
     </select>
   </div>

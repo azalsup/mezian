@@ -24,7 +24,7 @@
       </div>
     } @else {
       <div class="flex flex-col gap-2">
-        @for (user of users(); track user.id) {
+        @for (user of users(); track user.ID) {
           <app-user-tile
             [user]="user"
             [callerRole]="callerRole"

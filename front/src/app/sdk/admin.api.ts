@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiClient } from './api-client';
 import { Category, Permission, Role, User, UserListResponse } from './types';
 
@@ -96,7 +97,7 @@ export class AdminApi {
   // ── Categories ─────────────────────────────────────────────────────────────
 
   listAdminCategories(): Observable<Category[]> {
-    return this.api.get('/admin/categories');
+    return this.api.get<{ data: Category[] }>('/admin/categories').pipe(map(r => r.data));
   }
 
   createCategory(payload: CategoryCreatePayload): Observable<Category> {

@@ -75,10 +75,10 @@ export class AdminCategoriesComponent implements OnInit {
 
   toggleFeatured(cat: Category): void {
     const next = !cat.featured;
-    this.adminApi.updateCategory(cat.id, { featured: next }).subscribe({
+    this.adminApi.updateCategory(cat.ID, { featured: next }).subscribe({
       next: () => {
         this.categories.update(list =>
-          list.map(c => c.id === cat.id ? { ...c, featured: next } : c)
+          list.map(c => c.ID === cat.ID ? { ...c, featured: next } : c)
         );
       },
       error: () => this.error.set('Impossible de modifier le statut featured.'),
@@ -89,15 +89,15 @@ export class AdminCategoriesComponent implements OnInit {
 
   toggleActive(cat: Category, parentId?: number): void {
     const next = !cat.is_active;
-    this.adminApi.updateCategory(cat.id, { is_active: next }).subscribe({
+    this.adminApi.updateCategory(cat.ID, { is_active: next }).subscribe({
       next: () => {
         this.categories.update(list => list.map(parent => {
-          if (!parentId && parent.id === cat.id) return { ...parent, is_active: next };
-          if (parentId && parent.id === parentId) {
+          if (!parentId && parent.ID === cat.ID) return { ...parent, is_active: next };
+          if (parentId && parent.ID === parentId) {
             return {
               ...parent,
               children: parent.children?.map(c =>
-                c.id === cat.id ? { ...c, is_active: next } : c
+                c.ID === cat.ID ? { ...c, is_active: next } : c
               ),
             };
           }
@@ -142,7 +142,7 @@ export class AdminCategoriesComponent implements OnInit {
       is_active:  this.fIsActive,
     };
     this.saving.set(true);
-    this.adminApi.updateCategory(cat.id, payload).subscribe({
+    this.adminApi.updateCategory(cat.ID, payload).subscribe({
       next: () => { this.saving.set(false); this.showEdit.set(false); this.load(); },
       error: () => { this.saving.set(false); this.editError.set('Erreur lors de la sauvegarde.'); },
     });
@@ -183,7 +183,7 @@ export class AdminCategoriesComponent implements OnInit {
       sort_order: this.cSortOrder,
       featured:   parent ? false : this.cFeatured,
       is_active:  this.cIsActive,
-      parent_id:  parent?.id,
+      parent_id:  parent?.ID,
     };
     this.creating.set(true);
     this.adminApi.createCategory(payload).subscribe({
@@ -199,7 +199,7 @@ export class AdminCategoriesComponent implements OnInit {
       ? `Supprimer « ${cat.name_fr} » et ses ${cat.children.length} sous-catégorie(s) ?`
       : `Supprimer « ${cat.name_fr} » ?`;
     if (!confirm(msg)) return;
-    this.adminApi.deleteCategory(cat.id).subscribe({
+    this.adminApi.deleteCategory(cat.ID).subscribe({
       next:  () => this.load(),
       error: () => this.error.set('Impossible de supprimer cette catégorie.'),
     });

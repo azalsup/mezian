@@ -29,16 +29,16 @@
 <!-- Category list -->
 @if (!loading()) {
   <div class="space-y-2">
-    @for (cat of categories(); track cat.id) {
+    @for (cat of categories(); track cat.ID) {
       <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
 
         <!-- Root category row -->
         <div class="flex items-center gap-3 px-4 py-3">
 
           <!-- Expand toggle -->
-          <button (click)="toggleExpand(cat.id)"
+          <button (click)="toggleExpand(cat.ID)"
             class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors shrink-0">
-            <i class="fa-solid {{ isExpanded(cat.id) ? 'fa-chevron-down' : 'fa-chevron-right' }} text-[11px]"></i>
+            <i class="fa-solid {{ isExpanded(cat.ID) ? 'fa-chevron-down' : 'fa-chevron-right' }} text-[11px]"></i>
           </button>
 
           <!-- Icon -->
@@ -108,9 +108,9 @@
         </div>
 
         <!-- Subcategories (expanded) -->
-        @if (isExpanded(cat.id) && cat.children?.length) {
+        @if (isExpanded(cat.ID) && cat.children?.length) {
           <div class="border-t border-gray-100 bg-gray-50 divide-y divide-gray-100">
-            @for (sub of cat.children; track sub.id) {
+            @for (sub of cat.children; track sub.ID) {
               <div class="flex items-center gap-3 px-4 py-2.5 pl-12">
 
                 <span class="material-icons-round text-gray-400 text-[18px] w-5 text-center shrink-0">{{ sub.icon || 'subdirectory_arrow_right' }}</span>
@@ -125,7 +125,7 @@
 
                 <!-- Active toggle -->
                 <button
-                  (click)="toggleActive(sub, cat.id)"
+                  (click)="toggleActive(sub, cat.ID)"
                   [title]="sub.is_active ? 'Désactiver' : 'Activer'"
                   class="flex items-center justify-center w-7 h-7 rounded-lg transition-colors shrink-0"
                   [class.text-emerald-500]="sub.is_active"

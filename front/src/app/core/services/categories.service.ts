@@ -121,7 +121,7 @@ export class CategoriesService {
   /** Convert the bundled JSON shape (code/subcategories) to the Category interface */
   private transformStatic(entries: StaticCatEntry[]): Category[] {
     return entries.map((e, i) => ({
-      id:         -(i + 1),          // negative so they never collide with DB ids
+      ID:         -(i + 1),          // negative so they never collide with DB ids
       slug:       e.code,
       name_fr:    e.name_fr,
       name_ar:    e.name_ar,
@@ -131,7 +131,7 @@ export class CategoriesService {
       is_active:  true,
       featured:   e.featured ?? false,
       children: (e.subcategories ?? []).map((s, j) => ({
-        id:         -(i * 100 + j + 1),
+        ID:         -(i * 100 + j + 1),
         slug:       s.code,
         name_fr:    s.name_fr,
         name_ar:    s.name_ar,

@@ -67,7 +67,7 @@ export class UserTileComponent implements OnChanges {
     if (!f.display_name.trim()) { this.editError.set('Le nom est requis.'); return; }
     if (!f.phone.trim())        { this.editError.set('Le téléphone est requis.'); return; }
     this.saving.set(true);
-    this.adminApi.updateUser(this.user.id, {
+    this.adminApi.updateUser(this.user.ID, {
       display_name: f.display_name.trim(), phone: f.phone.trim(),
       email: f.email || null, address: f.address || null,
       city: f.city || null, postal_code: f.postal_code || null,
@@ -91,9 +91,9 @@ export class UserTileComponent implements OnChanges {
   doConfirm(): void {
     const act = this.confirmAct(); if (!act) return;
     this.confirming.set(true);
-    const obs = act === 'ban'   ? this.adminApi.banUser(this.user.id)
-              : act === 'unban' ? this.adminApi.unbanUser(this.user.id)
-              :                   this.adminApi.deleteUser(this.user.id);
+    const obs = act === 'ban'   ? this.adminApi.banUser(this.user.ID)
+              : act === 'unban' ? this.adminApi.unbanUser(this.user.ID)
+              :                   this.adminApi.deleteUser(this.user.ID);
     obs.subscribe({
       next: () => {
         this.confirming.set(false); this.showConfirm.set(false);
@@ -114,7 +114,7 @@ export class UserTileComponent implements OnChanges {
   doReset(): void {
     if (this.newPwd().length < 6) { this.resetError.set('Minimum 6 caractères.'); return; }
     this.resetting.set(true);
-    this.adminApi.resetUserPassword(this.user.id, this.newPwd()).subscribe({
+    this.adminApi.resetUserPassword(this.user.ID, this.newPwd()).subscribe({
       next: () => { this.resetting.set(false); this.showReset.set(false); },
       error: () => { this.resetting.set(false); this.resetError.set('Erreur lors de la réinitialisation.'); },
     });
@@ -143,7 +143,7 @@ export class UserTileComponent implements OnChanges {
 
   saveRoles(): void {
     this.savingRoles.set(true);
-    this.adminApi.setUserRoles(this.user.id, [...this.selectedRoleIds()]).subscribe({
+    this.adminApi.setUserRoles(this.user.ID, [...this.selectedRoleIds()]).subscribe({
       next: () => { this.savingRoles.set(false); this.showRoles.set(false); this.action.emit('rolesChanged'); },
       error: () => { this.savingRoles.set(false); this.rolesError.set('Erreur lors de la mise à jour.'); },
     });
