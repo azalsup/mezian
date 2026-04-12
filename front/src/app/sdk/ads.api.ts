@@ -26,7 +26,15 @@ export class AdsApi {
     return this.api.get<{ data: Ad }>(`/ads/${slug}`).pipe(map(r => r.data));
   }
 
-  createAd(payload: CreateAdPayload): Observable<Ad> {
-    return this.api.post<{ data: Ad }>('/ads', payload).pipe(map(r => r.data));
+  createAd(payload: CreateAdPayload, files: File[] = []): Observable<Ad> {
+    const form = new FormData();
+    form.append('category_id', String(payload.category_id));
+    form.append('title', payload.title);
+    form.append('body', payload.body ?? '');
+    form.append('currency', payload.currency ?? 'MAD');
+    form.append('city', payload.city);
+    if (payload.price != null) form.append('price', String(payload.price));
+    files.forEach(f => form.append('images', f));
+    return this.api.post<{ data: Ad }>('/ads', form).pipe(map(r => r.data));
   }
 }

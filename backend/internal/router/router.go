@@ -108,9 +108,6 @@ func New(deps *Deps) *gin.Engine {
 			adsProtected.PUT("/:slug", deps.AdHandler.UpdateAd)
 			adsProtected.DELETE("/:slug", deps.AdHandler.DeleteAd)
 
-			// Médias d'une ad (route imbriquée)
-			adsProtected.POST("/:id/media", deps.MediaHandler.UploadImage)
-			adsProtected.POST("/:id/media/youtube", deps.MediaHandler.AddYouTube)
 		}
 	}
 

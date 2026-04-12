@@ -1,6 +1,7 @@
 package handler
 
 import (
+    "log"
     "strconv"
 
     "github.com/gin-gonic/gin"
@@ -13,12 +14,13 @@ import (
 
 // AdHandler handles ad routes.
 type AdHandler struct {
-    adSvc *service.AdService
+    adSvc    *service.AdService
+    mediaSvc *service.MediaService
 }
 
 // NewAdHandler creates a new AdHandler.
-func NewAdHandler(adSvc *service.AdService) *AdHandler {
-    return &AdHandler{adSvc: adSvc}
+func NewAdHandler(adSvc *service.AdService, mediaSvc *service.MediaService) *AdHandler {
+    return &AdHandler{adSvc: adSvc, mediaSvc: mediaSvc}
 }
 
 // ListAds godoc
@@ -97,50 +99,78 @@ func (h *AdHandler) GetAd(c *gin.Context) {
     respondOK(c, ad)
 }
 
-// createAdRequest est le body de POST /ads.
-type createAdRequest struct {
-    CategoryID uint                   `json:"category_id" binding:"required"`
-    ShopID     *uint                  `json:"shop_id"`
-    Title      string                 `json:"title"       binding:"required,min=5,max=150"`
-    Body       string                 `json:"body"`
-    Price      *float64               `json:"price"`
-    Currency   string                 `json:"currency"`
-    City       string                 `json:"city"        binding:"required"`
-    District   *string                `json:"district"`
-    Status     string                 `json:"status"`
-    Attributes []models.AdAttribute   `json:"attributes"`
-}
-
 // CreateAd godoc
 // POST /ads
 // Creates a new ad for the authenticated user.
+// Accepts multipart/form-data; optional "images" files are uploaded immediately.
 func (h *AdHandler) CreateAd(c *gin.Context) {
-    var req createAdRequest
-    if err := c.ShouldBindJSON(&req); err != nil {
-        respondBadRequest(c, err.Error())
+    log.Printf("[CreateAd] Content-Type: %s", c.GetHeader("Content-Type"))
+    log.Printf("[CreateAd] category_id=%q title=%q city=%q", c.PostForm("category_id"), c.PostForm("title"), c.PostForm("city"))
+
+    categoryIDStr := c.PostForm("category_id")
+    if categoryIDStr == "" {
+        respondBadRequest(c, "category_id is required")
         return
+    }
+    catID, err := strconv.ParseUint(categoryIDStr, 10, 64)
+    if err != nil {
+        respondBadRequest(c, "invalid category_id")
+        return
+    }
+
+    title := c.PostForm("title")
+    if title == "" {
+        respondBadRequest(c, "title is required")
+        return
+    }
+    city := c.PostForm("city")
+    if city == "" {
+        respondBadRequest(c, "city is required")
+        return
+    }
+
+    var price *float64
+    if v := c.PostForm("price"); v != "" {
+        p, err := strconv.ParseFloat(v, 64)
+        if err == nil {
+            price = &p
+        }
+    }
+
+    currency := c.PostForm("currency")
+    if currency == "" {
+        currency = "MAD"
     }
 
     userID := middleware.GetUserID(c)
 
     input := service.CreateAdInput{
         UserID:     userID,
-        CategoryID: req.CategoryID,
-        ShopID:     req.ShopID,
-        Title:      req.Title,
-        Body:       req.Body,
-        Price:      req.Price,
-        Currency:   req.Currency,
-        City:       req.City,
-        District:   req.District,
-        Status:     req.Status,
-        Attributes: req.Attributes,
+        CategoryID: uint(catID),
+        Title:      title,
+        Body:       c.PostForm("body"),
+        Price:      price,
+        Currency:   currency,
+        City:       city,
     }
 
     ad, err := h.adSvc.CreateAd(input)
     if err != nil {
         respondError(c, err)
         return
+    }
+
+    // Upload any attached images
+    form, _ := c.MultipartForm()
+    if form != nil {
+        for _, fh := range form.File["images"] {
+            file, openErr := fh.Open()
+            if openErr != nil {
+                continue
+            }
+            h.mediaSvc.UploadImage(ad.Model.ID, userID, file, fh) //nolint:errcheck
+            file.Close()
+        }
     }
 
     respondCreated(c, ad)

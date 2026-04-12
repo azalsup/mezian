@@ -82,7 +82,7 @@ func main() {
 
 	// --- Handlers ---
 	authHandler := handler.NewAuthHandler(authSvc, userRepo)
-	adHandler := handler.NewAdHandler(adSvc)
+	adHandler := handler.NewAdHandler(adSvc, mediaSvc)
 	catHandler := handler.NewCategoryHandler(catRepo)
 	mediaHandler := handler.NewMediaHandler(mediaSvc)
 	shopHandler := handler.NewShopHandler(shopSvc)

@@ -1,8 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { LangService } from '../../../core/services/lang.service';
 import { AdsApi } from '../../../sdk';
 import { CategoriesBarComponent } from '../../../shared/categories-bar/categories-bar.component';
@@ -108,21 +106,11 @@ export class PostAdPageComponent {
       price:       priceVal ? Number(priceVal) : undefined,
       currency:    'MAD',
       city:        this.city(),
-    }).subscribe({
+    }, this.photos()).subscribe({
       next: (ad: any) => {
-        const uploads = this.photos().map(file =>
-          this.adsApi.uploadMedia(ad.slug, file).pipe(catchError(() => of(null)))
-        );
-        const finish = () => {
-          this.submitting.set(false);
-          this.success.set(true);
-          setTimeout(() => this.router.navigate(['/ad'], { queryParams: { id: ad.slug } }), 1500);
-        };
-        if (uploads.length) {
-          forkJoin(uploads).subscribe(finish);
-        } else {
-          finish();
-        }
+        this.submitting.set(false);
+        this.success.set(true);
+        setTimeout(() => this.router.navigate(['/ad'], { queryParams: { id: ad.slug } }), 1500);
       },
       error: () => {
         this.submitting.set(false);
