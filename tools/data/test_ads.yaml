@@ -1,51 +1,297 @@
+# ── Categories to auto-create (used when --admin-token is provided and DB is empty) ──
+categories:
+  - slug: immobilier
+    name_fr: Immobilier
+    name_ar: عقارات
+    name_en: Real Estate
+    icon: home
+    sort_order: 1
+    is_active: true
+
+  - slug: vehicules
+    name_fr: Véhicules
+    name_ar: سيارات
+    name_en: Vehicles
+    icon: car
+    sort_order: 2
+    is_active: true
+
+  - slug: electronique
+    name_fr: Électronique
+    name_ar: إلكترونيات
+    name_en: Electronics
+    icon: smartphone
+    sort_order: 3
+    is_active: true
+
+  - slug: maison
+    name_fr: Maison & Jardin
+    name_ar: المنزل والحديقة
+    name_en: Home & Garden
+    icon: sofa
+    sort_order: 4
+    is_active: true
+
+  - slug: mode
+    name_fr: Mode & Vêtements
+    name_ar: الأزياء والملابس
+    name_en: Fashion
+    icon: shirt
+    sort_order: 5
+    is_active: true
+
+  - slug: emploi
+    name_fr: Emploi
+    name_ar: وظائف
+    name_en: Jobs
+    icon: briefcase
+    sort_order: 6
+    is_active: true
+
+# ── Ads seed data ─────────────────────────────────────────────────────────────
 ads:
-- title: "Test Ad 1"
-  body: "This is the first test ad.\n\nGenerated for backend testing."
-  price: 1000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 2"
-  body: "This is the second test ad.\n\nGenerated for backend testing."
-  price: 2000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 3"
-  body: "This is the third test ad.\n\nGenerated for backend testing."
-  price: 3000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 4"
-  body: "This is the fourth test ad.\n\nGenerated for backend testing."
-  price: 4000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 5"
-  body: "This is the fifth test ad.\n\nGenerated for backend testing."
-  price: 5000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 6"
-  body: "This is the sixth test ad.\n\nGenerated for backend testing."
-  price: 6000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 7"
-  body: "This is the seventh test ad.\n\nGenerated for backend testing."
-  price: 7000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 8"
-  body: "This is the eighth test ad.\n\nGenerated for backend testing."
-  price: 8000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 9"
-  body: "This is the ninth test ad.\n\nGenerated for backend testing."
-  price: 9000.0
-  currency: "MAD"
-  city: "Casablanca"
-- title: "Test Ad 10"
-  body: "This is the tenth test ad.\n\nGenerated for backend testing."
-  price: 10000.0
-  currency: "MAD"
-  city: "Casablanca"
+  # Immobilier
+  - category_slug: immobilier
+    title: Appartement 3 pièces à Maarif, Casablanca
+    body: |
+      Bel appartement de 85 m² au 4ème étage avec ascenseur.
+      Composé de 2 chambres, salon, cuisine équipée et 2 salles de bain.
+      Résidence sécurisée avec parking. Proche de toutes commodités.
+    price: 850000
+    currency: MAD
+    city: Casablanca
+
+  - category_slug: immobilier
+    title: Villa avec piscine à Ain Diab
+    body: |
+      Magnifique villa de 350 m² sur terrain de 600 m².
+      5 chambres, 3 salles de bain, salon marocain, cuisine américaine.
+      Piscine chauffée, garage double, jardinet arborisé.
+    price: 4500000
+    currency: MAD
+    city: Casablanca
+
+  - category_slug: immobilier
+    title: Studio meublé à Guéliz, Marrakech
+    body: |
+      Studio entièrement meublé de 35 m² au 2ème étage.
+      Idéal pour étudiant ou professionnel. Loyer incluant charges.
+      Disponible immédiatement.
+    price: 3200
+    currency: MAD
+    city: Marrakech
+
+  - category_slug: immobilier
+    title: Local commercial 120 m² — zone industrielle Fès
+    body: |
+      Local commercial au rez-de-chaussée, grande vitrine sur rue principale.
+      Hauteur sous plafond 4 m, porte de garage, WC indépendant.
+      Idéal entrepôt, showroom ou atelier.
+    price: 6500
+    currency: MAD
+    city: Fès
+
+  - category_slug: immobilier
+    title: Appartement F2 neuf à Agdal, Rabat
+    body: |
+      Appartement neuf jamais habité, 65 m², standing élevé.
+      Cuisine ouverte, parquet chêne, double vitrage.
+      Livraison immédiate. Titre foncier disponible.
+    price: 1200000
+    currency: MAD
+    city: Rabat
+
+  # Véhicules
+  - category_slug: vehicules
+    title: Dacia Sandero Stepway 2021 — 42 000 km
+    body: |
+      Dacia Sandero Stepway 1.0 TCe 90 ch, boîte manuelle.
+      Couleur gris platine, première main, entretien chez concessionnaire.
+      Clim, GPS, caméra de recul, régulateur de vitesse.
+    price: 115000
+    currency: MAD
+    city: Casablanca
+
+  - category_slug: vehicules
+    title: Renault Clio 5 essence 2022 — faible kilométrage
+    body: |
+      Clio 5 TCe 100 ch, 18 000 km, état showroom.
+      Full options : LED, navigation, Apple CarPlay.
+      Garantie constructeur en cours. Possible crédit.
+    price: 158000
+    currency: MAD
+    city: Rabat
+
+  - category_slug: vehicules
+    title: Hyundai Tucson 4x4 2020 à vendre
+    body: |
+      Tucson 2.0 CRDi 185 ch, boîte automatique, transmission intégrale.
+      58 000 km, carnet d'entretien complet. Cuir, toit pano, son Harman.
+    price: 295000
+    currency: MAD
+    city: Tanger
+
+  - category_slug: vehicules
+    title: Moto Honda CB500F 2019 — parfait état
+    body: |
+      Honda CB500F ABS, 15 000 km, révision faite.
+      Equipements inclus : top-case, sacoches latérales, protège-mains.
+      Idéale pour trajet quotidien ou loisirs.
+    price: 42000
+    currency: MAD
+    city: Casablanca
+
+  - category_slug: vehicules
+    title: Camion Renault Master frigorifique 2018
+    body: |
+      Renault Master L3H2 Frigo, 130 cv, boîte manuelle.
+      Groupe froid Carrier, -20°C / +5°C. 120 000 km, CT valide.
+      Idéal livraison alimentaire ou pharmaceutique.
+    price: 220000
+    currency: MAD
+    city: Casablanca
+
+  # Électronique
+  - category_slug: electronique
+    title: iPhone 14 Pro 256 Go — Violet Intense
+    body: |
+      iPhone 14 Pro 256 Go, couleur Violet Intense.
+      Acheté en janvier 2023, batterie à 91%, très bon état général.
+      Vendu avec boîte d'origine, câble et chargeur 20W.
+    price: 9500
+    currency: MAD
+    city: Casablanca
+
+  - category_slug: electronique
+    title: MacBook Pro M2 14" 2022 — 16 Go RAM
+    body: |
+      MacBook Pro 14" puce M2 Pro, 16 Go RAM, 512 Go SSD.
+      Utilisé 8 mois, toujours sous AppleCare+.
+      État impeccable, pas de rayure. Vendu avec adaptateur USB-C.
+    price: 22000
+    currency: MAD
+    city: Rabat
+
+  - category_slug: electronique
+    title: Samsung TV QLED 65" 4K 2023
+    body: |
+      Samsung QLED QE65Q80C, 65 pouces, 4K, 120 Hz.
+      HDR10+, Dolby Atmos, Smart TV Tizen, 4 HDMI.
+      Utilisé 3 mois, état neuf. Avec pied et télécommande.
+    price: 12500
+    currency: MAD
+    city: Marrakech
+
+  - category_slug: electronique
+    title: PlayStation 5 + 3 jeux — édition standard
+    body: |
+      PS5 édition standard avec lecteur disque, acheté en 2022.
+      Très bon état. Livrée avec 3 jeux : God of War Ragnarök, FIFA 24, Spider-Man 2.
+      Une manette DualSense supplémentaire incluse.
+    price: 7000
+    currency: MAD
+    city: Fès
+
+  - category_slug: electronique
+    title: Appareil photo Sony Alpha A7 III + objectif 28-70mm
+    body: |
+      Sony Alpha A7 III, boîtier plein format 24 MP.
+      Objectif kit 28-70mm f/3.5-5.6 inclus, 2 batteries, chargeur, sac.
+      Environ 8 000 déclenchements, état excellent.
+    price: 18000
+    currency: MAD
+    city: Casablanca
+
+  # Maison & Jardin
+  - category_slug: maison
+    title: Salon marocain complet 12 places — neuf
+    body: |
+      Salon marocain traditionnel, tissu velours bordeaux brodé or.
+      12 places assises, avec table basse en bois sculpté.
+      Fabrication artisanale de Fès. Livraison possible.
+    price: 9800
+    currency: MAD
+    city: Fès
+
+  - category_slug: maison
+    title: Réfrigérateur Samsung 580 L No Frost
+    body: |
+      Samsung RB38T776CS9, 580 litres, coloris inox brossé.
+      No Frost multi-flux, affichage digital, distributeur eau.
+      Acheté il y a 1 an, parfait état de fonctionnement.
+    price: 5500
+    currency: MAD
+    city: Casablanca
+
+  - category_slug: maison
+    title: Machine à coudre Singer promise 1512 — peu utilisée
+    body: |
+      Singer Promise 1512, 12 points de couture, pédale incluse.
+      Achetée en 2022, utilisée 5 fois. Boîte d'origine complète.
+      Idéale pour débutant ou couture occasionnelle.
+    price: 1200
+    currency: MAD
+    city: Rabat
+
+  - category_slug: maison
+    title: Table de jardin + 6 chaises en rotin synthétique
+    body: |
+      Ensemble table ronde 120 cm + 6 chaises, rotin synthétique blanc.
+      Résistant UV et intempéries. Coussins inclus.
+      2 saisons d'utilisation, très bon état.
+    price: 3200
+    currency: MAD
+    city: Agadir
+
+  # Mode
+  - category_slug: mode
+    title: Djellaba homme sur mesure — tissu cachemire
+    body: |
+      Djellaba homme taille L/XL, tissu cachemire gris anthracite.
+      Confectionnée par un tailleur de Fès, broderies main sur col et poignets.
+      Portée deux fois, état neuf.
+    price: 2200
+    currency: MAD
+    city: Fès
+
+  - category_slug: mode
+    title: Sac à main Zara cuir noir — neuf avec étiquette
+    body: |
+      Sac à main Zara en cuir synthétique noir, taille medium.
+      Acheté en boutique, jamais utilisé, étiquette présente.
+      Bandoulière amovible, fermeture magnétique.
+    price: 450
+    currency: MAD
+    city: Casablanca
+
+  - category_slug: mode
+    title: Lot 10 paires de chaussettes sport Nike — taille 42/46
+    body: |
+      10 paires de chaussettes Nike Dri-Fit, taille 42/46.
+      Toutes neuves sous emballage, modèles variés.
+      Idéal cadeau ou usage quotidien.
+    price: 350
+    currency: MAD
+    city: Casablanca
+
+  # Emploi
+  - category_slug: emploi
+    title: Recherche développeur React senior — CDI Casablanca
+    body: |
+      Startup fintech en forte croissance recherche développeur React senior (5 ans+ d'expérience).
+      Stack : React, TypeScript, Node.js, PostgreSQL.
+      Salaire : 18 000 – 25 000 MAD / mois selon profil.
+      Télétravail partiel possible. Envoyer CV à recrutement@example.ma
+    price: 0
+    currency: MAD
+    city: Casablanca
+
+  - category_slug: emploi
+    title: Comptable confirmé H/F — Marrakech
+    body: |
+      Cabinet comptable recherche comptable confirmé(e) avec minimum 3 ans d'expérience.
+      Maîtrise du logiciel Sage indispensable. Bac+3 minimum.
+      CDD 6 mois renouvelable. Salaire selon profil.
+    price: 0
+    currency: MAD
+    city: Marrakech

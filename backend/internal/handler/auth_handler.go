@@ -85,8 +85,7 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
             return
         }
         c.JSON(http.StatusCreated, gin.H{
-            "user":   user,
-            "tokens": tokens,
+            "data": gin.H{"user": user, "tokens": tokens},
         })
 
     case "login":
@@ -96,8 +95,7 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
             return
         }
         c.JSON(http.StatusOK, gin.H{
-            "user":   user,
-            "tokens": tokens,
+            "data": gin.H{"user": user, "tokens": tokens},
         })
 
     default:
@@ -129,8 +127,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, gin.H{
-        "user":   user,
-        "tokens": tokens,
+        "data": gin.H{"user": user, "tokens": tokens},
     })
 }
 
@@ -188,8 +185,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
     }
 
     c.JSON(http.StatusCreated, gin.H{
-        "user":   user,
-        "tokens": tokens,
+        "data": gin.H{"user": user, "tokens": tokens},
     })
 }
 

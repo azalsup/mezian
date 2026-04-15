@@ -1,309 +1,430 @@
 #!/usr/bin/env python3
+"""
+seed_test_ads.py — API-only seeder and integration smoke-test.
+
+Registers test users (or logs in if they already exist), then posts ads
+through the real backend REST endpoints.  Every HTTP call is recorded as a
+PASS / FAIL so the script doubles as a lightweight smoke-test suite.
+
+Usage:
+    python tools/seed_test_ads.py [options]
+
+Key options:
+    --base-url      Backend base URL          (default: http://localhost:3000)
+    --user-count    Number of test users       (default: 5)
+    --ads-per-user  Max ads per user           (default: all)
+    --ads-yaml      Ads data file              (default: tools/data/test_ads.yaml)
+    --admin-token   Admin Bearer token — used to auto-create categories when
+                    the database has none yet
+    --password      Password for all test users (default: TestPass123!)
+    --dry-run       Print the plan without making any requests
+"""
+
 import argparse
-import json
-import os
-import sqlite3
 import sys
-from datetime import datetime
+import textwrap
 from pathlib import Path
+
 import requests
 try:
     import yaml
 except ImportError:
-    import ruamel.yaml as yaml
+    print("ERROR: PyYAML is required.  Run: pip install pyyaml")
+    sys.exit(1)
 
+
+# ── Terminal colours ──────────────────────────────────────────────────────────
+
+def _supports_color() -> bool:
+    import os
+    return hasattr(sys.stdout, "isatty") and sys.stdout.isatty() and os.name != "nt"
+
+_COLOR = _supports_color()
+
+def _c(code: str, text: str) -> str:
+    return f"\033[{code}m{text}\033[0m" if _COLOR else text
+
+def green(t):  return _c("32", t)
+def red(t):    return _c("31", t)
+def yellow(t): return _c("33", t)
+def bold(t):   return _c("1",  t)
+def dim(t):    return _c("2",  t)
+
+
+# ── Test result tracker ───────────────────────────────────────────────────────
+
+class Results:
+    def __init__(self):
+        self._items: list[dict] = []
+
+    def record(self, label: str, passed: bool, detail: str = ""):
+        self._items.append({"label": label, "passed": passed, "detail": detail})
+        icon = green("PASS") if passed else red("FAIL")
+        line = f"  [{icon}] {label}"
+        if detail:
+            line += f"  {dim(detail)}"
+        print(line)
+
+    def summary(self):
+        total  = len(self._items)
+        passed = sum(1 for r in self._items if r["passed"])
+        failed = total - passed
+        print()
+        print(bold("── Summary " + "─" * 50))
+        print(f"  Total : {total}")
+        print(f"  {green('Passed')}: {passed}")
+        if failed:
+            print(f"  {red('Failed')}: {failed}")
+            print()
+            print(bold("Failed tests:"))
+            for r in self._items:
+                if not r["passed"]:
+                    print(f"  • {r['label']}  {dim(r['detail'])}")
+        print()
+        return failed == 0
+
+
+# ── HTTP client ───────────────────────────────────────────────────────────────
 
 class ApiClient:
-    def __init__(self, base_url: str, version:str="v1"):
-        self.base_url = base_url.rstrip('/')
-        self.api_url = self.base_url + "/api/{:s}".format(version)
-        self.session = requests.Session()
+    """Thin requests wrapper.  All calls return (ok: bool, body: dict|None)."""
 
-    def _make_base_request(self, method: str, endpoint: str, **kwargs):
-        url = f"{self.base_url}{endpoint}"
+    def __init__(self, base_url: str, version: str = "v1"):
+        self.base_url = base_url.rstrip("/")
+        self.api_url  = f"{self.base_url}/api/{version}"
+        self.session  = requests.Session()
+
+    # ── raw helpers ──────────────────────────────────────────────────────────
+
+    def _call(self, method: str, url: str, **kwargs) -> tuple[bool, dict | None]:
         try:
-            resp = self.session.request(method, url, **kwargs)
-            if resp.status_code >= 200 and resp.status_code < 300:
-                return "OK", resp.json() if resp.content else None
-            else:
-                warning = f"Request failed: {method} {endpoint} - {resp.status_code} {resp.text}"
-                print(f"WARNING: {warning}")
-                return "WARNING", None
-        except requests.RequestException as e:
-            warning = f"Request exception: {method} {endpoint} - {e}"
-            print(f"WARNING: {warning}")
-            return "WARNING", None
+            resp = self.session.request(method, url, timeout=15, **kwargs)
+        except requests.RequestException as exc:
+            return False, {"_error": str(exc)}
 
-    def _make_request(self, method: str, endpoint: str, **kwargs):
-        url = f"{self.api_url}{endpoint}"
         try:
-            resp = self.session.request(method, url, **kwargs)
-            if resp.status_code >= 200 and resp.status_code < 300:
-                return "OK", resp.json() if resp.content else None
-            else:
-                warning = f"Request failed: {method} {endpoint} - {resp.status_code} {resp.text}"
-                print(f"WARNING: {warning}")
-                return "WARNING", None
-        except requests.RequestException as e:
-            warning = f"Request exception: {method} {endpoint} - {e}"
-            print(f"WARNING: {warning}")
-            return "WARNING", None
+            body = resp.json() if resp.content else {}
+        except ValueError:
+            body = {"_raw": resp.text}
 
-    def get(self, endpoint: str, **kwargs):
-        return self._make_request("GET", endpoint, **kwargs)
+        ok = 200 <= resp.status_code < 300
+        if not ok:
+            body["_status"] = resp.status_code
+        return ok, body
 
-    def post(self, endpoint: str, **kwargs):
-        return self._make_request("POST", endpoint, **kwargs)
+    def _api(self, method: str, endpoint: str, **kwargs):
+        return self._call(method, f"{self.api_url}{endpoint}", **kwargs)
 
-    def put(self, endpoint: str, **kwargs):
-        return self._make_request("PUT", endpoint, **kwargs)
+    # ── public methods ───────────────────────────────────────────────────────
 
-    def delete(self, endpoint: str, **kwargs):
-        return self._make_request("DELETE", endpoint, **kwargs)
+    def get(self, endpoint: str, **kw):
+        return self._api("GET", endpoint, **kw)
 
-    def health_check(self):
-        # Health endpoint is at root URL, not /api/v1
-        root_url = self.base_url.replace('/api/v1', '')
-        url = f"{root_url}/health"
-        try:
-            resp = requests.get(url, timeout=10)
-            if resp and resp.status_code >= 200 and resp.status_code < 300:
-                print("Health check OK.")
-            else:
-                status = resp.status_code if resp else "unknown"
-                text = resp.text if resp else "no response"
-                print(f"ERROR: Health check failed: {status} {text}")
-                sys.exit(1)
-        except requests.RequestException as e:
-            print(f"ERROR: Health check request failed: {e}")
-            sys.exit(1)
+    def post(self, endpoint: str, **kw):
+        return self._api("POST", endpoint, **kw)
 
-    def register_user(self, data: dict):
-        status, resp = self.post("/auth/register", json=data, timeout=10)
-        if status != "OK":
-            print("ERROR: User registration failed. Interrupting.")
-            sys.exit(1)
-        return resp
+    def put(self, endpoint: str, **kw):
+        return self._api("PUT", endpoint, **kw)
 
-    def login_user(self, data: dict):
-        status, resp = self.post("/auth/login", json=data, timeout=10)
-        if status != "OK":
-            print("ERROR: User login failed. Interrupting.")
-            sys.exit(1)
-        return resp
+    def delete(self, endpoint: str, **kw):
+        return self._api("DELETE", endpoint, **kw)
 
-    def create_ad(self, token: str, data: dict):
-        headers = {"Authorization": f"Bearer {token}"}
-        status, resp = self.post("/ads", json=data, headers=headers)
-        if status != "OK":
-            print(f"WARNING: Failed to create ad '{data.get('title', 'Unknown')}'")
-        return status == "OK"
+    def auth_headers(self, token: str) -> dict:
+        return {"Authorization": f"Bearer {token}"}
 
+    # ── health ───────────────────────────────────────────────────────────────
+
+    def health_check(self, results: Results) -> bool:
+        ok, body = self._call("GET", f"{self.base_url}/health")
+        results.record("GET /health", ok, body.get("_error", ""))
+        return ok
+
+
+# ── Auth helpers ──────────────────────────────────────────────────────────────
+
+def _unwrap_auth(body: dict) -> dict | None:
+    """Return the inner {user, tokens} dict from a { data: {…} } response."""
+    return body.get("data")
+
+
+def register_or_login(client: ApiClient, results: Results,
+                      phone: str, display_name: str, password: str,
+                      country: str = "MA") -> str | None:
+    """
+    Try to log in.  If the account doesn't exist yet, register it first.
+    Returns the access token on success, None on failure.
+    """
+    login_data = {"identifier": phone, "password": password}
+    ok, body = client.post("/auth/login", json=login_data)
+    if ok:
+        auth = _unwrap_auth(body)
+        if auth and auth.get("tokens", {}).get("access_token"):
+            results.record(f"POST /auth/login ({display_name})", True, "existing user")
+            return auth["tokens"]["access_token"]
+
+    # Not found — register
+    reg_data = {
+        "phone":        phone,
+        "password":     password,
+        "display_name": display_name,
+        "country":      country,
+    }
+    ok, body = client.post("/auth/register", json=reg_data)
+    if not ok:
+        err = body.get("error") or body.get("_raw") or str(body)
+        results.record(f"POST /auth/register ({display_name})", False, err)
+        return None
+    auth = _unwrap_auth(body)
+    if not auth or not auth.get("tokens", {}).get("access_token"):
+        results.record(
+            f"POST /auth/register ({display_name})", False,
+            f"unexpected response shape: {body}"
+        )
+        return None
+    results.record(f"POST /auth/register ({display_name})", True, "new user")
+
+    # Verify we can log in right after registering
+    ok2, body2 = client.post("/auth/login", json=login_data)
+    auth2 = _unwrap_auth(body2) if ok2 else None
+    token = auth2["tokens"]["access_token"] if auth2 else auth["tokens"]["access_token"]
+    results.record(f"POST /auth/login ({display_name})", ok2, "post-register login")
+    return token
+
+
+def fetch_me(client: ApiClient, results: Results, token: str, label: str) -> dict | None:
+    ok, body = client.get("/auth/me", headers=client.auth_headers(token))
+    user = body.get("data") if ok else None
+    results.record(f"GET /auth/me ({label})", ok and user is not None,
+                   f"user_id={user.get('ID')} display={user.get('display_name')}" if user else str(body))
+    return user
+
+
+# ── Category helpers ──────────────────────────────────────────────────────────
+
+def fetch_categories(client: ApiClient, results: Results) -> dict[str, int]:
+    """Return {slug: id} for all active categories."""
+    ok, body = client.get("/categories")
+    cats = body.get("data", []) if ok else []
+    results.record("GET /categories", ok, f"{len(cats)} categories returned")
+
+    slug_to_id: dict[str, int] = {}
+    def _recurse(items):
+        for c in items:
+            slug_to_id[c["slug"]] = c["ID"]
+            if c.get("children"):
+                _recurse(c["children"])
+    _recurse(cats)
+    return slug_to_id
+
+
+def ensure_categories_via_admin(
+    client: ApiClient,
+    results: Results,
+    admin_token: str,
+    categories: list[dict],
+) -> dict[str, int]:
+    """Create missing categories using the admin endpoint, return slug->id map."""
+    slug_to_id: dict[str, int] = {}
+    headers = client.auth_headers(admin_token)
+    for cat in categories:
+        ok, body = client.post("/admin/categories", json=cat, headers=headers)
+        cat_id = body.get("ID") if ok else None
+        label  = f"POST /admin/categories ({cat['slug']})"
+        results.record(label, ok and cat_id is not None,
+                       f"id={cat_id}" if cat_id else str(body))
+        if cat_id:
+            slug_to_id[cat["slug"]] = cat_id
+    return slug_to_id
+
+
+# ── Ad helpers ────────────────────────────────────────────────────────────────
+
+def create_ad(client: ApiClient, results: Results,
+              token: str, ad: dict, category_id: int) -> bool:
+    """POST /ads with multipart/form-data (as the backend requires)."""
+    data = {
+        "category_id": str(category_id),
+        "title":       ad["title"],
+        "body":        ad.get("body", ""),
+        "city":        ad.get("city", "Casablanca"),
+        "currency":    ad.get("currency", "MAD"),
+    }
+    if ad.get("price") is not None:
+        data["price"] = str(ad["price"])
+
+    ok, body = client.post("/ads", data=data, headers=client.auth_headers(token))
+    ad_slug = body.get("data", {}).get("slug", "") if ok else ""
+    results.record(
+        f"POST /ads \"{ad['title'][:40]}\"",
+        ok,
+        f"slug={ad_slug}" if ok else (body.get("error") or str(body)),
+    )
+    return ok
+
+
+def verify_ads_listed(client: ApiClient, results: Results,
+                      category_slug: str, expected_min: int):
+    """GET /ads?cat=<slug> and assert at least expected_min results."""
+    ok, body = client.get(f"/ads?cat={category_slug}&limit=100")
+    total = body.get("total", 0) if ok else 0
+    passed = ok and total >= expected_min
+    results.record(
+        f"GET /ads?cat={category_slug}",
+        passed,
+        f"total={total} (expected >= {expected_min})",
+    )
+
+
+# ── Data loading ──────────────────────────────────────────────────────────────
+
+def load_yaml(path: Path) -> dict:
+    if not path.exists():
+        print(red(f"ERROR: file not found: {path}"))
+        sys.exit(1)
+    with path.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Seed backend with test users and ads using API."
+    p = argparse.ArgumentParser(
+        description=textwrap.dedent("""\
+            Seed the backend with realistic test data via REST API.
+            Also validates every endpoint it touches (PASS / FAIL).
+        """),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument(
-        "--config",
-        default="backend/config/config.yaml",
-        help="Path to backend config file (YAML or JSON).",
-    )
-    parser.add_argument(
-        "--user-count",
-        type=int,
-        default=10,
-        help="Number of test users to create.",
-    )
-    parser.add_argument(
-        "--ads-yaml",
-        default="tools/data/test_ads.yaml",
-        help="Path to YAML file with list of ads data.",
-    )
-    parser.add_argument(
-        "--category-slug",
-        default="test-category",
-        help="Category slug to create or reuse for test ads.",
-    )
-    return parser.parse_args()
+    p.add_argument("--base-url",    default="http://localhost:3000",
+                   help="Backend base URL (default: http://localhost:3000)")
+    p.add_argument("--user-count",  type=int, default=5,
+                   help="Number of test users to create (default: 5)")
+    p.add_argument("--ads-per-user", type=int, default=0,
+                   help="Max ads per user; 0 = all ads in YAML (default: 0)")
+    p.add_argument("--ads-yaml",    default="tools/data/test_ads.yaml",
+                   help="Path to ads YAML (default: tools/data/test_ads.yaml)")
+    p.add_argument("--admin-token", default="",
+                   help="Admin Bearer token (needed to auto-create categories)")
+    p.add_argument("--password",    default="TestPass123!",
+                   help="Password for all test users (default: TestPass123!)")
+    p.add_argument("--dry-run",     action="store_true",
+                   help="Print plan without making requests")
+    return p.parse_args()
 
 
-def load_config(path: Path):
-    if not path.exists():
-        raise FileNotFoundError(f"Config file not found: {path}")
-
-    if path.suffix.lower() in (".yaml", ".yml"):
-        return load_yaml_config(path)
-    if path.suffix.lower() == ".json":
-        return load_json_config(path)
-
-    # Try JSON first, then YAML-like fallback.
-    try:
-        return load_json_config(path)
-    except ValueError:
-        return load_yaml_config(path)
-
-
-def load_json_config(path: Path):
-    with path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    if "database" not in data or "path" not in data["database"]:
-        raise ValueError("Missing database.path in JSON config")
-    return data
-
-
-def load_yaml_config(path: Path):
-    try:
-        import yaml
-    except ImportError:
-        return parse_yaml_without_pyyaml(path)
-
-    with path.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-    if not isinstance(data, dict) or "database" not in data or "path" not in data["database"]:
-        raise ValueError("Missing database.path in YAML config")
-    return data
-
-
-def parse_yaml_without_pyyaml(path: Path):
-    data = {}
-    current_section = None
-    with path.open("r", encoding="utf-8") as f:
-        for raw_line in f:
-            line = raw_line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if line.endswith(":"):
-                current_section = line[:-1].strip()
-                data[current_section] = {}
-                continue
-            if ":" not in line:
-                continue
-            key, value = [part.strip() for part in line.split(":", 1)]
-            if current_section and key and current_section not in data:
-                data[current_section] = {}
-            if current_section and current_section in data:
-                data[current_section][key] = strip_quotes(value)
-            else:
-                data[key] = strip_quotes(value)
-    if "database" not in data or "path" not in data["database"]:
-        raise ValueError("Missing database.path in YAML config")
-    return data
-
-
-def strip_quotes(value: str):
-    if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-        return value[1:-1]
-    return value
-
-
-def load_ads_yaml(path: Path):
-    if not path.exists():
-        raise FileNotFoundError(f"Ads YAML file not found: {path}")
-    with path.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-    return data.get("ads", [])
-
-
-def make_db_path(config_data, config_path: Path) -> Path:
-    db_path = config_data["database"]["path"]
-    db_path = str(db_path)
-    candidate = Path(db_path)
-    if not candidate.is_absolute():
-        candidate = (config_path.parent.parent / candidate).resolve()
-    return candidate
-
-
-def ensure_category(cursor, slug: str):
-    cursor.execute("SELECT id FROM categories WHERE slug = ? LIMIT 1", (slug,))
-    row = cursor.fetchone()
-    if row:
-        return row[0]
-
-    now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-    cursor.execute(
-        "INSERT INTO categories (slug, name_fr, name_ar, name_en, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, 1, ?, ?)",
-        (slug, "Catégorie de test", "فئة اختبار", "Test category", now, now),
-    )
-    return cursor.lastrowid
-
-
-
-
-
-
-
+# ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    args = parse_args()
+    args    = parse_args()
+    results = Results()
     repo_root = Path(__file__).resolve().parent.parent
-    config_path = (repo_root / args.config).resolve() if not Path(args.config).is_absolute() else Path(args.config)
-    ads_yaml_path = (repo_root / args.ads_yaml).resolve() if not Path(args.ads_yaml).is_absolute() else Path(args.ads_yaml)
 
-    config_data = load_config(config_path)
+    ads_yaml_path = (
+        Path(args.ads_yaml) if Path(args.ads_yaml).is_absolute()
+        else (repo_root / args.ads_yaml).resolve()
+    )
 
-    ads_data = load_ads_yaml(ads_yaml_path)
+    print(bold("\n── Mezian API seeder / smoke-test ───────────────────────────────"))
+    print(f"  Base URL  : {args.base_url}")
+    print(f"  Users     : {args.user_count}")
+    print(f"  Ads YAML  : {ads_yaml_path}")
+    print(f"  Dry run   : {args.dry_run}")
+    print()
+
+    raw = load_yaml(ads_yaml_path)
+    ads_data: list[dict]           = raw.get("ads", [])
+    seed_categories: list[dict]    = raw.get("categories", [])
+
     if not ads_data:
-        print("No ads data found in YAML")
+        print(red("ERROR: no ads found in YAML file"))
         sys.exit(1)
 
-    print(f"Using config: {config_path}")
-    print(f"Using ads YAML: {ads_yaml_path}")
+    ads_slice = ads_data if args.ads_per_user == 0 else ads_data[:args.ads_per_user]
 
-    # Now use API to register users and create ads
-    base_url = "http://localhost:3000"
-    client = ApiClient(base_url)
-    client.health_check()
+    if args.dry_run:
+        print(yellow("DRY RUN — no requests will be made"))
+        print(f"  Would register/login {args.user_count} users")
+        print(f"  Would post {len(ads_slice)} ads per user")
+        print(f"  Total ads: {args.user_count * len(ads_slice)}")
+        sys.exit(0)
 
-    password = "TestPass123!"
-    total_created = 0
-    category_id = 1  # Assume category ID 1 exists
+    client = ApiClient(args.base_url)
+
+    # ── 1. Health check ───────────────────────────────────────────────────────
+    print(bold("── Health ───────────────────────────────────────────────────────"))
+    if not client.health_check(results):
+        print(red("\nBackend is unreachable — aborting."))
+        sys.exit(1)
+    print()
+
+    # ── 2. Resolve categories ─────────────────────────────────────────────────
+    print(bold("── Categories ───────────────────────────────────────────────────"))
+    slug_to_id = fetch_categories(client, results)
+
+    if not slug_to_id and seed_categories and args.admin_token:
+        print(yellow("  No categories found — creating via admin token…"))
+        slug_to_id = ensure_categories_via_admin(
+            client, results, args.admin_token, seed_categories
+        )
+    elif not slug_to_id:
+        print(yellow(
+            "  WARNING: no categories in the database.\n"
+            "  Pass --admin-token to auto-create them, or seed categories manually.\n"
+            "  Ads will be skipped if their category_slug cannot be resolved."
+        ))
+    print()
+
+    # ── 3. Register/login users and post ads ──────────────────────────────────
+    total_ads_created = 0
 
     for i in range(1, args.user_count + 1):
-        user_id = f"tester{i}"
-        phone = f"+2129000000{i:02d}"  # +212600000001 to 010
-        display_name = f"Tester {i}"
+        phone        = f"+2126{i:08d}"
+        display_name = f"Testeur {i}"
 
-        # Try to login first
-        login_data = {"identifier": phone, "password": password}
-        status, login_resp = client.post("/auth/login", json=login_data, timeout=10)
-        if status == "OK":
-            token = login_resp["access_token"]
-            print(f"Login successful for existing user {user_id}")
-        else:
-            # Login failed, register new user
-            register_data = {
-                "phone": phone,
-                "password": password,
-                "display_name": display_name,
-                "country": "MA"
-            }
-            client.register_user(register_data)
-            print(f"Registered new user {user_id}")
+        print(bold(f"── User {i}/{args.user_count}: {display_name} ({phone}) ───"))
 
-            # Now login
-            login_resp = client.login_user(login_data)
-            token = login_resp["access_token"]
-            print(f"Login successful for {user_id}")
+        token = register_or_login(
+            client, results, phone, display_name, args.password
+        )
+        if not token:
+            print(red(f"  Could not obtain token for {display_name} — skipping ads"))
+            print()
+            continue
 
-        # Create ads for this user
-        created = 0
-        for ad in ads_data:
-            ad_data = {
-                "category_id": category_id,
-                "title": ad["title"],
-                "body": ad["body"],
-                "price": ad.get("price"),
-                "currency": ad.get("currency", "MAD"),
-                "city": ad.get("city", "Casablanca"),
-                "status": ad.get("status", "active")
-            }
-            if client.create_ad(token, ad_data):
-                created += 1
-        total_created += created
-        print(f"Created {created} ads for {user_id}")
+        # Verify /auth/me works with this token
+        fetch_me(client, results, token, display_name)
 
-    print(f"Total ads created: {total_created} for {args.user_count} users.")
+        # Post ads
+        user_ads_created = 0
+        for ad in ads_slice:
+            cat_slug = ad.get("category_slug", "")
+            cat_id   = slug_to_id.get(cat_slug)
+            if cat_id is None:
+                results.record(
+                    f"POST /ads \"{ad['title'][:40]}\"", False,
+                    f"category_slug '{cat_slug}' not found in DB — skipped"
+                )
+                continue
+            if create_ad(client, results, token, ad, cat_id):
+                user_ads_created += 1
+
+        total_ads_created += user_ads_created
+        print(dim(f"  → {user_ads_created} ad(s) created for {display_name}"))
+        print()
+
+    # ── 4. Verify listings per category ──────────────────────────────────────
+    if slug_to_id and total_ads_created > 0:
+        print(bold("── Listing verification ─────────────────────────────────────────"))
+        # Check each slug that was actually used in the seed data
+        used_slugs = {ad.get("category_slug") for ad in ads_slice if ad.get("category_slug") in slug_to_id}
+        for slug in sorted(used_slugs):
+            verify_ads_listed(client, results, slug, expected_min=1)
+        print()
+
+    # ── 5. Summary ────────────────────────────────────────────────────────────
+    print(f"  Total ads posted: {bold(str(total_ads_created))}")
+    all_passed = results.summary()
+    sys.exit(0 if all_passed else 1)
 
 
 if __name__ == "__main__":

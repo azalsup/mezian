@@ -22,15 +22,15 @@ export class AuthApi {
   }
 
   verifyOtp(phone: string, code: string): Observable<AuthResponse> {
-    return this.api.post('/auth/verify-otp', { phone, code, purpose: 'login' });
+    return this.api.post<{ data: AuthResponse }>('/auth/verify-otp', { phone, code, purpose: 'login' }).pipe(map(r => r.data));
   }
 
   login(identifier: string, password: string): Observable<AuthResponse> {
-    return this.api.post('/auth/login', { identifier, password });
+    return this.api.post<{ data: AuthResponse }>('/auth/login', { identifier, password }).pipe(map(r => r.data));
   }
 
   register(payload: RegisterPayload): Observable<AuthResponse> {
-    return this.api.post('/auth/register', payload);
+    return this.api.post<{ data: AuthResponse }>('/auth/register', payload).pipe(map(r => r.data));
   }
 
   /** Invalidates the refresh token on the server. */
